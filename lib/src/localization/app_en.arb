@@ -1,0 +1,6 @@
+{
+  "appTitle": "youtube_podcast",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
