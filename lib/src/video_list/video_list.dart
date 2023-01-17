@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'video_item.dart';
 
 class VideoList extends StatelessWidget {
-  const VideoList({super.key, required this.items, required this.onVideoSelected});
+  const VideoList(
+      {super.key, required this.items, required this.onVideoSelected});
   final Function(VideoItem) onVideoSelected;
 
   final List<VideoItem> items;
@@ -22,7 +23,8 @@ class VideoList extends StatelessWidget {
           title: Text(item.title),
           leading: CircleAvatar(
             // TODO: Load thumbnail.
-            foregroundImage: NetworkImage(item.thumbnailUrl),// AssetImage('assets/images/flutter_logo.png'),
+            foregroundImage: NetworkImage(item
+                .thumbnailUrl), // AssetImage('assets/images/flutter_logo.png'),
           ),
           onTap: () => onVideoSelected(item),
         );

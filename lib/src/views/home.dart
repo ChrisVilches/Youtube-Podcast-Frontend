@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_podcast/src/search_bar/video_search.dart';
+import '../search_bar/video_search.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
-  static const String _title = 'Flutter Code Sample';
+  static const String _title = 'Youtube Podcast';
 
   @override
   Widget build(BuildContext context) {
