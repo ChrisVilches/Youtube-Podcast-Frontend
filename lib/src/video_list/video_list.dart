@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import '../models/video_item.dart';
+import '../models/video_item_partial.dart';
 
 class VideoList extends StatelessWidget {
-  const VideoList(
-      {super.key, required this.items, required this.onVideoSelected});
-  final Function(VideoItem) onVideoSelected;
+  const VideoList({
+    super.key,
+    required this.items,
+    required this.onVideoSelected,
+  });
+  final Function(VideoItemPartial) onVideoSelected;
 
-  final List<VideoItem> items;
+  final List<VideoItemPartial> items;
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +17,7 @@ class VideoList extends StatelessWidget {
       restorationId: 'VideoList',
       itemCount: items.length,
       itemBuilder: (BuildContext context, int index) {
-        final VideoItem item = items[index];
+        final VideoItemPartial item = items[index];
 
         return ListTile(
           title: Text(item.title),

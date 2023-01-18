@@ -1,12 +1,43 @@
-/**
- * TODO: Create a widget that receives a playlist object.
- * It shows the title, and favorite buttons.
- * When the favorite buttons are pressed and the final data changes,
- * it must trigger a callback to the parent.
- * 
- * Then, the favorite playlist count must be updated on the parent, because it
- * has to be changed to a "state" (that's the only way to trigger an update).
- * 
- * It could simply be a stateless widget and then pass the "isFavorite" from above.
- * In that case, the parent should keep the full list of favorites (in order to get the specific IDs). 
- */
+import 'package:flutter/material.dart';
+import 'package:like_button/like_button.dart';
+import '../models/favorite_playlist.dart';
+import '../models/playlist.dart';
+import '../services/playlist_favorite.dart';
+
+class PlaylistInfo extends StatelessWidget {
+  const PlaylistInfo({
+    super.key,
+    required this.playlist,
+    required this.favorited,
+    required this.onFavoritePlaylistsChange,
+  });
+
+  final Playlist playlist;
+  final bool favorited;
+  final Function(List<FavoritePlaylist>, bool) onFavoritePlaylistsChange;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Text(playlist.title),
+        LikeButton(
+          isLiked: favorited,
+          onTap: (bool isFavorite) async {
+            final PlaylistFavoriteService serv = PlaylistFavoriteService();
+
+            if (isFavorite) {
+              await serv.remove(playlist.id);
+            } else {
+              await serv.favorite(playlist.title, playlist.id);
+            }
+
+            onFavoritePlaylistsChange(await serv.getAll(), favorited);
+
+            return true;
+          },
+        ),
+      ],
+    );
+  }
+}
