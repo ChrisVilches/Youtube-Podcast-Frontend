@@ -41,9 +41,9 @@ Future<Playlist> getVideosFromPlaylist(String id) async {
   return playlist;
 }
 
-Future<void> getTranscriptionContent(String videoId, String lang) async {
+Future<String> getTranscriptionContent(String videoId, String lang) async {
   final Response res = await get(uri('transcriptions?v=$videoId&lang=$lang'));
-  print(res.body);
+  return res.body;
 }
 
 Future<void> downloadVideo(VideoItemPartial item) async {
