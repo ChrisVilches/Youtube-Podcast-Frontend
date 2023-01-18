@@ -46,12 +46,8 @@ class TranscriptionMenu extends StatelessWidget {
       value: controller.selectedLanguage,
       icon: const Icon(Icons.arrow_downward),
       elevation: 16,
-      onChanged: (String? lang) async {
+      onChanged: (String? lang) {
         controller.selectedLanguage = lang;
-
-        if (lang != null) {
-          await controller.fetchTranscription(lang);
-        }
       },
       items: _transcriptionOptions(),
     );

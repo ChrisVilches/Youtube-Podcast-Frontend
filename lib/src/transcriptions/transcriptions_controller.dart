@@ -12,23 +12,34 @@ import '../util/sleep.dart';
 class TranscriptionsController extends ChangeNotifier {
   TranscriptionsController(this.video) {
     if (video.transcriptions.isNotEmpty) {
-      selectedLanguage = video.transcriptions.first.lang;
-      fetchTranscription(selectedLanguage!);
+      _selectedLanguage = video.transcriptions.first.lang;
+      _fetchTranscription();
     }
   }
 
   final VideoItem video;
-  String? selectedLanguage;
+  String? _selectedLanguage;
+
+  String? get selectedLanguage => _selectedLanguage;
+
+  set selectedLanguage(String? newLang) {
+    if (_selectedLanguage != newLang && _selectedLanguage != null) {
+      _selectedLanguage = newLang;
+      notifyListeners();
+      _fetchTranscription();
+    }
+  }
+
   String result = '';
   bool loading = false;
 
-  Future<void> fetchTranscription(String lang) async {
+  Future<void> _fetchTranscription() async {
     loading = true;
     notifyListeners();
 
     // TODO: Debug only (REMOVE)
     await sleep1();
-    result = await getTranscriptionContent(video.videoId, lang);
+    result = await getTranscriptionContent(video.videoId, _selectedLanguage!);
     loading = false;
     notifyListeners();
   }
