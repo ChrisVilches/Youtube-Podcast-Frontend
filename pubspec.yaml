@@ -1,5 +1,5 @@
 name: youtube_podcast
-description: A new Flutter project.
+description: Youtube Podcast.
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
@@ -16,6 +16,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   http: ^0.13.5
+  shared_preferences: ^2.0.16
   url_launcher: ^6.1.7
 
 dev_dependencies:

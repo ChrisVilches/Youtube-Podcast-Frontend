@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'video_item.dart';
+import '../models/video_item.dart';
 
 class VideoList extends StatelessWidget {
   const VideoList(
@@ -11,20 +11,15 @@ class VideoList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      // Providing a restorationId allows the ListView to restore the
-      // scroll position when a user leaves and returns to the app after it
-      // has been killed while running in the background.
       restorationId: 'VideoList',
       itemCount: items.length,
       itemBuilder: (BuildContext context, int index) {
-        final item = items[index];
+        final VideoItem item = items[index];
 
         return ListTile(
           title: Text(item.title),
           leading: CircleAvatar(
-            // TODO: Load thumbnail.
-            foregroundImage: NetworkImage(item
-                .thumbnailUrl), // AssetImage('assets/images/flutter_logo.png'),
+            foregroundImage: NetworkImage(item.thumbnails[0].url),
           ),
           onTap: () => onVideoSelected(item),
         );
