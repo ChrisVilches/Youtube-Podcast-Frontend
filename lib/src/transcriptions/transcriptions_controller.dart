@@ -32,6 +32,7 @@ class TranscriptionsController extends ChangeNotifier {
 
   String result = '';
   bool loading = false;
+  String? error;
 
   Future<void> _fetchTranscription() async {
     loading = true;
@@ -39,7 +40,13 @@ class TranscriptionsController extends ChangeNotifier {
 
     // TODO: Debug only (REMOVE)
     await sleep1();
-    result = await getTranscriptionContent(video.videoId, _selectedLanguage!);
+    try {
+      error = null;
+      result = await getTranscriptionContent(video.videoId, _selectedLanguage!);
+    } catch (e) {
+      error = e.toString();
+    }
+
     loading = false;
     notifyListeners();
   }

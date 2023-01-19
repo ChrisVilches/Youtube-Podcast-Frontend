@@ -92,20 +92,19 @@ class _VideoSearchState extends State<VideoSearch> {
 
   Future<void> _tryDownloadSelectedVideo() async {
     final String videoId = selectedVideoItem!.videoId;
-    final String message = await prepareVideo(videoId);
+    final DownloadResponse response = await prepareVideo(videoId);
 
     setState(() {
       responseDisplay = '';
     });
 
-    // TODO: This is a bit hacky. Should use codes coming from the API like status: "PREPARED|PROGRESS", etc
-    if (message.contains('already prepared')) {
+    if (response.canDownload) {
       await downloadVideo(selectedVideoItem!);
       return;
     }
 
     setState(() {
-      responseDisplay = message;
+      responseDisplay = 'Progress ${response.progress}%';
     });
   }
 

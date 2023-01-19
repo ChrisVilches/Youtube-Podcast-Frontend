@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/transcription_metadata.dart';
 import 'transcriptions_controller.dart';
 
@@ -16,15 +17,12 @@ import 'transcriptions_controller.dart';
 //       OK, I think the above is done.
 
 class TranscriptionMenu extends StatelessWidget {
-  const TranscriptionMenu({
-    super.key,
-    required this.controller,
-  });
+  const TranscriptionMenu({super.key});
 
-  final TranscriptionsController controller;
-
-  List<DropdownMenuItem<String>> _transcriptionOptions() {
-    return controller.video.transcriptions
+  List<DropdownMenuItem<String>> _transcriptionOptions(
+    List<TranscriptionMetadata> transcriptions,
+  ) {
+    return transcriptions
         .map<DropdownMenuItem<String>>(
           (TranscriptionMetadata value) => DropdownMenuItem<String>(
             value: value.lang,
@@ -36,20 +34,28 @@ class TranscriptionMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Note that this is part of the menu. It should be like a disabled dropdown menu.
-    //       Although anything works.
-    if (controller.video.transcriptions.isEmpty) {
-      return const Text('No transcriptions available');
-    }
+    return Consumer<TranscriptionsController>(
+      builder: (
+        BuildContext context,
+        TranscriptionsController ctrl,
+        _,
+      ) {
+        // TODO: Note that this is part of the menu. It should be like a disabled dropdown menu.
+        //       Although anything works.
+        if (ctrl.video.transcriptions.isEmpty) {
+          return const Text('No transcriptions available');
+        }
 
-    return DropdownButton<String>(
-      value: controller.selectedLanguage,
-      icon: const Icon(Icons.arrow_downward),
-      elevation: 16,
-      onChanged: (String? lang) {
-        controller.selectedLanguage = lang;
+        return DropdownButton<String>(
+          value: ctrl.selectedLanguage,
+          icon: const Icon(Icons.arrow_downward),
+          elevation: 16,
+          onChanged: (String? lang) {
+            ctrl.selectedLanguage = lang;
+          },
+          items: _transcriptionOptions(ctrl.video.transcriptions),
+        );
       },
-      items: _transcriptionOptions(),
     );
   }
 }

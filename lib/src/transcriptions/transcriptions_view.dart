@@ -35,9 +35,7 @@ class TranscriptionView extends StatelessWidget {
                         TranscriptionsController ctrl,
                         _,
                       ) =>
-                          TranscriptionMenu(
-                        controller: ctrl,
-                      ),
+                          const TranscriptionMenu(),
                     ),
                   ),
                   SingleChildScrollView(
@@ -46,10 +44,15 @@ class TranscriptionView extends StatelessWidget {
                         BuildContext context,
                         TranscriptionsController ctrl,
                         _,
-                      ) =>
-                          Text(
-                        ctrl.loading ? 'Loading transcription...' : ctrl.result,
-                      ),
+                      ) {
+                        if (ctrl.loading) {
+                          return const Text('Loading transcription...');
+                        } else if (ctrl.error != null) {
+                          return Text(ctrl.error!);
+                        } else {
+                          return Text(ctrl.result);
+                        }
+                      },
                     ),
                   ),
                 ],
