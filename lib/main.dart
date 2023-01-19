@@ -13,12 +13,12 @@ void main() async {
         kReleaseMode ? 'assets/.env.production' : 'assets/.env.development',
   );
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  await setUpLocator(navigatorKey);
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
   final SettingsController ctrl = SettingsController(SettingsService());
   await ctrl.loadSettings();
-  setUpLocator(navigatorKey);
 
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.

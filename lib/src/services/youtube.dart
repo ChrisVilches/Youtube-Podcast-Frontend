@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/playlist.dart';
+import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import 'api_uri.dart';
@@ -46,14 +47,19 @@ Future<Playlist> getVideosFromPlaylist(String id) async {
   return playlist;
 }
 
-Future<String> getTranscriptionContent(String videoId, String lang) async {
+Future<List<TranscriptionEntry>> getTranscriptionContent(
+    String videoId, String lang) async {
   final Response res =
       await get(uri('transcriptions?v=$videoId&lang=$lang'), headers: headers);
 
   // TODO: This should be applied to all other API calls.
   final Map<String, dynamic> body = toJson(res);
 
-  return body['result'] as String;
+  print(body['transcription']);
+
+  return (body['transcription'] as List<dynamic>)
+      .map((dynamic o) => TranscriptionEntry.from(o as Map<String, dynamic>))
+      .toList();
 }
 
 Future<void> downloadVideo(VideoItemPartial item) async {

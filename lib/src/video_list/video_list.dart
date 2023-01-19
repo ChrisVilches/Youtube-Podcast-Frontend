@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/video_item_partial.dart';
+import '../search_bar/video_detail.dart';
 
 class VideoList extends StatelessWidget {
   const VideoList({
     super.key,
     required this.items,
-    required this.onVideoSelected,
+    required this.onDownloadPress,
   });
-  final Function(VideoItemPartial) onVideoSelected;
+  final Function(VideoItemPartial) onDownloadPress;
 
   final List<VideoItemPartial> items;
 
@@ -19,12 +20,9 @@ class VideoList extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         final VideoItemPartial item = items[index];
 
-        return ListTile(
-          title: Text(item.title),
-          leading: CircleAvatar(
-            foregroundImage: NetworkImage(item.thumbnails[0].url),
-          ),
-          onTap: () => onVideoSelected(item),
+        return VideoDetail(
+          item: item,
+          onDownloadPress: () => onDownloadPress(item),
         );
       },
     );

@@ -22,8 +22,7 @@ class VideoDetail extends StatelessWidget {
           children: <Widget>[
             ListTile(
               leading: CircleAvatar(
-                // TODO: Make the image larger. Maybe use a custom list tile container.
-                foregroundImage: NetworkImage(item.thumbnails.last.url),
+                foregroundImage: NetworkImage(item.thumbnails.first.url),
               ),
               title: Text(item.title),
               subtitle: Text(item.videoId),

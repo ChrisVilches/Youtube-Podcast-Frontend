@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
 import '../services/youtube.dart';
 import '../util/sleep.dart';
@@ -30,7 +31,7 @@ class TranscriptionsController extends ChangeNotifier {
     }
   }
 
-  String result = '';
+  List<TranscriptionEntry> result = List<TranscriptionEntry>.empty();
   bool loading = false;
   String? error;
 

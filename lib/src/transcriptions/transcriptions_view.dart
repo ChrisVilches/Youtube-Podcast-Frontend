@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:youtube_podcast/src/transcriptions/transcriptions_list.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../services/youtube.dart';
@@ -50,7 +51,7 @@ class TranscriptionView extends StatelessWidget {
                         } else if (ctrl.error != null) {
                           return Text(ctrl.error!);
                         } else {
-                          return Text(ctrl.result);
+                          return TranscriptionsList(transcription: ctrl.result);
                         }
                       },
                     ),

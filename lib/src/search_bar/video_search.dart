@@ -10,7 +10,6 @@ import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
 import '../video_list/video_list.dart';
 import 'playlist_info.dart';
-import 'video_detail.dart';
 
 class VideoSearch extends StatefulWidget {
   const VideoSearch({super.key});
@@ -32,7 +31,6 @@ class _VideoSearchState extends State<VideoSearch> {
   Playlist? currentPlaylist;
 
   List<VideoItemPartial> videoItems = List<VideoItemPartial>.empty();
-  VideoItemPartial? selectedVideoItem;
 
   List<FavoritePlaylist> favoritedPlaylists = List<FavoritePlaylist>.empty();
 
@@ -65,7 +63,6 @@ class _VideoSearchState extends State<VideoSearch> {
     setState(() {
       currentPlaylist = null;
       videoItems = items;
-      selectedVideoItem = items.isEmpty ? null : items[0];
     });
   }
 
@@ -74,7 +71,6 @@ class _VideoSearchState extends State<VideoSearch> {
     setState(() {
       currentPlaylist = playlist;
       videoItems = playlist.items;
-      selectedVideoItem = null;
     });
   }
 
@@ -90,8 +86,8 @@ class _VideoSearchState extends State<VideoSearch> {
     return uri.queryParameters['list'];
   }
 
-  Future<void> _tryDownloadSelectedVideo() async {
-    final String videoId = selectedVideoItem!.videoId;
+  Future<void> _tryDownloadSelectedVideo(VideoItemPartial item) async {
+    final String videoId = item.videoId;
     final DownloadResponse response = await prepareVideo(videoId);
 
     setState(() {
@@ -99,7 +95,7 @@ class _VideoSearchState extends State<VideoSearch> {
     });
 
     if (response.canDownload) {
-      await downloadVideo(selectedVideoItem!);
+      await downloadVideo(item);
       return;
     }
 
@@ -161,13 +157,6 @@ class _VideoSearchState extends State<VideoSearch> {
             ),
           ),
           Text('Fav playlist count ${favoritedPlaylists.length}'),
-          if (selectedVideoItem == null)
-            const Text('Select a video from the list'),
-          if (selectedVideoItem != null)
-            VideoDetail(
-              item: selectedVideoItem!,
-              onDownloadPress: _tryDownloadSelectedVideo,
-            ),
           if (currentPlaylist != null)
             PlaylistInfo(
               // TODO: This is too long. There should be a simpler way.
@@ -191,11 +180,7 @@ class _VideoSearchState extends State<VideoSearch> {
           Expanded(
             child: VideoList(
               items: videoItems,
-              onVideoSelected: (VideoItemPartial item) {
-                setState(() {
-                  selectedVideoItem = item;
-                });
-              },
+              onDownloadPress: _tryDownloadSelectedVideo,
             ),
           )
         ],
