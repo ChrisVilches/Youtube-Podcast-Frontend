@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youtube_podcast/src/transcriptions/transcriptions_list.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../services/youtube.dart';
 import 'transcriptions_controller.dart';
+import 'transcriptions_list.dart';
 import 'transcriptions_menu.dart';
 
 class TranscriptionView extends StatelessWidget {
@@ -29,32 +29,30 @@ class TranscriptionView extends StatelessWidget {
                   TranscriptionsController(detail),
               child: Column(
                 children: <Widget>[
-                  SingleChildScrollView(
-                    child: Consumer<TranscriptionsController>(
-                      builder: (
-                        BuildContext context,
-                        TranscriptionsController ctrl,
-                        _,
-                      ) =>
-                          const TranscriptionMenu(),
-                    ),
+                  Consumer<TranscriptionsController>(
+                    builder: (
+                      BuildContext context,
+                      TranscriptionsController ctrl,
+                      _,
+                    ) =>
+                        const TranscriptionMenu(),
                   ),
-                  SingleChildScrollView(
-                    child: Consumer<TranscriptionsController>(
-                      builder: (
-                        BuildContext context,
-                        TranscriptionsController ctrl,
-                        _,
-                      ) {
-                        if (ctrl.loading) {
-                          return const Text('Loading transcription...');
-                        } else if (ctrl.error != null) {
-                          return Text(ctrl.error!);
-                        } else {
-                          return TranscriptionsList(transcription: ctrl.result);
-                        }
-                      },
-                    ),
+                  Consumer<TranscriptionsController>(
+                    builder: (
+                      BuildContext context,
+                      TranscriptionsController ctrl,
+                      _,
+                    ) {
+                      if (ctrl.loading) {
+                        return const Text('Loading transcription...');
+                      } else if (ctrl.error != null) {
+                        return Text(ctrl.error!);
+                      } else {
+                        return Expanded(
+                          child: TranscriptionsList(transcription: ctrl.result),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

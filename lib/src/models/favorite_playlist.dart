@@ -1,18 +1,15 @@
 class FavoritePlaylist {
-  FavoritePlaylist(this.title, this.id);
+  FavoritePlaylist(this.title, this.author, this.id);
+
+  FavoritePlaylist.fromJson(Map<String, dynamic> json)
+      : id = json['id'] as String,
+        author = json['author'] as String,
+        title = json['title'] as String;
 
   String title;
+  String author;
   final String id;
 
-  String encode() {
-    return '$id,$title';
-  }
-
-  static FavoritePlaylist fromEncoded(String s) {
-    final List<String> parts = s.split(',');
-    final String id = parts[0];
-    final List<String> nameParts = parts.sublist(1);
-    final String title = nameParts.join(',');
-    return FavoritePlaylist(title, id);
-  }
+  Map<String, dynamic> toJson() =>
+      <String, dynamic>{'id': id, 'title': title, 'author': author};
 }

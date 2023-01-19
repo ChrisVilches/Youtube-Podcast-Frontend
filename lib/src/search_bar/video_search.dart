@@ -18,13 +18,11 @@ class VideoSearch extends StatefulWidget {
   State<VideoSearch> createState() => _VideoSearchState();
 }
 
+// TODO: Class is too long.
 class _VideoSearchState extends State<VideoSearch> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController searchController = TextEditingController();
-
-  // TODO: This is for debugging only. It should be improved.
-  String responseDisplay = '';
 
   bool isLoading = false;
   // This is for when the user fetched a playlist
@@ -90,18 +88,10 @@ class _VideoSearchState extends State<VideoSearch> {
     final String videoId = item.videoId;
     final DownloadResponse response = await prepareVideo(videoId);
 
-    setState(() {
-      responseDisplay = '';
-    });
-
     if (response.canDownload) {
       await downloadVideo(item);
       return;
     }
-
-    setState(() {
-      responseDisplay = 'Progress ${response.progress}%';
-    });
   }
 
   Future<void> _executeSearch() async {
@@ -130,6 +120,13 @@ class _VideoSearchState extends State<VideoSearch> {
     }
   }
 
+  bool _currentPlaylistIsFavorited() {
+    return favoritedPlaylists.firstWhereOrNull(
+          (FavoritePlaylist fp) => fp.id == currentPlaylist!.id,
+        ) !=
+        null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -137,33 +134,32 @@ class _VideoSearchState extends State<VideoSearch> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          TextFormField(
-            controller: searchController,
-            decoration: const InputDecoration(
-              hintText: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-            ),
-            validator: (String? value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Please enter a video or playlist URL';
-              }
-              return null;
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: isLoading ? null : _executeSearch,
-              child: Text(isLoading ? 'Loading...' : 'Load video(s)'),
-            ),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: TextFormField(
+                  controller: searchController,
+                  decoration: const InputDecoration(
+                    hintText: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                  ),
+                  validator: (String? value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter a video or playlist URL';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              ElevatedButton(
+                onPressed: isLoading ? null : _executeSearch,
+                child: Icon(isLoading ? Icons.more_horiz : Icons.search),
+              )
+            ],
           ),
           Text('Fav playlist count ${favoritedPlaylists.length}'),
           if (currentPlaylist != null)
             PlaylistInfo(
-              // TODO: This is too long. There should be a simpler way.
-              favorited: favoritedPlaylists.firstWhereOrNull(
-                    (FavoritePlaylist fp) => fp.id == currentPlaylist!.id,
-                  ) !=
-                  null,
+              favorited: _currentPlaylistIsFavorited(),
               onFavoritePlaylistsChange:
                   (List<FavoritePlaylist> newList, bool removed) {
                 setState(() {
@@ -176,7 +172,6 @@ class _VideoSearchState extends State<VideoSearch> {
               },
               playlist: currentPlaylist!,
             ),
-          Text(responseDisplay),
           Expanded(
             child: VideoList(
               items: videoItems,

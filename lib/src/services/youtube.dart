@@ -42,20 +42,21 @@ Future<Playlist> getVideosFromPlaylist(String id) async {
   final Playlist playlist = Playlist.from(body);
 
   // Also update the playlist name if it's saved locally.
-  await PlaylistFavoriteService().updateTitle(playlist.title, playlist.id);
+  await PlaylistFavoriteService()
+      .updateMetadata(playlist.title, playlist.author, playlist.id);
 
   return playlist;
 }
 
 Future<List<TranscriptionEntry>> getTranscriptionContent(
-    String videoId, String lang) async {
+  String videoId,
+  String lang,
+) async {
   final Response res =
       await get(uri('transcriptions?v=$videoId&lang=$lang'), headers: headers);
 
   // TODO: This should be applied to all other API calls.
   final Map<String, dynamic> body = toJson(res);
-
-  print(body['transcription']);
 
   return (body['transcription'] as List<dynamic>)
       .map((dynamic o) => TranscriptionEntry.from(o as Map<String, dynamic>))

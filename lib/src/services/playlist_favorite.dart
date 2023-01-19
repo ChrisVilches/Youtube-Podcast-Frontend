@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,24 +22,24 @@ class PlaylistFavoriteService {
       return List<FavoritePlaylist>.empty();
     }
 
-    return list.map(FavoritePlaylist.fromEncoded).toList();
+    return list.map((String o) => FavoritePlaylist.fromJson(jsonDecode(o) as Map<String, dynamic>)).toList();
   }
 
-  Future<void> favorite(String title, String id) async {
+  Future<void> favorite(String title, String author, String id) async {
     final List<FavoritePlaylist> list = await getAll();
 
     if (list.any((FavoritePlaylist fp) => fp.id == id)) {
       return;
     }
 
-    final FavoritePlaylist newFav = FavoritePlaylist(title, id);
+    final FavoritePlaylist newFav = FavoritePlaylist(title, author, id);
     final List<FavoritePlaylist> newList = List<FavoritePlaylist>.from(list)
       ..addAll(<FavoritePlaylist>[newFav]);
 
     await saveList(newList);
   }
 
-  Future<void> updateTitle(String title, String id) async {
+  Future<void> updateMetadata(String title, String author, String id) async {
     final List<FavoritePlaylist> list = await getAll();
 
     final FavoritePlaylist? item =
@@ -48,13 +50,14 @@ class PlaylistFavoriteService {
     }
 
     item.title = title;
+    item.author = author;
     saveList(list);
   }
 
   Future<void> saveList(List<FavoritePlaylist> list) async {
     serviceLocator.get<SharedPreferences>().setStringList(
           playlistFavoritesKey,
-          list.map((FavoritePlaylist fp) => fp.encode()).toList(),
+          list.map(jsonEncode).toList(),
         );
   }
 

@@ -9,6 +9,8 @@ class Thumbnail {
     return width * height;
   }
 
+  // TODO: Applies to all models. I think the "fromJson" method is a standard and gets
+  //       called by jsonDecode. I'm not sure though.
   static Thumbnail from(Map<String, dynamic> obj) {
     final String url = obj['url'] as String;
     final int w = obj['width'] as int;
