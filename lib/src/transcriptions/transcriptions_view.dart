@@ -35,7 +35,7 @@ class TranscriptionView extends StatelessWidget {
                       TranscriptionsController ctrl,
                       _,
                     ) =>
-                        const TranscriptionMenu(),
+                        const Center(child: TranscriptionMenu()),
                   ),
                   Consumer<TranscriptionsController>(
                     builder: (
@@ -43,14 +43,14 @@ class TranscriptionView extends StatelessWidget {
                       TranscriptionsController ctrl,
                       _,
                     ) {
-                      if (ctrl.loading) {
-                        return const Text('Loading transcription...');
-                      } else if (ctrl.error != null) {
-                        return Text(ctrl.error!);
-                      } else {
+                      if (ctrl.result.isNotEmpty && ctrl.selectedLanguage != null) {
                         return Expanded(
                           child: TranscriptionsList(transcription: ctrl.result),
                         );
+                      } else if (ctrl.error != null) {
+                        return Text(ctrl.error!);
+                      } else {
+                        return Container();
                       }
                     },
                   ),

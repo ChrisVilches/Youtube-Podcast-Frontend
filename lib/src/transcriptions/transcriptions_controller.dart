@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
@@ -37,6 +38,7 @@ class TranscriptionsController extends ChangeNotifier {
 
   Future<void> _fetchTranscription() async {
     loading = true;
+    EasyLoading.show(status: 'Loading transcription');
     notifyListeners();
 
     // TODO: Debug only (REMOVE)
@@ -49,6 +51,7 @@ class TranscriptionsController extends ChangeNotifier {
     }
 
     loading = false;
+    EasyLoading.dismiss();
     notifyListeners();
   }
 }

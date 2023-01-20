@@ -6,6 +6,7 @@ import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import 'api_uri.dart';
 import 'http_error.dart';
+import 'locator.dart';
 import 'playlist_favorite.dart';
 
 const Map<String, String> headers = <String, String>{
@@ -42,7 +43,8 @@ Future<Playlist> getVideosFromPlaylist(String id) async {
   final Playlist playlist = Playlist.from(body);
 
   // Also update the playlist name if it's saved locally.
-  await PlaylistFavoriteService()
+  await serviceLocator
+      .get<PlaylistFavoriteService>()
       .updateMetadata(playlist.title, playlist.author, playlist.id);
 
   return playlist;

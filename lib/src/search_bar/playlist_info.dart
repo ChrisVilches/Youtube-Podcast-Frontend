@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:like_button/like_button.dart';
 import '../models/favorite_playlist.dart';
 import '../models/playlist.dart';
+import '../services/locator.dart';
 import '../services/playlist_favorite.dart';
 
 class PlaylistInfo extends StatelessWidget {
@@ -17,7 +18,7 @@ class PlaylistInfo extends StatelessWidget {
   final Function(List<FavoritePlaylist>, bool) onFavoritePlaylistsChange;
 
   Future<bool> onTapLike(bool isFavorite) async {
-    final PlaylistFavoriteService serv = PlaylistFavoriteService();
+    final PlaylistFavoriteService serv = serviceLocator.get<PlaylistFavoriteService>();
 
     if (isFavorite) {
       await serv.remove(playlist.id);

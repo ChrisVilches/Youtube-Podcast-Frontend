@@ -1,11 +1,8 @@
 import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/favorite_playlist.dart';
 import 'locator.dart';
-// TODO: Maybe this could be only functions instead of a class.
 
 // TODO: Change filename. It's too similar to the models/favorite_playlist.dart, but the words are reversed,
 //       which makes it even more confusing.

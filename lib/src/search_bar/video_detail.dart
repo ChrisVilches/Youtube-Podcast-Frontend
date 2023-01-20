@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/video_item_partial.dart';
 import '../views/video_detail_view.dart';
@@ -22,7 +23,9 @@ class VideoDetail extends StatelessWidget {
           children: <Widget>[
             ListTile(
               leading: CircleAvatar(
-                foregroundImage: NetworkImage(item.thumbnails.first.url),
+                foregroundImage: CachedNetworkImageProvider(
+                  item.thumbnails.first.url,
+                ),
               ),
               title: Text(item.title),
               subtitle: Text(item.videoId),

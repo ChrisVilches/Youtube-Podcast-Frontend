@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:path/path.dart';
 import '../models/favorite_playlist.dart';
 import '../models/playlist.dart';
 import '../models/video_item.dart';
@@ -9,6 +11,7 @@ import '../services/playlist_favorite.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
 import '../video_list/video_list.dart';
+import 'fav_playlist_menu.dart';
 import 'playlist_info.dart';
 
 class VideoSearch extends StatefulWidget {
@@ -22,19 +25,20 @@ class VideoSearch extends StatefulWidget {
 class _VideoSearchState extends State<VideoSearch> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   bool isLoading = false;
   // This is for when the user fetched a playlist
   Playlist? currentPlaylist;
 
+  // TODO: Many of these fields should be private. I think.
   List<VideoItemPartial> videoItems = List<VideoItemPartial>.empty();
 
   List<FavoritePlaylist> favoritedPlaylists = List<FavoritePlaylist>.empty();
 
   @override
   void dispose() {
-    searchController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -42,13 +46,13 @@ class _VideoSearchState extends State<VideoSearch> {
   void initState() {
     super.initState();
 
-    PlaylistFavoriteService().getAll().then(
+    serviceLocator.get<PlaylistFavoriteService>().getAll().then(
           (List<FavoritePlaylist> list) => setState(() {
             favoritedPlaylists = list;
 
             // TODO: This is temporary.
             if (list.isNotEmpty) {
-              searchController.text =
+              _searchController.text =
                   'https://www.youtube.com/playlist?list=${list.first.id}';
             }
           }),
@@ -103,8 +107,10 @@ class _VideoSearchState extends State<VideoSearch> {
       isLoading = true;
     });
 
+    EasyLoading.show();
+
     try {
-      final String input = searchController.value.text;
+      final String input = _searchController.value.text;
 
       final String? playlistId = _tryParsePlaylistId(input);
 
@@ -117,6 +123,7 @@ class _VideoSearchState extends State<VideoSearch> {
       setState(() {
         isLoading = false;
       });
+      EasyLoading.dismiss();
     }
   }
 
@@ -138,7 +145,7 @@ class _VideoSearchState extends State<VideoSearch> {
             children: <Widget>[
               Expanded(
                 child: TextFormField(
-                  controller: searchController,
+                  controller: _searchController,
                   decoration: const InputDecoration(
                     hintText: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
                   ),
@@ -150,13 +157,23 @@ class _VideoSearchState extends State<VideoSearch> {
                   },
                 ),
               ),
-              ElevatedButton(
+              IconButton(
                 onPressed: isLoading ? null : _executeSearch,
-                child: Icon(isLoading ? Icons.more_horiz : Icons.search),
+                icon: Icon(
+                  isLoading ? Icons.more_horiz : Icons.search,
+                ),
               )
             ],
           ),
-          Text('Fav playlist count ${favoritedPlaylists.length}'),
+          FavPlaylistMenu(
+            playlists: favoritedPlaylists,
+            selectedPlaylistId: currentPlaylist?.id,
+            onPressPlaylist: (String playlistId) {
+              _searchController.text = 'https://www.youtube.com/playlist?list=$playlistId';
+              _executeSearch();
+            },
+            disableButtons: isLoading,
+          ),
           if (currentPlaylist != null)
             PlaylistInfo(
               favorited: _currentPlaylistIsFavorited(),

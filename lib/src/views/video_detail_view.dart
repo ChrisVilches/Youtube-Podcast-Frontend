@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../services/youtube.dart';
@@ -7,6 +9,16 @@ class VideoDetailView extends StatelessWidget {
   const VideoDetailView(VideoItemPartial item, {super.key}) : _item = item;
 
   final VideoItemPartial _item;
+
+  Future<void> _onOpen(LinkableElement link) async {
+    final Uri uri = Uri.parse(link.url);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw Exception('Could not launch $link');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,21 +29,28 @@ class VideoDetailView extends StatelessWidget {
       body: FutureBuilder<VideoItem>(
         future: getVideoInfo(_item.videoId),
         builder: (BuildContext context, AsyncSnapshot<VideoItem> snapshot) {
-          if (snapshot.hasData) {
-            final VideoItem detail = snapshot.data!;
+          late Widget content;
 
-            return Column(
-              children: <Widget>[
-                SingleChildScrollView(
-                  child: Text(detail.description),
-                )
-              ],
+          if (snapshot.hasData) {
+            content = Linkify(
+              onOpen: _onOpen,
+              text: snapshot.data!.description,
             );
           } else if (snapshot.hasError) {
-            return Text('Error happened (${snapshot.error})');
+            content = Text('Error happened (${snapshot.error})');
+          } else {
+            content = const Text('Loading...');
           }
 
-          return const Text('Loading...');
+          return Container(
+            constraints: const BoxConstraints.expand(),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(50),
+                child: content,
+              ),
+            ),
+          );
         },
       ),
     );
