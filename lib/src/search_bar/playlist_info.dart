@@ -18,7 +18,8 @@ class PlaylistInfo extends StatelessWidget {
   final Function(List<FavoritePlaylist>, bool) onFavoritePlaylistsChange;
 
   Future<bool> onTapLike(bool isFavorite) async {
-    final PlaylistFavoriteService serv = serviceLocator.get<PlaylistFavoriteService>();
+    final PlaylistFavoriteService serv =
+        serviceLocator.get<PlaylistFavoriteService>();
 
     if (isFavorite) {
       await serv.remove(playlist.id);
@@ -58,7 +59,10 @@ class PlaylistInfo extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: const Icon(Icons.playlist_add_check, size: 40,),
+            leading: const Icon(
+              Icons.playlist_add_check,
+              size: 40,
+            ),
             title: Padding(
               padding: const EdgeInsets.only(bottom: 10.0),
               child: upper,

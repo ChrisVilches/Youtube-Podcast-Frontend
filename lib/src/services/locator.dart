@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'android_download.dart';
 import 'playlist_favorite.dart';
 import 'snackbar_service.dart';
 
@@ -14,5 +15,8 @@ Future<void> setUpLocator(GlobalKey<NavigatorState> navigatorKey) async {
   );
   serviceLocator.registerSingleton<PlaylistFavoriteService>(
     PlaylistFavoriteService(),
+  );
+  serviceLocator.registerSingleton<AndroidDownloadService>(
+    AndroidDownloadService(),
   );
 }

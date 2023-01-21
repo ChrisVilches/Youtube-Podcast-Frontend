@@ -31,8 +31,8 @@ void main() {
     group('pre-populated', () {
       setUp(() async {
         await serv.favorite('some playlist', 'auth1', 'aaabbbbcccc1');
-        await serv.favorite('another playlist', 'auth2','aaabbbbcccc2');
-        await serv.favorite('yet another playlist', 'auth3','aaabbbbcccc3');
+        await serv.favorite('another playlist', 'auth2', 'aaabbbbcccc2');
+        await serv.favorite('yet another playlist', 'auth3', 'aaabbbbcccc3');
       });
 
       test('correct length', () async {
@@ -40,7 +40,11 @@ void main() {
       });
 
       test('updates a title', () async {
-        await serv.updateMetadata('another playlist modified!!', 'newauth', 'aaabbbbcccc2');
+        await serv.updateMetadata(
+          'another playlist modified!!',
+          'newauth',
+          'aaabbbbcccc2',
+        );
 
         final List<FavoritePlaylist> list = await serv.getAll();
         expect(list.length, 3);
@@ -56,7 +60,11 @@ void main() {
       });
 
       test('updates a title (when the playlist has not been saved)', () async {
-        await serv.updateMetadata('another playlist modified!!', 'newauth', 'aaabbbbcccc777');
+        await serv.updateMetadata(
+          'another playlist modified!!',
+          'newauth',
+          'aaabbbbcccc777',
+        );
 
         final List<FavoritePlaylist> list = await serv.getAll();
         expect(list.length, 3);

@@ -19,7 +19,12 @@ class PlaylistFavoriteService {
       return List<FavoritePlaylist>.empty();
     }
 
-    return list.map((String o) => FavoritePlaylist.fromJson(jsonDecode(o) as Map<String, dynamic>)).toList();
+    return list
+        .map(
+          (String o) =>
+              FavoritePlaylist.fromJson(jsonDecode(o) as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   Future<void> favorite(String title, String author, String id) async {

@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:youtube_podcast/src/models/favorite_playlist.dart';
 import 'package:youtube_podcast/src/util/format.dart';
 
 void main() {

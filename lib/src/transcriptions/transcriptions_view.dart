@@ -43,7 +43,8 @@ class TranscriptionView extends StatelessWidget {
                       TranscriptionsController ctrl,
                       _,
                     ) {
-                      if (ctrl.result.isNotEmpty && ctrl.selectedLanguage != null) {
+                      if (ctrl.result.isNotEmpty &&
+                          ctrl.selectedLanguage != null) {
                         return Expanded(
                           child: TranscriptionsList(transcription: ctrl.result),
                         );

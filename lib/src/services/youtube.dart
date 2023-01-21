@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/playlist.dart';
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
+import 'android_download.dart';
 import 'api_uri.dart';
 import 'http_error.dart';
 import 'locator.dart';
@@ -65,10 +67,28 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
       .toList();
 }
 
-Future<void> downloadVideo(VideoItemPartial item) async {
-  // TODO: Download has to be more robust.
+Future<void> downloadVideoBrowser(Uri videoUri) async {
   await launchUrl(
-    uri('download?v=${item.videoId}'),
+    videoUri,
     mode: LaunchMode.externalNonBrowserApplication,
   );
 }
+
+Future<void> downloadVideo(String youtubeVideo) async {
+  final Uri videoUri = uri('download?v=$youtubeVideo');
+
+  if (Platform.isAndroid) {
+    serviceLocator.get<AndroidDownloadService>().downloadVideo(videoUri);
+  } else {
+    downloadVideoBrowser(videoUri);
+  }
+}
+
+/*
+// TODO: Must dispose. Somewhere. (Probably never, since this is not running on a Widget)
+@override
+void dispose() {
+  IsolateNameServer.removePortNameMapping('downloader_send_port');
+  super.dispose();
+}
+*/

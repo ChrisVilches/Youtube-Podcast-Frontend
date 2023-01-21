@@ -1,24 +1,41 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'src/app.dart';
 import 'src/services/locator.dart';
+import 'src/services/prepare_download_service.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 
 void main() async {
+  // TODO: These conditions are a bit ad-hoc for my own convenience. It should be more generic.
   await dotenv.load(
-    fileName:
-        kReleaseMode ? 'assets/.env.production' : 'assets/.env.development',
+    fileName: kReleaseMode || Platform.isAndroid
+        ? 'assets/.env.production'
+        : 'assets/.env.development',
   );
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  // TODO: Add platforms once they are tested.
+  if (Platform.isAndroid) {
+    await FlutterDownloader.initialize(
+      debug: true,
+      ignoreSsl: true,
+    );
+  }
+
   await setUpLocator(navigatorKey);
+  initializePollingLoop();
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
   final SettingsController ctrl = SettingsController(SettingsService());
   await ctrl.loadSettings();
 
+  // TODO: What this comment says... use a splash screen.
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.
 
