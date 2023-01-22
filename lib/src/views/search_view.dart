@@ -1,40 +1,43 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:provider/provider.dart';
 import '../models/favorite_playlist.dart';
 import '../models/playlist.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
+import '../search_bar/fav_playlist_menu.dart';
+import '../search_bar/playlist_info.dart';
+import '../search_bar/prepare_download_controller.dart';
 import '../services/locator.dart';
 import '../services/playlist_favorite.dart';
-import '../services/prepare_download_service.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
 import '../video_list/video_list.dart';
-import 'fav_playlist_menu.dart';
-import 'playlist_info.dart';
 
-class VideoSearch extends StatefulWidget {
-  const VideoSearch({super.key});
+class SearchView extends StatefulWidget {
+  const SearchView({super.key});
 
   @override
-  State<VideoSearch> createState() => _VideoSearchState();
+  State<SearchView> createState() => _SearchViewState();
 }
 
 // TODO: Class is too long.
-class _VideoSearchState extends State<VideoSearch> {
+class _SearchViewState extends State<SearchView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _searchController = TextEditingController();
 
-  bool isLoading = false;
-  // This is for when the user fetched a playlist
-  Playlist? currentPlaylist;
+  bool _isLoading = false;
+  Playlist? _currentPlaylist;
+  List<VideoItemPartial> _videoItems = List<VideoItemPartial>.empty();
+  List<FavoritePlaylist> _favoritedPlaylists = List<FavoritePlaylist>.empty();
 
-  // TODO: Many of these fields should be private. I think.
-  List<VideoItemPartial> videoItems = List<VideoItemPartial>.empty();
-
-  List<FavoritePlaylist> favoritedPlaylists = List<FavoritePlaylist>.empty();
+  // TODO: When the widget builds, the current status should be obtained from the service.
+  //       Or better, simply obtain the data from the service (or a wrapping controller) and let the controller
+  //       notifies. There's no need to duplicate the data here because we can store this _beingPrepared in the service.
+  //       And in that case we probably don't need RxDart anymore.
+  // final Set<String> _beingPrepared = <String>{};
 
   @override
   void dispose() {
@@ -48,7 +51,7 @@ class _VideoSearchState extends State<VideoSearch> {
 
     serviceLocator.get<PlaylistFavoriteService>().getAll().then(
           (List<FavoritePlaylist> list) => setState(() {
-            favoritedPlaylists = list;
+            _favoritedPlaylists = list;
 
             // TODO: This is temporary.
             if (list.isNotEmpty) {
@@ -63,16 +66,16 @@ class _VideoSearchState extends State<VideoSearch> {
     final List<VideoItem> items = <VideoItem>[await getVideoInfo(videoId)];
 
     setState(() {
-      currentPlaylist = null;
-      videoItems = items;
+      _currentPlaylist = null;
+      _videoItems = items;
     });
   }
 
   Future<void> _fetchPlaylist(String id) async {
     final Playlist playlist = await getVideosFromPlaylist(id);
     setState(() {
-      currentPlaylist = playlist;
-      videoItems = playlist.items;
+      _currentPlaylist = playlist;
+      _videoItems = playlist.items;
     });
   }
 
@@ -93,15 +96,7 @@ class _VideoSearchState extends State<VideoSearch> {
   //       The fields should be renamed... alreadyPrepared (boolean), downloadable (boolean)
   //       Note that currently there's no way to know (backend side) if the video has already been
   //       tried to be downloaded, and it failed once (or at least it's not fully implemented).
-  Future<void> _tryDownloadSelectedVideo(VideoItemPartial item) async {
-    final bool newPreparation = await startPrepareProcess(item.videoId);
-
-    if (!newPreparation) {
-      serviceLocator
-          .get<SnackbarService>()
-          .simpleSnackbar('The video is already being prepared...');
-    }
-  }
+  // Future<void> _tryDownloadSelectedVideo(VideoItemPartial item) async {}
 
   Future<void> _executeSearch() async {
     if (!_formKey.currentState!.validate()) {
@@ -109,7 +104,7 @@ class _VideoSearchState extends State<VideoSearch> {
     }
 
     setState(() {
-      isLoading = true;
+      _isLoading = true;
     });
 
     EasyLoading.show();
@@ -126,22 +121,22 @@ class _VideoSearchState extends State<VideoSearch> {
       }
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
       EasyLoading.dismiss();
     }
   }
 
   bool _currentPlaylistIsFavorited() {
-    return favoritedPlaylists.firstWhereOrNull(
-          (FavoritePlaylist fp) => fp.id == currentPlaylist!.id,
+    return _favoritedPlaylists.firstWhereOrNull(
+          (FavoritePlaylist fp) => fp.id == _currentPlaylist!.id,
         ) !=
         null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    final Widget child = Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,46 +158,60 @@ class _VideoSearchState extends State<VideoSearch> {
                 ),
               ),
               IconButton(
-                onPressed: isLoading ? null : _executeSearch,
+                onPressed: _isLoading ? null : _executeSearch,
                 icon: Icon(
-                  isLoading ? Icons.more_horiz : Icons.search,
+                  _isLoading ? Icons.more_horiz : Icons.search,
                 ),
               )
             ],
           ),
           FavPlaylistMenu(
-            playlists: favoritedPlaylists,
-            selectedPlaylistId: currentPlaylist?.id,
+            playlists: _favoritedPlaylists,
+            selectedPlaylistId: _currentPlaylist?.id,
             onPressPlaylist: (String playlistId) {
               _searchController.text =
                   'https://www.youtube.com/playlist?list=$playlistId';
               _executeSearch();
             },
-            disableButtons: isLoading,
+            disableButtons: _isLoading,
           ),
-          if (currentPlaylist != null)
+          if (_currentPlaylist != null)
             PlaylistInfo(
               favorited: _currentPlaylistIsFavorited(),
               onFavoritePlaylistsChange:
                   (List<FavoritePlaylist> newList, bool removed) {
                 setState(() {
-                  favoritedPlaylists = newList;
+                  _favoritedPlaylists = newList;
                 });
 
                 serviceLocator.get<SnackbarService>().simpleSnackbar(
                       removed ? 'Removed from favorites' : 'Added to favorites',
                     );
               },
-              playlist: currentPlaylist!,
+              playlist: _currentPlaylist!,
             ),
-          Expanded(
-            child: VideoList(
-              items: videoItems,
-              onDownloadPress: _tryDownloadSelectedVideo,
+          Consumer<PrepareDownloadController>(
+            builder: (
+              BuildContext context,
+              PrepareDownloadController ctrl,
+              _,
+            ) =>
+                Expanded(
+              child: VideoList(
+                items: _videoItems,
+                onDownloadPress: (VideoItemPartial item) =>
+                    ctrl.startPrepareProcess(item.videoId),
+                beingPrepared: ctrl.beingPrepared,
+              ),
             ),
-          )
+          ),
         ],
       ),
+    );
+
+    return ChangeNotifierProvider<PrepareDownloadController>(
+      create: (_) => PrepareDownloadController(),
+      child: child,
     );
   }
 }

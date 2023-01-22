@@ -1,49 +1,45 @@
 import 'dart:async';
-
-import '../util/sleep.dart';
+import 'dart:convert';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 import 'youtube.dart';
 
-/// Prepares the video and then downloads it when it's prepared.
+late socket_io.Socket _socket;
 
-// TODO: Doesn't work for videos that never get prepared (e.g. live streams).
+final StreamController<VideoPreparedEvent> _videoPreparedEvents = StreamController<VideoPreparedEvent>();
 
-Map<String, int> _beingPrepared = <String, int>{};
+class VideoPreparedEvent {
+  VideoPreparedEvent(this.videoId, this.success);
 
-Future<void> _tryDownload(String youtubeVideo) async {
-  final DownloadResponse res = await prepareVideo(youtubeVideo);
-  if (res.canDownload) {
-    downloadVideo(youtubeVideo);
-    _beingPrepared.remove(youtubeVideo);
-  }
+  final String videoId;
+  final bool success;
 }
 
-// TODO: Must be called at the start of the program. And then it will sometime be deprecated.
-Future<void> initializePollingLoop() async {
-  while (true) {
-    for (final MapEntry<String, int> entry in _beingPrepared.entries) {
-      final String youtubeVideo = entry.key;
-      final int remainingPolls = entry.value;
+StreamController<VideoPreparedEvent> get videoPreparedEvents => _videoPreparedEvents;
 
-      await _tryDownload(youtubeVideo);
-      // TODO: Something about this code is wrong and hangs sometimes (stops polling).
-      //       But it's trash anyway and I have to make it using sockets.
-      if (remainingPolls > 0) {
-        _beingPrepared[youtubeVideo] = _beingPrepared[youtubeVideo]! - 1;
-      } else {
-        _beingPrepared.remove(youtubeVideo);
-      }
-    }
-    await sleep1();
-  }
+void _onPreparedResult(dynamic raw) {
+      final Map<String, dynamic> data =
+        jsonDecode(raw as String) as Map<String, dynamic>;
+    final String videoId = data['videoId'] as String;
+    final bool success = data['success'] as bool;
+    videoPreparedEvents.add(VideoPreparedEvent(videoId, success));
 }
 
-Future<bool> startPrepareProcess(String youtubeVideo) async {
-  if (_beingPrepared.containsKey(youtubeVideo)) {
-    return false;
-  }
+void initSocket() {
+  final Map<String, dynamic> opts = socket_io.OptionBuilder()
+      .enableForceNew()
+      .setPath(dotenv.env['SOCKET_IO_ENDPOINT_PATH']!)
+      .setTransports(<String>['websocket', 'polling']).build();
 
-  _beingPrepared[youtubeVideo] = 30;
-  _tryDownload(youtubeVideo);
+  _socket = socket_io.io(dotenv.env['SOCKET_IO_ENDPOINT_BASE'], opts);
 
-  return true;
+  _socket.onError((dynamic data) => debugPrint(data.toString()));
+  _socket.on('prepared-result', _onPreparedResult);
+  _socket.onConnect((_) => debugPrint('Connected to sockets correctly'));
+  _socket.onDisconnect((_) => debugPrint('Disconnected from Socket.IO'));
+}
+
+void waitForResult(String videoId) {
+  _socket.emit('execute-prepare', videoId);
 }

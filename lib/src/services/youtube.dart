@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/playlist.dart';
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
-import '../models/video_item_partial.dart';
 import 'android_download.dart';
 import 'api_uri.dart';
 import 'http_error.dart';
@@ -14,21 +13,6 @@ import 'playlist_favorite.dart';
 const Map<String, String> headers = <String, String>{
   'Content-type': 'application/json'
 };
-
-class DownloadResponse {
-  DownloadResponse(this.canDownload, this.progress);
-
-  final bool canDownload;
-  final int progress;
-}
-
-Future<DownloadResponse> prepareVideo(String youtubeVideo) async {
-  final Response res =
-      await post(uri('prepare?v=$youtubeVideo'), headers: headers);
-  final Map<String, dynamic> body = toJson(res);
-
-  return DownloadResponse(body['canDownload'] as bool, body['progress'] as int);
-}
 
 Future<VideoItem> getVideoInfo(String youtubeVideo) async {
   final Response res = await get(uri('info?v=$youtubeVideo'), headers: headers);
@@ -66,21 +50,46 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
       .map((dynamic o) => TranscriptionEntry.from(o as Map<String, dynamic>))
       .toList();
 }
-
-Future<void> downloadVideoBrowser(Uri videoUri) async {
+Future<DispatchDownloadResult> downloadVideoBrowser(Uri videoUri) async {
   await launchUrl(
     videoUri,
     mode: LaunchMode.externalNonBrowserApplication,
   );
+
+  return DispatchDownloadResult.dispatchedCorrectly;
 }
 
-Future<void> downloadVideo(String youtubeVideo) async {
+// TODO: Move this and it's conversion to String message to a different file.
+enum DispatchDownloadResult {
+  dispatchedCorrectly,
+  inProgress,
+  permissionError,
+  canOpenExisting,
+  unhandledError
+}
+
+String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
+  switch (value) {
+    case DispatchDownloadResult.dispatchedCorrectly:
+      return 'Download started';
+    case DispatchDownloadResult.inProgress:
+      return 'Already being downloaded';
+    case DispatchDownloadResult.permissionError:
+      return 'Cannot get permission to download file';
+    case DispatchDownloadResult.unhandledError:
+      return 'Task is in an unhandled status (cancelled, failed, pause)';
+    case DispatchDownloadResult.canOpenExisting:
+      return null;
+  }
+}
+
+Future<DispatchDownloadResult> downloadVideo(String youtubeVideo) async {
   final Uri videoUri = uri('download?v=$youtubeVideo');
 
   if (Platform.isAndroid) {
-    serviceLocator.get<AndroidDownloadService>().downloadVideo(videoUri);
+    return serviceLocator.get<AndroidDownloadService>().downloadVideo(videoUri);
   } else {
-    downloadVideoBrowser(videoUri);
+    return downloadVideoBrowser(videoUri);
   }
 }
 

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,7 +10,6 @@ import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 
 void main() async {
-  // TODO: These conditions are a bit ad-hoc for my own convenience. It should be more generic.
   await dotenv.load(
     fileName: kReleaseMode || Platform.isAndroid
         ? 'assets/.env.production'
@@ -20,6 +18,7 @@ void main() async {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   // TODO: Add platforms once they are tested.
+  // TODO: I think this crashes on Linux even if it's inside the "if"
   if (Platform.isAndroid) {
     await FlutterDownloader.initialize(
       debug: true,
@@ -28,7 +27,7 @@ void main() async {
   }
 
   await setUpLocator(navigatorKey);
-  initializePollingLoop();
+  initSocket();
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.

@@ -7,10 +7,12 @@ class VideoList extends StatelessWidget {
     super.key,
     required this.items,
     required this.onDownloadPress,
+    required this.beingPrepared,
   });
-  final Function(VideoItemPartial) onDownloadPress;
+  final void Function(VideoItemPartial) onDownloadPress;
 
   final List<VideoItemPartial> items;
+  final Set<String> beingPrepared;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class VideoList extends StatelessWidget {
         return VideoDetail(
           item: item,
           onDownloadPress: () => onDownloadPress(item),
+          beingPrepared: beingPrepared.contains(item.videoId),
         );
       },
     );

@@ -9,10 +9,12 @@ class VideoDetail extends StatelessWidget {
     super.key,
     required this.item,
     required this.onDownloadPress,
+    required this.beingPrepared,
   });
 
   final VideoItemPartial item;
   final Function() onDownloadPress;
+  final bool beingPrepared;
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +47,16 @@ class VideoDetail extends StatelessWidget {
                   },
                   child: const Text('DETAILS'),
                 ),
-                TextButton(
-                  onPressed: onDownloadPress,
-                  child: const Text('DOWNLOAD'),
-                ),
+                if (beingPrepared)
+                  const TextButton(
+                    onPressed: null,
+                    child: Text('PREPARING...'),
+                  ),
+                if (!beingPrepared)
+                  TextButton(
+                    onPressed: onDownloadPress,
+                    child: const Text('DOWNLOAD'),
+                  ),
                 VideoOptionsMenu(item: item)
               ],
             ),

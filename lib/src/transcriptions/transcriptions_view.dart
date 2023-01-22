@@ -19,6 +19,8 @@ class TranscriptionView extends StatelessWidget {
         title: Text(item.title),
       ),
       body: FutureBuilder<VideoItem>(
+        // TODO: This may execute multiple times.
+        //       https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
         future: getVideoInfo(item.videoId),
         builder: (BuildContext context, AsyncSnapshot<VideoItem> snapshot) {
           if (snapshot.hasData) {
