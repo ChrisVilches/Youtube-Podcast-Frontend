@@ -58,9 +58,10 @@ class AndroidDownloadService {
     }
 
     // TODO: I'm still not sure how to handle these statuses.
-    if (task != null && (task.status == DownloadTaskStatus.canceled ||
-        task.status == DownloadTaskStatus.failed ||
-        task.status == DownloadTaskStatus.paused)) {
+    if (task != null &&
+        (task.status == DownloadTaskStatus.canceled ||
+            task.status == DownloadTaskStatus.failed ||
+            task.status == DownloadTaskStatus.paused)) {
       serviceLocator
           .get<SnackbarService>()
           .simpleSnackbar('(TODO) Unhandled status (${task.status})');
@@ -81,9 +82,9 @@ class AndroidDownloadService {
     return DispatchDownloadResult.dispatchedCorrectly;
   }
 
-
   bool _isAlreadyRunning(DownloadTask? task) {
-    return task?.status == DownloadTaskStatus.running || task?.status == DownloadTaskStatus.enqueued;
+    return task?.status == DownloadTaskStatus.running ||
+        task?.status == DownloadTaskStatus.enqueued;
   }
 
   Future<bool> _tryOpenCompletedFile(DownloadTask? task) async {

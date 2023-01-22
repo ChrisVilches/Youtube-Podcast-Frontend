@@ -50,6 +50,7 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
       .map((dynamic o) => TranscriptionEntry.from(o as Map<String, dynamic>))
       .toList();
 }
+
 Future<DispatchDownloadResult> downloadVideoBrowser(Uri videoUri) async {
   await launchUrl(
     videoUri,

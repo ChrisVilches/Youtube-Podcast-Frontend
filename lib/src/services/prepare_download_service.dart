@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io;
-import 'youtube.dart';
 
 late socket_io.Socket _socket;
 
-final StreamController<VideoPreparedEvent> _videoPreparedEvents = StreamController<VideoPreparedEvent>();
+final StreamController<VideoPreparedEvent> _videoPreparedEvents =
+    StreamController<VideoPreparedEvent>();
 
 class VideoPreparedEvent {
   VideoPreparedEvent(this.videoId, this.success);
@@ -16,14 +16,15 @@ class VideoPreparedEvent {
   final bool success;
 }
 
-StreamController<VideoPreparedEvent> get videoPreparedEvents => _videoPreparedEvents;
+StreamController<VideoPreparedEvent> get videoPreparedEvents =>
+    _videoPreparedEvents;
 
 void _onPreparedResult(dynamic raw) {
-      final Map<String, dynamic> data =
-        jsonDecode(raw as String) as Map<String, dynamic>;
-    final String videoId = data['videoId'] as String;
-    final bool success = data['success'] as bool;
-    videoPreparedEvents.add(VideoPreparedEvent(videoId, success));
+  final Map<String, dynamic> data =
+      jsonDecode(raw as String) as Map<String, dynamic>;
+  final String videoId = data['videoId'] as String;
+  final bool success = data['success'] as bool;
+  videoPreparedEvents.add(VideoPreparedEvent(videoId, success));
 }
 
 void initSocket() {
