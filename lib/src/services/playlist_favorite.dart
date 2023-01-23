@@ -53,11 +53,11 @@ class PlaylistFavoriteService {
 
     item.title = title;
     item.author = author;
-    saveList(list);
+    return saveList(list);
   }
 
   Future<void> saveList(List<FavoritePlaylist> list) async {
-    serviceLocator.get<SharedPreferences>().setStringList(
+    await serviceLocator.get<SharedPreferences>().setStringList(
           playlistFavoritesKey,
           list.map(jsonEncode).toList(),
         );

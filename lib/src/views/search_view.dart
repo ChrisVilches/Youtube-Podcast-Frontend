@@ -62,7 +62,7 @@ class _SearchViewState extends State<SearchView> {
         );
   }
 
-  Future<void> _fetchSingleVideo(String videoId) async {
+  Future<void> _fetchSingleVideo(VideoID videoId) async {
     final List<VideoItem> items = <VideoItem>[await getVideoInfo(videoId)];
 
     setState(() {
@@ -90,13 +90,6 @@ class _SearchViewState extends State<SearchView> {
 
     return uri.queryParameters['list'];
   }
-
-  // TODO: Note that "canDownload = false" doesn't mean "try until the video is prepared".
-  //       It may mean the video can never be downloaded (e.g. because it's a stream). So I think
-  //       The fields should be renamed... alreadyPrepared (boolean), downloadable (boolean)
-  //       Note that currently there's no way to know (backend side) if the video has already been
-  //       tried to be downloaded, and it failed once (or at least it's not fully implemented).
-  // Future<void> _tryDownloadSelectedVideo(VideoItemPartial item) async {}
 
   Future<void> _executeSearch() async {
     if (!_formKey.currentState!.validate()) {
@@ -141,29 +134,32 @@ class _SearchViewState extends State<SearchView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: TextFormField(
-                  controller: _searchController,
-                  decoration: const InputDecoration(
-                    hintText: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+          Padding(
+            padding: const EdgeInsets.only(left: 5, right: 5),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextFormField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                    ),
+                    validator: (String? value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a video or playlist URL';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (String? value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter a video or playlist URL';
-                    }
-                    return null;
-                  },
                 ),
-              ),
-              IconButton(
-                onPressed: _isLoading ? null : _executeSearch,
-                icon: Icon(
-                  _isLoading ? Icons.more_horiz : Icons.search,
-                ),
-              )
-            ],
+                IconButton(
+                  onPressed: _isLoading ? null : _executeSearch,
+                  icon: Icon(
+                    _isLoading ? Icons.more_horiz : Icons.search,
+                  ),
+                )
+              ],
+            ),
           ),
           FavPlaylistMenu(
             playlists: _favoritedPlaylists,

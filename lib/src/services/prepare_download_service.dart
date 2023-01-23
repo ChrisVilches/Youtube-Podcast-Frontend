@@ -4,6 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 
+import '../models/video_item_partial.dart';
+
 late socket_io.Socket _socket;
 
 final StreamController<VideoPreparedEvent> _videoPreparedEvents =
@@ -12,7 +14,7 @@ final StreamController<VideoPreparedEvent> _videoPreparedEvents =
 class VideoPreparedEvent {
   VideoPreparedEvent(this.videoId, this.success);
 
-  final String videoId;
+  final VideoID videoId;
   final bool success;
 }
 
@@ -22,7 +24,7 @@ StreamController<VideoPreparedEvent> get videoPreparedEvents =>
 void _onPreparedResult(dynamic raw) {
   final Map<String, dynamic> data =
       jsonDecode(raw as String) as Map<String, dynamic>;
-  final String videoId = data['videoId'] as String;
+  final VideoID videoId = data['videoId'] as VideoID;
   final bool success = data['success'] as bool;
   videoPreparedEvents.add(VideoPreparedEvent(videoId, success));
 }
@@ -41,6 +43,6 @@ void initSocket() {
   _socket.onDisconnect((_) => debugPrint('Disconnected from Socket.IO'));
 }
 
-void waitForResult(String videoId) {
+void waitForResult(VideoID videoId) {
   _socket.emit('execute-prepare', videoId);
 }

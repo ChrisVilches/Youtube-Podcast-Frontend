@@ -1,3 +1,3 @@
-Future<void> sleep1() {
-  return Future<void>.delayed(const Duration(seconds: 1));
+Future<void> sleep(int seconds) {
+  return Future<void>.delayed(Duration(seconds: seconds));
 }

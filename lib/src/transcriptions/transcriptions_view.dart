@@ -7,21 +7,32 @@ import 'transcriptions_controller.dart';
 import 'transcriptions_list.dart';
 import 'transcriptions_menu.dart';
 
-class TranscriptionView extends StatelessWidget {
+class TranscriptionView extends StatefulWidget {
   const TranscriptionView({super.key, required this.item});
-
   final VideoItemPartial item;
+
+  @override
+  State<TranscriptionView> createState() => _TranscriptionViewState();
+}
+
+class _TranscriptionViewState extends State<TranscriptionView> {
+  late Future<VideoItem> _future;
+
+  @override
+  void initState() {
+    // ignore: discarded_futures
+    _future = getVideoInfo(widget.item.videoId);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(item.title),
+        title: Text(widget.item.title),
       ),
       body: FutureBuilder<VideoItem>(
-        // TODO: This may execute multiple times.
-        //       https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
-        future: getVideoInfo(item.videoId),
+        future: _future,
         builder: (BuildContext context, AsyncSnapshot<VideoItem> snapshot) {
           if (snapshot.hasData) {
             final VideoItem detail = snapshot.data!;
@@ -64,7 +75,7 @@ class TranscriptionView extends StatelessWidget {
             return Text('Error happened (${snapshot.error})');
           }
 
-          return const Text('Loading...');
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );

@@ -41,7 +41,7 @@ class VideoDetail extends StatelessWidget {
                       context,
                       MaterialPageRoute<dynamic>(
                         builder: (BuildContext context) =>
-                            VideoDetailView(item),
+                            VideoDetailView(item: item),
                       ),
                     );
                   },

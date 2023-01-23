@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/video_item_partial.dart';
 import '../transcriptions/transcriptions_view.dart';
 import '../views/video_detail_view.dart';
 
-enum Option { Details, Transcriptions }
+enum Option { Details, Transcriptions, OpenVideo }
 
 class _PopupMenuItemContent extends StatelessWidget {
   const _PopupMenuItemContent({
@@ -30,27 +31,41 @@ class VideoOptionsMenu extends StatelessWidget {
 
   final VideoItemPartial item;
 
+  void _seeDetails(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => VideoDetailView(item: item),
+      ),
+    );
+  }
+
+  void _seeTranscriptions(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => TranscriptionView(item: item),
+      ),
+    );
+  }
+
+  void _openVideo() {
+    launchUrl(Uri.parse('https://www.youtube.com/watch?v=${item.videoId}'));
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<Option>(
       onSelected: (Option value) {
         switch (value) {
           case Option.Details:
-            Navigator.push(
-              context,
-              MaterialPageRoute<dynamic>(
-                builder: (BuildContext context) => VideoDetailView(item),
-              ),
-            );
+            _seeDetails(context);
             break;
           case Option.Transcriptions:
-            Navigator.push(
-              context,
-              MaterialPageRoute<dynamic>(
-                builder: (BuildContext context) =>
-                    TranscriptionView(item: item),
-              ),
-            );
+            _seeTranscriptions(context);
+            break;
+          case Option.OpenVideo:
+            _openVideo();
             break;
         }
       },
@@ -67,6 +82,13 @@ class VideoOptionsMenu extends StatelessWidget {
           child: _PopupMenuItemContent(
             icon: Icons.text_fields,
             text: 'Transcriptions',
+          ),
+        ),
+        const PopupMenuItem<Option>(
+          value: Option.OpenVideo,
+          child: _PopupMenuItemContent(
+            icon: Icons.ondemand_video,
+            text: 'Open video',
           ),
         )
       ],

@@ -1,16 +1,18 @@
 import 'thumbnail.dart';
 
+typedef VideoID = String;
+
 class VideoItemPartial {
   const VideoItemPartial(this.videoId, this.title, this.thumbnails);
 
-  final String videoId;
+  final VideoID videoId;
   final String title;
 
   /// Thumbnails sorted by size (width X height)
   final List<Thumbnail> thumbnails;
 
   static VideoItemPartial from(Map<String, dynamic> obj) {
-    final String videoId = obj['videoId'] as String;
+    final VideoID videoId = obj['videoId'] as VideoID;
     final String title = obj['title'] as String;
 
     final List<Thumbnail> thumbnails = (obj['thumbnails'] as List<dynamic>)

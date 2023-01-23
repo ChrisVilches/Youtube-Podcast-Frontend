@@ -11,6 +11,7 @@ void main() {
 
   test(formatTimeHHMMSS, () {
     expect(formatTimeHHMMSS(0.0), '00:00:00.0');
+    expect(formatTimeHHMMSS(0.9111), '00:00:00.9');
     expect(formatTimeHHMMSS(0.5), '00:00:00.5');
     expect(formatTimeHHMMSS(0.56), '00:00:00.5');
     expect(formatTimeHHMMSS(0.98), '00:00:00.9');
@@ -23,7 +24,6 @@ void main() {
     expect(formatTimeHHMMSS(3660), '01:01:00.0');
     expect(formatTimeHHMMSS(3661), '01:01:01.0');
     expect(formatTimeHHMMSS(3661.4), '01:01:01.4');
-
-    // TODO: Needs a bit more testing.
+    expect(formatTimeHHMMSS(3662.499), '01:01:02.4');
   });
 }

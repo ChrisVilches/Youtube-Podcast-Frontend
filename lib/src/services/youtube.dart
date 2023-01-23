@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/playlist.dart';
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
+import '../models/video_item_partial.dart';
+import '../util/sleep.dart';
 import 'android_download.dart';
 import 'api_uri.dart';
 import 'http_error.dart';
@@ -14,11 +16,12 @@ const Map<String, String> headers = <String, String>{
   'Content-type': 'application/json'
 };
 
-Future<VideoItem> getVideoInfo(String youtubeVideo) async {
-  final Response res = await get(uri('info?v=$youtubeVideo'), headers: headers);
+Future<VideoItem> getVideoInfo(VideoID videoId) async {
+  final Response res = await get(uri('info?v=$videoId'), headers: headers);
   final Map<String, dynamic> body = toJson(res);
   final Map<String, dynamic> metadata =
       body['metadata'] as Map<String, dynamic>;
+  await sleep(1);
   return VideoItem.from(metadata);
 }
 
@@ -37,7 +40,7 @@ Future<Playlist> getVideosFromPlaylist(String id) async {
 }
 
 Future<List<TranscriptionEntry>> getTranscriptionContent(
-  String videoId,
+  VideoID videoId,
   String lang,
 ) async {
   final Response res =
@@ -51,9 +54,10 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
       .toList();
 }
 
-Future<DispatchDownloadResult> downloadVideoBrowser(Uri videoUri) async {
+Future<DispatchDownloadResult> downloadVideoBrowser(VideoID videoId) async {
+  assert(!videoId.contains('http'));
   await launchUrl(
-    videoUri,
+    downloadUri(videoId),
     mode: LaunchMode.externalNonBrowserApplication,
   );
 
@@ -78,27 +82,16 @@ String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
     case DispatchDownloadResult.permissionError:
       return 'Cannot get permission to download file';
     case DispatchDownloadResult.unhandledError:
-      return 'Task is in an unhandled status (cancelled, failed, pause)';
+      return 'Task is in an unhandled status (pause)';
     case DispatchDownloadResult.canOpenExisting:
       return null;
   }
 }
 
-Future<DispatchDownloadResult> downloadVideo(String youtubeVideo) async {
-  final Uri videoUri = uri('download?v=$youtubeVideo');
-
+Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
   if (Platform.isAndroid) {
-    return serviceLocator.get<AndroidDownloadService>().downloadVideo(videoUri);
+    return serviceLocator.get<AndroidDownloadService>().downloadVideo(videoId);
   } else {
-    return downloadVideoBrowser(videoUri);
+    return downloadVideoBrowser(videoId);
   }
 }
-
-/*
-// TODO: Must dispose. Somewhere. (Probably never, since this is not running on a Widget)
-@override
-void dispose() {
-  IsolateNameServer.removePortNameMapping('downloader_send_port');
-  super.dispose();
-}
-*/

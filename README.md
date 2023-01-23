@@ -4,6 +4,8 @@ Frontend for [Youtube-Podcast](https://github.com/ChrisVilches/Youtube-Podcast).
 
 **Note:** This app is currently an MVP (Minimum Viable Product) made for my own usage, not for my portfolio. The app is not properly made.
 
+Tested on Android 10 (device).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application that follows the

@@ -5,10 +5,23 @@ import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../services/youtube.dart';
 
-class VideoDetailView extends StatelessWidget {
-  const VideoDetailView(VideoItemPartial item, {super.key}) : _item = item;
+class VideoDetailView extends StatefulWidget {
+  const VideoDetailView({super.key, required this.item});
+  final VideoItemPartial item;
 
-  final VideoItemPartial _item;
+  @override
+  State<VideoDetailView> createState() => _VideoDetailViewState();
+}
+
+class _VideoDetailViewState extends State<VideoDetailView> {
+  late Future<VideoItem> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    // ignore: discarded_futures
+    _future = getVideoInfo(widget.item.videoId);
+  }
 
   Future<void> _onOpen(LinkableElement link) async {
     final Uri uri = Uri.parse(link.url);
@@ -24,12 +37,10 @@ class VideoDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_item.title),
+        title: Text(widget.item.title),
       ),
       body: FutureBuilder<VideoItem>(
-        // TODO: This may execute multiple times.
-        //       https://stackoverflow.com/questions/52249578/how-to-deal-with-unwanted-widget-build
-        future: getVideoInfo(_item.videoId),
+        future: _future,
         builder: (BuildContext context, AsyncSnapshot<VideoItem> snapshot) {
           late Widget content;
 
@@ -41,14 +52,14 @@ class VideoDetailView extends StatelessWidget {
           } else if (snapshot.hasError) {
             content = Text('Error happened (${snapshot.error})');
           } else {
-            content = const Text('Loading...');
+            content = const Center(child: CircularProgressIndicator());
           }
 
           return Container(
             constraints: const BoxConstraints.expand(),
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(50),
+                padding: const EdgeInsets.all(10),
                 child: content,
               ),
             ),

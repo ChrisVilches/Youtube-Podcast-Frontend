@@ -4,7 +4,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../models/video_item_partial.dart';
 import 'android_download_tasks.dart';
+import 'api_uri.dart';
 import 'locator.dart';
 import 'snackbar_service.dart';
 import 'youtube.dart';
@@ -42,8 +44,10 @@ class AndroidDownloadService {
 
   // TODO: Should be called "download or open". Or simplify the scope/responsability of this method
   //       and make it "only download", and then force the caller to open it if it's already downloaded.
-  Future<DispatchDownloadResult> downloadVideo(Uri videoUri) async {
-    final String url = videoUri.toString();
+  Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
+    assert(!videoId.contains('http'));
+
+    final String url = downloadUri(videoId).toString();
 
     final DownloadTask? task = (await allTasks()).firstWhereOrNull(
       (DownloadTask element) => element.url == url,
@@ -57,16 +61,13 @@ class AndroidDownloadService {
       return DispatchDownloadResult.canOpenExisting;
     }
 
-    // TODO: I'm still not sure how to handle these statuses.
-    if (task != null &&
-        (task.status == DownloadTaskStatus.canceled ||
-            task.status == DownloadTaskStatus.failed ||
-            task.status == DownloadTaskStatus.paused)) {
-      serviceLocator
-          .get<SnackbarService>()
-          .simpleSnackbar('(TODO) Unhandled status (${task.status})');
+    // TODO: Unhandled for now.
+    if (task != null && task.status == DownloadTaskStatus.paused) {
       return DispatchDownloadResult.unhandledError;
     }
+
+    // Pre-cleaning to remove cancelled/failed tasks.
+    await cancelTasks(videoId);
 
     final PermissionStatus permission = await Permission.storage.request();
 
@@ -80,6 +81,23 @@ class AndroidDownloadService {
     );
 
     return DispatchDownloadResult.dispatchedCorrectly;
+  }
+
+  Future<void> cancelTasks(VideoID videoId) async {
+    assert(!videoId.contains('http'));
+    // TODO: There's a rare case where the video ID exists but it's also a substring of another ID,
+    //       and therefore there are two matches. This is extremely rare though.
+    //       And there's a much more common situation in which there are multiple tasks for the same URL
+    //       but the tasks are actually different tasks.
+    //
+    //       Re-implement for task arrays. (The problem of substring matching remains though... so use a Regex)
+
+    final List<DownloadTask> tasks = (await allTasks()).where((DownloadTask t) => t.url.contains(videoId)).toList();
+
+    for (final DownloadTask task in tasks) {
+      await FlutterDownloader.cancel(taskId: task.taskId);
+      await FlutterDownloader.remove(taskId: task.taskId, shouldDeleteContent: true);
+    }
   }
 
   bool _isAlreadyRunning(DownloadTask? task) {

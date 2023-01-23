@@ -42,7 +42,7 @@ class TranscriptionsController extends ChangeNotifier {
     notifyListeners();
 
     // TODO: Debug only (REMOVE)
-    await sleep1();
+    await sleep(1);
     try {
       error = null;
       result = await getTranscriptionContent(video.videoId, _selectedLanguage!);
