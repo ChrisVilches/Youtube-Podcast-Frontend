@@ -6,7 +6,9 @@ Future<List<DownloadTask>> allTasks() async {
   return await FlutterDownloader.loadTasks() ?? List<DownloadTask>.empty();
 }
 
-Future<void> clearAllDownloadTaskData() async {
+Future<void> clearAllDownloadTaskData({
+  required bool shouldDeleteContent,
+}) async {
   final List<DownloadTask> tasks = await allTasks();
 
   final int prevCount = tasks.length;
@@ -14,7 +16,7 @@ Future<void> clearAllDownloadTaskData() async {
   for (final DownloadTask t in tasks) {
     await FlutterDownloader.remove(
       taskId: t.taskId,
-      shouldDeleteContent: true,
+      shouldDeleteContent: shouldDeleteContent,
     );
   }
 

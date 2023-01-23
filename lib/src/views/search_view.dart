@@ -7,13 +7,15 @@ import '../models/favorite_playlist.dart';
 import '../models/playlist.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
+import '../services/favorite_playlist_service.dart';
 import '../services/locator.dart';
-import '../services/playlist_favorite.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
-import '../video_list/video_list.dart';
+import '../util/youtube_url.dart';
 import '../widgets/fav_playlist_menu.dart';
 import '../widgets/playlist_info.dart';
+import '../widgets/search_bar.dart';
+import '../widgets/video_list.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -22,29 +24,18 @@ class SearchView extends StatefulWidget {
   State<SearchView> createState() => _SearchViewState();
 }
 
-// TODO: Class is too long.
 class _SearchViewState extends State<SearchView> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _searchController = TextEditingController();
-
   bool _isLoading = false;
   Playlist? _currentPlaylist;
   List<VideoItemPartial> _videoItems = List<VideoItemPartial>.empty();
   List<FavoritePlaylist> _favoritedPlaylists = List<FavoritePlaylist>.empty();
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
 
     // ignore: discarded_futures
-    serviceLocator.get<PlaylistFavoriteService>().getAll().then(
+    serviceLocator.get<FavoritePlaylistService>().getAll().then(
           (List<FavoritePlaylist> list) => setState(() {
             _favoritedPlaylists = list;
           }),
@@ -68,44 +59,33 @@ class _SearchViewState extends State<SearchView> {
     });
   }
 
-  String? _tryParsePlaylistId(String playlistUrl) {
-    final Uri uri = Uri.parse(playlistUrl);
-    final bool correctHost = uri.host.toLowerCase().contains('youtube.com');
-    final bool correctPath = uri.path.toLowerCase() == '/playlist';
-
-    if (!correctHost || !correctPath) {
-      return null;
-    }
-
-    return uri.queryParameters['list'];
-  }
-
-  Future<void> _executeSearch() async {
-    if (!_formKey.currentState!.validate()) {
+  Future<void> _setLoading(bool loading) async {
+    if (loading == _isLoading) {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = loading);
 
-    await EasyLoading.show();
+    if (loading) {
+      await EasyLoading.show();
+    } else {
+      await EasyLoading.dismiss();
+    }
+  }
+
+  Future<void> _executeSearch(String queryText) async {
+    await _setLoading(true);
 
     try {
-      final String input = _searchController.value.text;
-
-      final String? playlistId = _tryParsePlaylistId(input);
+      final String? playlistId = parsePlaylistId(queryText);
 
       if (playlistId != null) {
         await _fetchPlaylist(playlistId);
       } else {
-        await _fetchSingleVideo(input);
+        await _fetchSingleVideo(queryText);
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
-      await EasyLoading.dismiss();
+      await _setLoading(false);
     }
   }
 
@@ -118,80 +98,43 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget child = Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(left: 5, right: 5),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: TextFormField(
-                    controller: _searchController,
-                    decoration: const InputDecoration(
-                      hintText: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                    ),
-                    validator: (String? value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a video or playlist URL';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                IconButton(
-                  onPressed: _isLoading ? null : _executeSearch,
-                  icon: Icon(
-                    _isLoading ? Icons.more_horiz : Icons.search,
-                  ),
-                )
-              ],
-            ),
-          ),
-          FavPlaylistMenu(
-            playlists: _favoritedPlaylists,
-            selectedPlaylistId: _currentPlaylist?.id,
-            onPressPlaylist: (String playlistId) async {
-              _searchController.text =
-                  'https://www.youtube.com/playlist?list=$playlistId';
-              await _executeSearch();
-            },
-            disableButtons: _isLoading,
-          ),
-          if (_currentPlaylist != null)
-            PlaylistInfo(
-              favorited: _currentPlaylistIsFavorited(),
-              onFavoritePlaylistsChange:
-                  (List<FavoritePlaylist> newList, bool removed) {
-                setState(() {
-                  _favoritedPlaylists = newList;
-                });
+    Widget playlistInfo() => PlaylistInfo(
+          favorited: _currentPlaylistIsFavorited(),
+          onFavoritePlaylistsChange:
+              (List<FavoritePlaylist> newList, bool removed) {
+            setState(() => _favoritedPlaylists = newList);
 
-                serviceLocator.get<SnackbarService>().simpleSnackbar(
-                      removed ? 'Removed from favorites' : 'Added to favorites',
-                    );
-              },
-              playlist: _currentPlaylist!,
-            ),
-          Consumer<PrepareDownloadController>(
-            builder: (
-              BuildContext context,
-              PrepareDownloadController ctrl,
-              _,
-            ) =>
-                Expanded(
-              child: VideoList(
-                items: _videoItems,
-                onDownloadPress: (VideoItemPartial item) =>
-                    ctrl.startPrepareProcess(item.videoId),
-                beingPrepared: ctrl.beingPrepared,
-              ),
-            ),
-          ),
-        ],
-      ),
+            serviceLocator.get<SnackbarService>().simpleSnackbar(
+                  removed ? 'Removed from favorites' : 'Added to favorites',
+                );
+          },
+          playlist: _currentPlaylist!,
+        );
+
+    final Widget child = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 5, right: 5),
+          child: SearchBar(isLoading: _isLoading, onSearch: _executeSearch),
+        ),
+        FavPlaylistMenu(
+          playlists: _favoritedPlaylists,
+          selectedPlaylistId: _currentPlaylist?.id,
+          onPressPlaylist: (String playlistId) async =>
+              _executeSearch(createPlaylistUrl(playlistId)),
+          disableButtons: _isLoading,
+        ),
+        if (_currentPlaylist != null) playlistInfo(),
+        Consumer<PrepareDownloadController>(
+          builder: (
+            BuildContext context,
+            PrepareDownloadController ctrl,
+            _,
+          ) =>
+              Expanded(child: VideoList(items: _videoItems)),
+        ),
+      ],
     );
 
     return ChangeNotifierProvider<PrepareDownloadController>(

@@ -54,12 +54,34 @@ class SettingsView extends StatelessWidget {
             //
             // When a user selects a theme from the dropdown list, the
             // SettingsController is updated, which rebuilds the MaterialApp.
-            child: ElevatedButton(
-              // TODO: There should be an option to keep the downloaded data.
-              child: const Text('Clear download tasks and data'),
-              onPressed: () async {
-                await clearAllDownloadTaskData();
-              },
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: ElevatedButton(
+                    child: const Text(
+                      'Clear download tasks',
+                      textAlign: TextAlign.center,
+                    ),
+                    onPressed: () async {
+                      await clearAllDownloadTaskData(
+                        shouldDeleteContent: false,
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    child: const Text(
+                      'Clear download tasks and data',
+                      textAlign: TextAlign.center,
+                    ),
+                    onPressed: () async {
+                      await clearAllDownloadTaskData(shouldDeleteContent: true);
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ],

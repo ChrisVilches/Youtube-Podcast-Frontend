@@ -5,21 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/video_item_partial.dart';
+import '../util/youtube_url.dart';
 import 'android_download_tasks.dart';
 import 'api_uri.dart';
 import 'dispatch_download_result.dart';
 import 'locator.dart';
 import 'snackbar_service.dart';
-
-// TODO: Should be able to cancel downloads (and then be able to trigger them again).
-//       (should be done by removing the notification, I guess... does that cancel the task
-// /      and remove the file and task entry in the database??)
-
-// TODO: Check how much my implementation differs from the memo (Google Keep) note.
-
-// TODO: (Very low priority) If the downloader converts the name to a valid name, then try removing the
-//       "removeSlashes" on the backend. Does it work when downloading a file with / on browser and android?
-//       (must add the / manually). If it doesn't work, just leave it as it is.
 
 const String _DOWNLOAD_DIR = '/storage/emulated/0/Download/';
 
@@ -42,15 +33,11 @@ class AndroidDownloadService {
 
   final ReceivePort _port = ReceivePort();
 
-  // TODO: Should be called "download or open". Or simplify the scope/responsability of this method
-  //       and make it "only download", and then force the caller to open it if it's already downloaded.
   Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
     assert(!videoId.contains('http'));
 
-    final String url = downloadUri(videoId).toString();
-
     final DownloadTask? task = (await allTasks()).firstWhereOrNull(
-      (DownloadTask element) => element.url == url,
+      (DownloadTask t) => vQueryParam(t.url) == videoId,
     );
 
     if (_isAlreadyRunning(task)) {
@@ -66,7 +53,7 @@ class AndroidDownloadService {
       return DispatchDownloadResult.unhandledError;
     }
 
-    // Pre-cleaning to remove cancelled/failed tasks.
+    // Pre-cleaning to remove canceled/failed tasks.
     await cancelTasks(videoId);
 
     final PermissionStatus permission = await Permission.storage.request();
@@ -76,7 +63,7 @@ class AndroidDownloadService {
     }
 
     await FlutterDownloader.enqueue(
-      url: url,
+      url: downloadUri(videoId).toString(),
       savedDir: _DOWNLOAD_DIR,
     );
 
@@ -85,15 +72,9 @@ class AndroidDownloadService {
 
   Future<void> cancelTasks(VideoID videoId) async {
     assert(!videoId.contains('http'));
-    // TODO: There's a rare case where the video ID exists but it's also a substring of another ID,
-    //       and therefore there are two matches. This is extremely rare though.
-    //       And there's a much more common situation in which there are multiple tasks for the same URL
-    //       but the tasks are actually different tasks.
-    //
-    //       Re-implement for task arrays. (The problem of substring matching remains though... so use a Regex)
 
     final List<DownloadTask> tasks = (await allTasks())
-        .where((DownloadTask t) => t.url.contains(videoId))
+        .where((DownloadTask t) => vQueryParam(t.url) == videoId)
         .toList();
 
     for (final DownloadTask task in tasks) {

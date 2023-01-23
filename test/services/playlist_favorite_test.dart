@@ -1,19 +1,19 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/test.dart';
 import 'package:youtube_podcast/src/models/favorite_playlist.dart';
-import 'package:youtube_podcast/src/services/playlist_favorite.dart';
+import 'package:youtube_podcast/src/services/favorite_playlist_service.dart';
 import '../init.dart';
 
 void main() {
   init();
 
-  group(PlaylistFavoriteService, () {
+  group(FavoritePlaylistService, () {
     setUp(() async {
       final SharedPreferences pref = await SharedPreferences.getInstance();
       await pref.clear();
     });
 
-    final PlaylistFavoriteService serv = PlaylistFavoriteService();
+    final FavoritePlaylistService serv = FavoritePlaylistService();
 
     test('is initially empty', () async {
       expect((await serv.getAll()).length, 0);

@@ -3,9 +3,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
 import '../services/youtube.dart';
-import '../util/sleep.dart';
-
-// TODO: Check that it does the right amount of queries.
 
 class TranscriptionsController extends ChangeNotifier {
   TranscriptionsController(this.video) {
@@ -21,7 +18,7 @@ class TranscriptionsController extends ChangeNotifier {
 
   String? get selectedLanguage => _selectedLanguage;
 
-  /// Make sure to use this setter when it's not loading, otherwise it will crash.
+  /// Make sure to use this setter when it's not loading another transcription, otherwise it will crash.
   set selectedLanguage(String? newLang) {
     assert(!loading);
 
@@ -43,8 +40,6 @@ class TranscriptionsController extends ChangeNotifier {
     await EasyLoading.show(status: 'Loading transcription');
     notifyListeners();
 
-    // TODO: Debug only (REMOVE)
-    await sleep(1);
     try {
       error = null;
       result = await getTranscriptionContent(video.videoId, _selectedLanguage!);

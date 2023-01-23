@@ -9,9 +9,9 @@ import '../util/sleep.dart';
 import 'android_download.dart';
 import 'api_uri.dart';
 import 'dispatch_download_result.dart';
+import 'favorite_playlist_service.dart';
 import 'http_error.dart';
 import 'locator.dart';
-import 'playlist_favorite.dart';
 
 const Map<String, String> headers = <String, String>{
   'Content-type': 'application/json'
@@ -34,7 +34,7 @@ Future<Playlist> getVideosFromPlaylist(String id) async {
 
   // Also update the playlist name if it's saved locally.
   await serviceLocator
-      .get<PlaylistFavoriteService>()
+      .get<FavoritePlaylistService>()
       .updateMetadata(playlist.title, playlist.author, playlist.id);
 
   return playlist;

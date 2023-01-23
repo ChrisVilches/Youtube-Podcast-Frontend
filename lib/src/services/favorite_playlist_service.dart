@@ -4,12 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/favorite_playlist.dart';
 import 'locator.dart';
 
-// TODO: Change filename. It's too similar to the models/favorite_playlist.dart, but the words are reversed,
-//       which makes it even more confusing.
-
 const String playlistFavoritesKey = 'PLAYLIST_FAVORITE_ID_LIST';
 
-class PlaylistFavoriteService {
+class FavoritePlaylistService {
   Future<List<FavoritePlaylist>> getAll() async {
     final List<String>? list = serviceLocator
         .get<SharedPreferences>()
