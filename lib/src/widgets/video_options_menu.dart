@@ -31,41 +31,36 @@ class VideoOptionsMenu extends StatelessWidget {
 
   final VideoItemPartial item;
 
-  void _seeDetails(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => VideoDetailView(item: item),
-      ),
-    );
-  }
+  Future<void> _seeDetails(BuildContext context) => Navigator.push(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => VideoDetailView(item: item),
+        ),
+      );
 
-  void _seeTranscriptions(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => TranscriptionView(item: item),
-      ),
-    );
-  }
+  Future<void> _seeTranscriptions(BuildContext context) => Navigator.push(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => TranscriptionView(item: item),
+        ),
+      );
 
-  void _openVideo() {
-    launchUrl(Uri.parse('https://www.youtube.com/watch?v=${item.videoId}'));
-  }
+  Future<void> _openVideo() =>
+      launchUrl(Uri.parse('https://www.youtube.com/watch?v=${item.videoId}'));
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<Option>(
-      onSelected: (Option value) {
+      onSelected: (Option value) async {
         switch (value) {
           case Option.Details:
-            _seeDetails(context);
+            await _seeDetails(context);
             break;
           case Option.Transcriptions:
-            _seeTranscriptions(context);
+            await _seeTranscriptions(context);
             break;
           case Option.OpenVideo:
-            _openVideo();
+            await _openVideo();
             break;
         }
       },

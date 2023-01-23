@@ -2,18 +2,18 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
+import '../controllers/prepare_download_controller.dart';
 import '../models/favorite_playlist.dart';
 import '../models/playlist.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
-import '../search_bar/fav_playlist_menu.dart';
-import '../search_bar/playlist_info.dart';
-import '../search_bar/prepare_download_controller.dart';
 import '../services/locator.dart';
 import '../services/playlist_favorite.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
 import '../video_list/video_list.dart';
+import '../widgets/fav_playlist_menu.dart';
+import '../widgets/playlist_info.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -33,12 +33,6 @@ class _SearchViewState extends State<SearchView> {
   List<VideoItemPartial> _videoItems = List<VideoItemPartial>.empty();
   List<FavoritePlaylist> _favoritedPlaylists = List<FavoritePlaylist>.empty();
 
-  // TODO: When the widget builds, the current status should be obtained from the service.
-  //       Or better, simply obtain the data from the service (or a wrapping controller) and let the controller
-  //       notifies. There's no need to duplicate the data here because we can store this _beingPrepared in the service.
-  //       And in that case we probably don't need RxDart anymore.
-  // final Set<String> _beingPrepared = <String>{};
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -49,15 +43,10 @@ class _SearchViewState extends State<SearchView> {
   void initState() {
     super.initState();
 
+    // ignore: discarded_futures
     serviceLocator.get<PlaylistFavoriteService>().getAll().then(
           (List<FavoritePlaylist> list) => setState(() {
             _favoritedPlaylists = list;
-
-            // TODO: This is temporary.
-            if (list.isNotEmpty) {
-              _searchController.text =
-                  'https://www.youtube.com/playlist?list=${list.first.id}';
-            }
           }),
         );
   }
@@ -100,7 +89,7 @@ class _SearchViewState extends State<SearchView> {
       _isLoading = true;
     });
 
-    EasyLoading.show();
+    await EasyLoading.show();
 
     try {
       final String input = _searchController.value.text;
@@ -116,7 +105,7 @@ class _SearchViewState extends State<SearchView> {
       setState(() {
         _isLoading = false;
       });
-      EasyLoading.dismiss();
+      await EasyLoading.dismiss();
     }
   }
 
@@ -164,10 +153,10 @@ class _SearchViewState extends State<SearchView> {
           FavPlaylistMenu(
             playlists: _favoritedPlaylists,
             selectedPlaylistId: _currentPlaylist?.id,
-            onPressPlaylist: (String playlistId) {
+            onPressPlaylist: (String playlistId) async {
               _searchController.text =
                   'https://www.youtube.com/playlist?list=$playlistId';
-              _executeSearch();
+              await _executeSearch();
             },
             disableButtons: _isLoading,
           ),

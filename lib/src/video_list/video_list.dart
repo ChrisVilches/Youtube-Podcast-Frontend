@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/video_item_partial.dart';
-import '../search_bar/video_detail.dart';
+import '../widgets/video_detail.dart';
 
 class VideoList extends StatelessWidget {
   const VideoList({

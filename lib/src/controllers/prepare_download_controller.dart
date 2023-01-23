@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/video_item_partial.dart';
 import '../services/android_download.dart';
-import '../services/api_uri.dart';
+import '../services/dispatch_download_result.dart';
 import '../services/locator.dart';
 import '../services/prepare_download_service.dart';
 import '../services/snackbar_service.dart';
@@ -21,12 +21,18 @@ class PrepareDownloadController extends ChangeNotifier {
     return Platform.isAndroid;
   }
 
-  void showDownloadStatusMessage(String? msg, bool taskExists, VideoID videoId) {
+  void showDownloadStatusMessage(
+    String? msg,
+    bool taskExists,
+    VideoID videoId,
+  ) {
     if (msg == null) {
       return;
     }
 
     if (taskExists && _canCancelDownload()) {
+      // TODO: Clicking on "cancel" may make the task become "failed". I'm not sure under what conditions though.
+      //       Is it because I cancel and then remove the task as well? Not sure.
       serviceLocator.get<SnackbarService>().snackbarWithAction(msg, 'CANCEL',
           () async {
         await serviceLocator.get<AndroidDownloadService>().cancelTasks(videoId);
@@ -62,7 +68,7 @@ class PrepareDownloadController extends ChangeNotifier {
 
   Set<String> get beingPrepared => _beingPrepared;
 
-  Future<void> startPrepareProcess(VideoID videoId) async {
+  void startPrepareProcess(VideoID videoId) {
     assert(!_beingPrepared.contains(videoId));
     _beingPrepared.add(videoId);
     notifyListeners();
@@ -72,6 +78,7 @@ class PrepareDownloadController extends ChangeNotifier {
   @override
   void dispose() {
     super.dispose();
+    // ignore: discarded_futures
     _subscription.cancel();
   }
 }

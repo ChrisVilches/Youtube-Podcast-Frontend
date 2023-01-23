@@ -14,7 +14,7 @@ class TranscriptionEntryTile extends StatelessWidget {
       leading: SizedBox(
         width: 100.0, // fixed width and height
         child: Align(
-          child: Text(removeHour00(formatTimeHHMMSS(entry.start))),
+          child: Text(removeHour00(formatTimeHHMMSSms(entry.start))),
         ),
       ),
       title: Text(entry.text),

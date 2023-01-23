@@ -8,6 +8,7 @@ import '../models/video_item_partial.dart';
 import '../util/sleep.dart';
 import 'android_download.dart';
 import 'api_uri.dart';
+import 'dispatch_download_result.dart';
 import 'http_error.dart';
 import 'locator.dart';
 import 'playlist_favorite.dart';
@@ -22,14 +23,14 @@ Future<VideoItem> getVideoInfo(VideoID videoId) async {
   final Map<String, dynamic> metadata =
       body['metadata'] as Map<String, dynamic>;
   await sleep(1);
-  return VideoItem.from(metadata);
+  return VideoItem.fromJson(metadata);
 }
 
 Future<Playlist> getVideosFromPlaylist(String id) async {
   final Response res = await get(uri('playlist/$id'), headers: headers);
   final Map<String, dynamic> body = toJson(res);
 
-  final Playlist playlist = Playlist.from(body);
+  final Playlist playlist = Playlist.fromJson(body);
 
   // Also update the playlist name if it's saved locally.
   await serviceLocator
@@ -46,11 +47,12 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
   final Response res =
       await get(uri('transcriptions?v=$videoId&lang=$lang'), headers: headers);
 
-  // TODO: This should be applied to all other API calls.
   final Map<String, dynamic> body = toJson(res);
 
   return (body['transcription'] as List<dynamic>)
-      .map((dynamic o) => TranscriptionEntry.from(o as Map<String, dynamic>))
+      .map(
+        (dynamic o) => TranscriptionEntry.fromJson(o as Map<String, dynamic>),
+      )
       .toList();
 }
 
@@ -62,30 +64,6 @@ Future<DispatchDownloadResult> downloadVideoBrowser(VideoID videoId) async {
   );
 
   return DispatchDownloadResult.dispatchedCorrectly;
-}
-
-// TODO: Move this and it's conversion to String message to a different file.
-enum DispatchDownloadResult {
-  dispatchedCorrectly,
-  inProgress,
-  permissionError,
-  canOpenExisting,
-  unhandledError
-}
-
-String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
-  switch (value) {
-    case DispatchDownloadResult.dispatchedCorrectly:
-      return 'Download started';
-    case DispatchDownloadResult.inProgress:
-      return 'Already being downloaded';
-    case DispatchDownloadResult.permissionError:
-      return 'Cannot get permission to download file';
-    case DispatchDownloadResult.unhandledError:
-      return 'Task is in an unhandled status (pause)';
-    case DispatchDownloadResult.canOpenExisting:
-      return null;
-  }
 }
 
 Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {

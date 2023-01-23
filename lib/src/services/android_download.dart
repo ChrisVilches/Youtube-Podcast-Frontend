@@ -7,9 +7,9 @@ import 'package:permission_handler/permission_handler.dart';
 import '../models/video_item_partial.dart';
 import 'android_download_tasks.dart';
 import 'api_uri.dart';
+import 'dispatch_download_result.dart';
 import 'locator.dart';
 import 'snackbar_service.dart';
-import 'youtube.dart';
 
 // TODO: Should be able to cancel downloads (and then be able to trigger them again).
 //       (should be done by removing the notification, I guess... does that cancel the task
@@ -36,9 +36,9 @@ class AndroidDownloadService {
       final int progress = data[2] as int;
       debugPrint('Download status: $id | $status ($progress%)');
     });
-
-    FlutterDownloader.registerCallback(downloadCallback);
   }
+
+  Future<void> init() => FlutterDownloader.registerCallback(downloadCallback);
 
   final ReceivePort _port = ReceivePort();
 
@@ -92,11 +92,16 @@ class AndroidDownloadService {
     //
     //       Re-implement for task arrays. (The problem of substring matching remains though... so use a Regex)
 
-    final List<DownloadTask> tasks = (await allTasks()).where((DownloadTask t) => t.url.contains(videoId)).toList();
+    final List<DownloadTask> tasks = (await allTasks())
+        .where((DownloadTask t) => t.url.contains(videoId))
+        .toList();
 
     for (final DownloadTask task in tasks) {
       await FlutterDownloader.cancel(taskId: task.taskId);
-      await FlutterDownloader.remove(taskId: task.taskId, shouldDeleteContent: true);
+      await FlutterDownloader.remove(
+        taskId: task.taskId,
+        shouldDeleteContent: true,
+      );
     }
   }
 

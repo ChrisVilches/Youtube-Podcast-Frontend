@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
 import '../services/youtube.dart';
 import '../util/sleep.dart';
-
-// TODO: Compare this controller with the settings_controller to check if it looks good.
-//       At least it works.
 
 // TODO: Check that it does the right amount of queries.
 
@@ -15,6 +11,7 @@ class TranscriptionsController extends ChangeNotifier {
   TranscriptionsController(this.video) {
     if (video.transcriptions.isNotEmpty) {
       _selectedLanguage = video.transcriptions.first.lang;
+      // ignore: discarded_futures
       _fetchTranscription();
     }
   }
@@ -24,10 +21,14 @@ class TranscriptionsController extends ChangeNotifier {
 
   String? get selectedLanguage => _selectedLanguage;
 
+  /// Make sure to use this setter when it's not loading, otherwise it will crash.
   set selectedLanguage(String? newLang) {
+    assert(!loading);
+
     if (_selectedLanguage != newLang && _selectedLanguage != null) {
       _selectedLanguage = newLang;
       notifyListeners();
+      // ignore: discarded_futures
       _fetchTranscription();
     }
   }
@@ -38,7 +39,8 @@ class TranscriptionsController extends ChangeNotifier {
 
   Future<void> _fetchTranscription() async {
     loading = true;
-    EasyLoading.show(status: 'Loading transcription');
+
+    await EasyLoading.show(status: 'Loading transcription');
     notifyListeners();
 
     // TODO: Debug only (REMOVE)
@@ -51,7 +53,7 @@ class TranscriptionsController extends ChangeNotifier {
     }
 
     loading = false;
-    EasyLoading.dismiss();
+    await EasyLoading.dismiss();
     notifyListeners();
   }
 }

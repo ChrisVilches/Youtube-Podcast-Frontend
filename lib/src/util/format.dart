@@ -1,4 +1,4 @@
-String formatTimeHHMMSS(double time) {
+String formatTimeHHMMSSms(double time) {
   final Duration duration = Duration(milliseconds: (time * 1000).round());
 
   final String hhmmss = <int>[

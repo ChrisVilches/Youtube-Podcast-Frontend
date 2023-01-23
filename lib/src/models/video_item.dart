@@ -10,11 +10,8 @@ class VideoItem extends VideoItemPartial {
     this.transcriptions,
   );
 
-  final String description;
-  final List<TranscriptionMetadata> transcriptions;
-
-  static VideoItem from(Map<String, dynamic> obj) {
-    final VideoItemPartial partial = VideoItemPartial.from(obj);
+  factory VideoItem.fromJson(Map<String, dynamic> obj) {
+    final VideoItemPartial partial = VideoItemPartial.fromJson(obj);
 
     final String description = obj['description'] as String;
 
@@ -22,7 +19,7 @@ class VideoItem extends VideoItemPartial {
         (obj['transcriptions'] as List<dynamic>)
             .map(
               (dynamic o) =>
-                  TranscriptionMetadata.from(o as Map<String, dynamic>),
+                  TranscriptionMetadata.fromJson(o as Map<String, dynamic>),
             )
             .toList();
 
@@ -34,4 +31,7 @@ class VideoItem extends VideoItemPartial {
       transcriptions,
     );
   }
+
+  final String description;
+  final List<TranscriptionMetadata> transcriptions;
 }

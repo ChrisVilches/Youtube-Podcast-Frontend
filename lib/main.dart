@@ -12,8 +12,8 @@ import 'src/settings/settings_service.dart';
 
 void main() async {
   if (Platform.isAndroid) {
-    // TODO: It's empty.
-    final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    final WidgetsBinding widgetsBinding =
+        WidgetsFlutterBinding.ensureInitialized();
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   }
 
@@ -22,7 +22,7 @@ void main() async {
         ? 'assets/.env.production'
         : 'assets/.env.development',
   );
-  
+
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   // TODO: I think this crashes on Linux even if it's inside the "if"

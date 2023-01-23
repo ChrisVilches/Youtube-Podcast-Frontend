@@ -1,9 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import '../settings/settings_view.dart';
 import '../util/remove_splash.dart';
-import '../util/sleep.dart';
 import 'search_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -23,6 +20,8 @@ class _HomeViewState extends State<HomeView> {
     //       the homeview will load first (e.g. if there's a route that was saved by the device and then restored).
     //       However the example just puts it in the homeview and not in the MyApp class. So maybe remove this TODO
     //       if it seems to work fine.
+
+    // ignore: discarded_futures
     waitAndRemoveSplash();
   }
 
