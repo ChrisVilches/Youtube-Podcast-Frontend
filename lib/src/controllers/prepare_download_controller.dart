@@ -72,6 +72,12 @@ class PrepareDownloadController extends ChangeNotifier {
     assert(!_beingPrepared.contains(videoId));
     _beingPrepared.add(videoId);
     notifyListeners();
+
+    // TODO: Optimization for android: we can run _tryOpenCompletedFile and _isAlreadyRunning
+    //       before adding to "_beingPrepared" and calling "waitForResult" and the precomputed
+    //       result (e.g. file exists, or is already running) without doing these expensive operations.
+    //       Remember that "waitForResult" subscribes to a Socket room.
+
     waitForResult(videoId);
   }
 
