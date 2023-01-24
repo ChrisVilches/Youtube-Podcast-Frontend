@@ -1,8 +1,10 @@
-# youtube_podcast
+# Youtube Podcast Frontend
 
 Frontend for [Youtube-Podcast](https://github.com/ChrisVilches/Youtube-Podcast).
 
 Tested on Android 10 (device).
+
+Made with Flutter.
 
 ## Execute
 
