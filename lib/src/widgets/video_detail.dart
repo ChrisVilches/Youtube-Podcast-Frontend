@@ -18,51 +18,88 @@ class VideoDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Card(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              leading: CircleAvatar(
-                foregroundImage: CachedNetworkImageProvider(
-                  item.thumbnails.first.url,
-                ),
-              ),
-              title: Text(item.title),
-              subtitle: Text(item.videoId),
+    // TODO: Dimensions may be slightly incorrect, but it looks good for now anyway.
+    final Widget picture = Container(
+      width: 180,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: SizedBox.fromSize(
+          size: const Size.fromRadius(48),
+          child: Image(
+            fit: BoxFit.cover,
+            image: CachedNetworkImageProvider(
+              item.thumbnails.first.url,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                TextButton(
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute<dynamic>(
-                        builder: (BuildContext context) =>
-                            VideoDetailView(item: item),
-                      ),
-                    );
-                  },
-                  child: const Text('DETAILS'),
-                ),
-                if (beingPrepared)
-                  const TextButton(
-                    onPressed: null,
-                    child: Text('PREPARING...'),
-                  ),
-                if (!beingPrepared)
-                  TextButton(
-                    onPressed: onDownloadPress,
-                    child: const Text('DOWNLOAD'),
-                  ),
-                VideoOptionsMenu(item: item)
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
+
+    final Widget top = Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 5, left: 2),
+            child: Column(
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(item.title, overflow: TextOverflow.ellipsis, maxLines: 4,),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    item.author,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                      color: Color.fromRGBO(200, 200, 200, 1),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: VideoOptionsMenu(item: item),
+        )
+      ],
+    );
+
+    final Widget bottom = Align(
+      alignment: Alignment.bottomRight,
+      child: beingPrepared
+          ? const TextButton(
+              onPressed: null,
+              child: Text('PREPARING...'),
+            )
+          : TextButton(
+              onPressed: onDownloadPress,
+              child: const Text('DOWNLOAD'),
+            ),
+    );
+
+    final Widget content = Expanded(
+      child: Column(
+        children: <Widget>[Expanded(child: top), bottom],
+      ),
+    );
+
+    final Widget card = Card(
+      child: SizedBox(
+        height: 150,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[picture, content],
+        ),
+      ),
+    );
+
+    return card;
   }
 }

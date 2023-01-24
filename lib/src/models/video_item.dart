@@ -6,6 +6,7 @@ class VideoItem extends VideoItemPartial {
     super.videoId,
     super.title,
     super.thumbnails,
+    super.author,
     this.description,
     this.transcriptions,
   );
@@ -27,6 +28,7 @@ class VideoItem extends VideoItemPartial {
       partial.videoId,
       partial.title,
       partial.thumbnails,
+      partial.author,
       description,
       transcriptions,
     );
