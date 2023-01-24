@@ -45,8 +45,10 @@ class VideoOptionsMenu extends StatelessWidget {
         ),
       );
 
-  Future<void> _openVideo() =>
-      launchUrl(Uri.parse('https://www.youtube.com/watch?v=${item.videoId}'));
+  Future<void> _openVideo() => launchUrl(
+        Uri.parse('https://www.youtube.com/watch?v=${item.videoId}'),
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
 
   @override
   Widget build(BuildContext context) {
