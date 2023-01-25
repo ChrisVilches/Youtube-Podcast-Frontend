@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../services/youtube.dart';
+import '../widgets/weak_text.dart';
 
 class VideoDetailView extends StatefulWidget {
   const VideoDetailView({super.key, required this.item});
@@ -45,9 +46,28 @@ class _VideoDetailViewState extends State<VideoDetailView> {
           late Widget content;
 
           if (snapshot.hasData) {
-            content = Linkify(
-              onOpen: _onOpen,
-              text: snapshot.data!.description,
+            content = Column(
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    snapshot.data!.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: WeakText(snapshot.data!.author),
+                ),
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Linkify(
+                    onOpen: _onOpen,
+                    text: snapshot.data!.description,
+                  ),
+                )
+              ],
             );
           } else if (snapshot.hasError) {
             content = Text('Error happened (${snapshot.error})');

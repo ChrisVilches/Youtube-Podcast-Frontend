@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:collection/collection.dart';
@@ -9,10 +10,14 @@ import '../util/youtube_url.dart';
 import 'android_download_tasks.dart';
 import 'api_uri.dart';
 import 'dispatch_download_result.dart';
-import 'locator.dart';
-import 'snackbar_service.dart';
 
-const String _DOWNLOAD_DIR = '/storage/emulated/0/Download/';
+const String _DOWNLOAD_DIR = '/storage/emulated/0/Download';
+
+enum TryOpenFileResult {
+  SHOULD_PROCEED_DOWNLOAD,
+  COULD_OPEN_FILE,
+  FILE_EXISTS_BUT_CANNOT_OPEN
+}
 
 class AndroidDownloadService {
   AndroidDownloadService() {
@@ -44,8 +49,16 @@ class AndroidDownloadService {
       return DispatchDownloadResult.inProgress;
     }
 
-    if (await _tryOpenCompletedFile(task)) {
-      return DispatchDownloadResult.canOpenExisting;
+    final TryOpenFileResult tryOpenResult = await _tryOpenCompletedFile(task);
+
+    switch (tryOpenResult) {
+      case TryOpenFileResult.SHOULD_PROCEED_DOWNLOAD:
+        // Continue downloading file
+        break;
+      case TryOpenFileResult.COULD_OPEN_FILE:
+        return DispatchDownloadResult.canOpenExisting;
+      case TryOpenFileResult.FILE_EXISTS_BUT_CANNOT_OPEN:
+        return DispatchDownloadResult.cannotOpenExisting;
     }
 
     // TODO: Unhandled for now.
@@ -62,9 +75,30 @@ class AndroidDownloadService {
       return DispatchDownloadResult.permissionError;
     }
 
+    // TODO: Sometimes (Android 10) the file is download as ".m4a (2)". When clicking on the notification,
+    //       the file fails to open (clicking on it does nothing).
+
+    final Directory downloadsDirectory = Directory(_DOWNLOAD_DIR);
+    // ignore: avoid_slow_async_io
+    assert(await downloadsDirectory.exists());
+
     await FlutterDownloader.enqueue(
       url: downloadUri(videoId).toString(),
-      savedDir: _DOWNLOAD_DIR,
+      savedDir: downloadsDirectory.path,
+      saveInPublicStorage: true,
+      // TODO: Error:
+      //       It looks like you are trying to save file in public storage but not setting 'saveInPublicStorage' to 'true'
+      //  However this error only happens when doing this:
+      //  Download file
+      //  Remove its associated task (or all tasks)
+      //  Download the file again (<---- error happens here, and the download fails)
+      //  Try to download again (it works perfectly and the download completes)
+      //  So maybe it's not a logic error.
+      //
+      //  And by looking at the Kotlin code, the message is printed for other reasons as well.
+      //
+      //  I think this is fixed by adding "saveInPublicStorage: true" (I tried a few times after adding this and it works)
+      //  Must test on Android 11 as well.
     );
 
     return DispatchDownloadResult.dispatchedCorrectly;
@@ -91,21 +125,24 @@ class AndroidDownloadService {
         task?.status == DownloadTaskStatus.enqueued;
   }
 
-  Future<bool> _tryOpenCompletedFile(DownloadTask? task) async {
+  Future<TryOpenFileResult> _tryOpenCompletedFile(DownloadTask? task) async {
     if (task == null || task.status != DownloadTaskStatus.complete) {
-      return false;
+      return TryOpenFileResult.SHOULD_PROCEED_DOWNLOAD;
     }
 
-    if (await FlutterDownloader.open(taskId: task.taskId)) {
-      return true;
+    final String saveFilePath = '${task.savedDir}/${task.filename!}';
+    // ignore: avoid_slow_async_io
+    final bool fileExists = await File(saveFilePath).exists();
+
+    // When the task is completed, but the file doesn't exist.
+    if (!fileExists) {
+      await FlutterDownloader.remove(taskId: task.taskId);
+      return TryOpenFileResult.SHOULD_PROCEED_DOWNLOAD;
     }
 
-    serviceLocator.get<SnackbarService>().simpleSnackbar(
-          'Cannot open the file (trying to download again...)',
-        );
-    await FlutterDownloader.remove(taskId: task.taskId);
-
-    return false;
+    return (await FlutterDownloader.open(taskId: task.taskId))
+        ? TryOpenFileResult.COULD_OPEN_FILE
+        : TryOpenFileResult.FILE_EXISTS_BUT_CANNOT_OPEN;
   }
 
   @pragma('vm:entry-point')

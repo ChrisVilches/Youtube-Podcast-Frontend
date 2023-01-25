@@ -1,11 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../models/video_item_partial.dart';
-import '../views/video_detail_view.dart';
 import 'video_options_menu.dart';
+import 'weak_text.dart';
 
-class VideoDetail extends StatelessWidget {
-  const VideoDetail({
+// TODO: Pictures look good (size) but the text gets fucked up (the title gets stacked on top of the "DOWNLOAD" button)
+
+const double CARD_HEIGHT = 100;
+
+// Assumes thumbnail ratio is 16:9 for all pictures.
+const double THUMBNAIL_WIDTH = CARD_HEIGHT * 16 / 9;
+
+class VideoItem extends StatelessWidget {
+  const VideoItem({
     super.key,
     required this.item,
     required this.onDownloadPress,
@@ -18,9 +25,9 @@ class VideoDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Dimensions may be slightly incorrect, but it looks good for now anyway.
     final Widget picture = Container(
-      width: 180,
+      height: CARD_HEIGHT,
+      width: THUMBNAIL_WIDTH,
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: ClipRRect(
@@ -47,18 +54,15 @@ class VideoDetail extends StatelessWidget {
               children: <Widget>[
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(item.title, overflow: TextOverflow.ellipsis, maxLines: 4,),
+                  child: Text(
+                    item.title,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    item.author,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                      color: Color.fromRGBO(200, 200, 200, 1),
-                    ),
-                  ),
+                  child: WeakText(item.author),
                 )
               ],
             ),
@@ -92,7 +96,7 @@ class VideoDetail extends StatelessWidget {
 
     final Widget card = Card(
       child: SizedBox(
-        height: 150,
+        height: CARD_HEIGHT * 1.1,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[picture, content],

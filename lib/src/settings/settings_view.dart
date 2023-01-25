@@ -58,9 +58,12 @@ class SettingsView extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: ElevatedButton(
-                    child: const Text(
-                      'Clear download tasks',
-                      textAlign: TextAlign.center,
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        'Clear download tasks',
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                     onPressed: () async {
                       await clearAllDownloadTaskData(
@@ -72,9 +75,12 @@ class SettingsView extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
-                    child: const Text(
-                      'Clear download tasks and data',
-                      textAlign: TextAlign.center,
+                    child: const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        'Clear download tasks and data',
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                     onPressed: () async {
                       await clearAllDownloadTaskData(shouldDeleteContent: true);

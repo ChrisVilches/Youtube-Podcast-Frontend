@@ -3,6 +3,7 @@ enum DispatchDownloadResult {
   inProgress,
   permissionError,
   canOpenExisting,
+  cannotOpenExisting,
   unhandledError
 }
 
@@ -16,6 +17,8 @@ String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
       return 'Cannot get permission to download file';
     case DispatchDownloadResult.unhandledError:
       return 'Task is in an unhandled status (pause)';
+    case DispatchDownloadResult.cannotOpenExisting:
+      return 'File exists, but cannot be opened';
     case DispatchDownloadResult.canOpenExisting:
       return null;
   }

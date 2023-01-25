@@ -4,7 +4,11 @@ typedef VideoID = String;
 
 class VideoItemPartial {
   const VideoItemPartial(
-      this.videoId, this.title, this.thumbnails, this.author);
+    this.videoId,
+    this.title,
+    this.thumbnails,
+    this.author,
+  );
 
   factory VideoItemPartial.fromJson(Map<String, dynamic> obj) {
     final String videoId = obj['videoId'] as String;
