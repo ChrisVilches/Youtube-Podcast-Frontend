@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ffcache/ffcache.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,9 +20,11 @@ Future<void> setUpLocator(GlobalKey<NavigatorState> navigatorKey) async {
     FavoritePlaylistService(),
   );
 
+  serviceLocator.registerSingleton<FFCache>(FFCache());
+
   if (Platform.isAndroid) {
-    final AndroidDownloadService instance = AndroidDownloadService();
-    await instance.init();
-    serviceLocator.registerSingleton<AndroidDownloadService>(instance);
+    serviceLocator
+        .registerSingleton<AndroidDownloadService>(AndroidDownloadService());
+    await AndroidDownloadService.init();
   }
 }

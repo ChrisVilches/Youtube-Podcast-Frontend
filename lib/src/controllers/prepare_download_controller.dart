@@ -35,7 +35,7 @@ class PrepareDownloadController extends ChangeNotifier {
       //       Is it because I cancel and then remove the task as well? Not sure.
       serviceLocator.get<SnackbarService>().snackbarWithAction(msg, 'CANCEL',
           () async {
-        await serviceLocator.get<AndroidDownloadService>().cancelTasks(videoId);
+        await serviceLocator.get<AndroidDownloadService>().cleanVideoTasks(videoId);
         serviceLocator.get<SnackbarService>().simpleSnackbar('Canceled');
       });
     } else {

@@ -1,21 +1,15 @@
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-Future<bool> _isAndroidEmulator() async {
-  if (!Platform.isAndroid) {
-    return false;
-  }
-
-  final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-  final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-  return !androidInfo.isPhysicalDevice;
-}
+import 'device.dart';
 
 Future<String> _filename() async {
-  if (await _isAndroidEmulator()) {
-    return 'emulator';
+  if (await isAndroidEmulator()) {
+    // return 'emulator';
+  }
+
+  if (Platform.isAndroid) {
+    return 'production';
   }
 
   return kReleaseMode ? 'production' : 'development';

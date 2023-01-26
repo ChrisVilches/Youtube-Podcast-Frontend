@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:ffcache/ffcache.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/playlist.dart';
@@ -72,4 +74,30 @@ Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
   } else {
     return downloadVideoBrowser(videoId);
   }
+}
+
+// TODO: Not very good. It doesn't handle all formats.
+String contentDispositionFilename(String header) {
+  return Uri.decodeComponent(header.substring(29));
+}
+
+Future<String> videoFileName(VideoID videoId) async {
+  final FFCache cache = serviceLocator.get<FFCache>();
+  final String? cached = await cache.getString(videoId);
+  if (cached != null) {
+    debugPrint('Obtaining title. Cache hit');
+    return cached;
+  }
+  debugPrint('Obtaining title. Cache miss (must use HEAD method)');
+
+  final Response res = await head(uri('download?v=$videoId'), headers: headers);
+
+  final String contentDispositionHeader = res.headers['content-disposition']!;
+  debugPrint(contentDispositionHeader);
+
+  final String fileName = contentDispositionFilename(contentDispositionHeader);
+
+  await cache.setString(videoId, fileName);
+
+  return fileName;
 }

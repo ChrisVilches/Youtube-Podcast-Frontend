@@ -16,7 +16,7 @@ String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
     case DispatchDownloadResult.permissionError:
       return 'Cannot get permission to download file';
     case DispatchDownloadResult.unhandledError:
-      return 'Task is in an unhandled status (pause)';
+      return 'Unexpected error';
     case DispatchDownloadResult.cannotOpenExisting:
       return 'File exists, but cannot be opened';
     case DispatchDownloadResult.canOpenExisting:
