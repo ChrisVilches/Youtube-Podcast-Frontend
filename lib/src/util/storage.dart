@@ -4,7 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'device.dart';
 
-const String ANDROID_DOWNLOAD_DIR = 'storage/emulated/0/Youtube-Podcast';
+const String _ANDROID_DOWNLOAD_DIR = 'storage/emulated/0/Youtube-Podcast';
 
 Future<bool> hasStoragePermission() async {
   final List<Permission> required;
@@ -28,7 +28,7 @@ Future<bool> hasStoragePermission() async {
 
 Directory _downloadDir() {
   if (Platform.isAndroid) {
-    return Directory(ANDROID_DOWNLOAD_DIR);
+    return Directory(_ANDROID_DOWNLOAD_DIR);
   } else {
     throw Exception('Not implemented for this platform');
   }

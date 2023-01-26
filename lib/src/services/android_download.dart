@@ -30,11 +30,13 @@ class AndroidDownloadService {
       return DispatchDownloadResult.permissionError;
     }
 
+    final Directory dir = await getValidDownloadDir();
+
     if (await _isAlreadyRunning(videoId)) {
       return DispatchDownloadResult.inProgress;
     }
 
-    final OpenResult openResult = await _tryOpenCompletedFile(videoId);
+    final OpenResult openResult = await _tryOpenCompletedFile(dir, videoId);
     debugPrint('Result of trying to open the file: ${openResult.type}');
 
     switch (openResult.type) {
@@ -62,7 +64,7 @@ class AndroidDownloadService {
 
     await FlutterDownloader.enqueue(
       url: downloadUri(videoId).toString(),
-      savedDir: (await getValidDownloadDir()).path,
+      savedDir: dir.path,
     );
 
     return DispatchDownloadResult.dispatchedCorrectly;
@@ -101,12 +103,11 @@ class AndroidDownloadService {
   //       Download a file
   //       Remove the task
   //       Try to open the file. It should open it without downloading it.
-  Future<OpenResult> _tryOpenCompletedFile(VideoID videoId) async {
+  Future<OpenResult> _tryOpenCompletedFile(Directory dir, VideoID videoId) async {
     final String fileName = await videoFileName(videoId);
     debugPrint('Trying to open file $fileName');
 
-    final String savedDir = Directory(ANDROID_DOWNLOAD_DIR).path;
-    final String saveFilePath = join(savedDir, fileName);
+    final String saveFilePath = join(dir.path, fileName);
     return OpenFilex.open(saveFilePath);
   }
 }
