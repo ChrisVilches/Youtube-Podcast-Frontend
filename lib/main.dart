@@ -8,6 +8,7 @@ import 'src/services/prepare_download_service.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 import 'src/util/dotenv.dart';
+import 'src/util/storage.dart';
 
 void main() async {
   if (Platform.isAndroid) {

@@ -6,7 +6,7 @@ import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 
 import '../models/video_item_partial.dart';
 
-late socket_io.Socket _socket;
+late final socket_io.Socket _socket;
 
 final StreamController<VideoPreparedEvent> _videoPreparedEvents =
     StreamController<VideoPreparedEvent>();

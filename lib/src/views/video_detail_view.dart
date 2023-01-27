@@ -15,7 +15,7 @@ class VideoDetailView extends StatefulWidget {
 }
 
 class _VideoDetailViewState extends State<VideoDetailView> {
-  late Future<VideoItem> _future;
+  late final Future<VideoItem> _future;
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _VideoDetailViewState extends State<VideoDetailView> {
       body: FutureBuilder<VideoItem>(
         future: _future,
         builder: (BuildContext context, AsyncSnapshot<VideoItem> snapshot) {
-          late Widget content;
+          late final Widget content;
 
           if (snapshot.hasData) {
             content = Column(

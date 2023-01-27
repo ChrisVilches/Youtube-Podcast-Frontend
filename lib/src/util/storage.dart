@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'device.dart';
@@ -46,4 +47,26 @@ Future<Directory> getValidDownloadDir() async {
   }
 
   return directory;
+}
+
+MethodChannel? _platform;
+
+Future<List<String>> getFilesStoredShallow() async {
+  if (!Platform.isAndroid) {
+    return List<String>.empty();
+  }
+
+  _platform ??= const MethodChannel('youtube_podcast_methods_channel');
+
+  try {
+    final List<Object?>? files = await _platform!.invokeMethod(
+      'getFileList',
+      <String, String>{'path': _ANDROID_DOWNLOAD_DIR},
+    );
+    return List<String>.from(files ?? <Object?>[]);
+  } catch (e) {
+    debugPrint('Kotlin error');
+    debugPrint(e.toString());
+    rethrow;
+  }
 }

@@ -26,10 +26,24 @@ class _FavPlaylistMenuItem extends StatelessWidget {
         ),
       ),
       onPressed: disabled ? null : () => onPressPlaylist(playlist.id),
-      child: Text(
-        playlist.title,
-        style: TextStyle(
-          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 300),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              playlist.title,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            Text(
+              playlist.author,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11),
+            ),
+          ],
         ),
       ),
     );

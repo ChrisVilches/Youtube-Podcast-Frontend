@@ -12,7 +12,7 @@ class SearchBar extends StatefulWidget {
 
 class _SearchBarState extends State<SearchBar> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late TextEditingController _searchController;
+  late final TextEditingController _searchController;
 
   @override
   void initState() {

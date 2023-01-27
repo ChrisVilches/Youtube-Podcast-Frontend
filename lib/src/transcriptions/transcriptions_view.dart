@@ -16,7 +16,7 @@ class TranscriptionView extends StatefulWidget {
 }
 
 class _TranscriptionViewState extends State<TranscriptionView> {
-  late Future<VideoItem> _future;
+  late final Future<VideoItem> _future;
 
   @override
   void initState() {
