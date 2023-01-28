@@ -103,7 +103,10 @@ class AndroidDownloadService {
   //       Download a file
   //       Remove the task
   //       Try to open the file. It should open it without downloading it.
-  Future<OpenResult> _tryOpenCompletedFile(Directory dir, VideoID videoId) async {
+  Future<OpenResult> _tryOpenCompletedFile(
+    Directory dir,
+    VideoID videoId,
+  ) async {
     final String fileName = await videoFileName(videoId);
     debugPrint('Trying to open file $fileName');
 

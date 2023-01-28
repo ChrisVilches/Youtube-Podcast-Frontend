@@ -4,6 +4,8 @@ import 'package:youtube_podcast/src/models/favorite_playlist.dart';
 import 'package:youtube_podcast/src/services/favorite_playlist_service.dart';
 import '../init.dart';
 
+// TODO: All tests are broken with the new Flutter upgrade.
+
 void main() {
   init();
 

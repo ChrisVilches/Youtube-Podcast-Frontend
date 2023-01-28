@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:ffcache/ffcache.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'android_download.dart';
+import 'clipboard_service.dart';
 import 'favorite_playlist_service.dart';
 import 'snackbar_service.dart';
 
@@ -21,6 +23,8 @@ Future<void> setUpLocator(GlobalKey<NavigatorState> navigatorKey) async {
   );
 
   serviceLocator.registerSingleton<FFCache>(FFCache());
+
+  serviceLocator.registerSingleton<ClipboardService>(ClipboardService(pollSeconds: int.parse(dotenv.env['CLIPBOARD_POLL_SECONDS']!)));
 
   if (Platform.isAndroid) {
     serviceLocator

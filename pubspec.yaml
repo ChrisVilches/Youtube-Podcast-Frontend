@@ -48,8 +48,8 @@ flutter:
   generate: true
 
   assets:
-    - .env.development
-    - .env.production
-    - .env.emulator
+    - assets/.env.development
+    - assets/.env.production
+    - assets/.env.emulator
     # Add assets from the images directory to the application.
     - assets/images/

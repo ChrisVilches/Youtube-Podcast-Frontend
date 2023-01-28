@@ -15,6 +15,18 @@ String? parsePlaylistId(String playlistUrl) {
   return uri.queryParameters['list'];
 }
 
+/// Basic check.
+bool isVideoOrPlaylistUrl(String url) {
+  return url.startsWith('https://www.youtube.com/watch?') ||
+      url.startsWith('https://youtu.be/') ||
+      url.startsWith('https://youtube.com/watch?') ||
+      url.startsWith('https://www.youtube.com/shorts/') ||
+      url.startsWith('https://m.youtube.com/watch?') ||
+      url.startsWith('https://www.youtube.com/playlist?');
+  // TODO: I think I have something similar (that detects URLs) somewhere else...
+  //       is that code duplicated?
+}
+
 String createPlaylistUrl(String playlistId) {
   return 'https://www.youtube.com/playlist?list=$playlistId';
 }
