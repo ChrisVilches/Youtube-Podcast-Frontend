@@ -82,7 +82,7 @@ class _SearchViewState extends State<SearchView> {
 
       if (playlistId != null) {
         await _fetchPlaylist(playlistId);
-      } else if(videoId != null) {
+      } else if (videoId != null) {
         await _fetchSingleVideo(videoId);
       } else {
         await _fetchSingleVideo(queryText);

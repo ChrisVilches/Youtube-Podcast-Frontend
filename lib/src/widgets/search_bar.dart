@@ -25,9 +25,11 @@ class _SearchBarState extends State<SearchBar> {
     super.initState();
     _searchController = TextEditingController();
 
-    final ClipboardService clipboardService = serviceLocator.get<ClipboardService>();
+    final ClipboardService clipboardService =
+        serviceLocator.get<ClipboardService>();
 
-    _clipboardEvents = clipboardService.clipboardEvents.stream.listen(_onClipboardUpdated);
+    _clipboardEvents =
+        clipboardService.clipboardEvents.stream.listen(_onClipboardUpdated);
     _currentClipboardValue = clipboardService.currentValue;
   }
 

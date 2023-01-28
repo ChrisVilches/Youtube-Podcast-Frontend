@@ -36,7 +36,12 @@ void main() async {
   }
   debugPrint('---------------------------');
 
-  await setUpLocator(navigatorKey: navigatorKey, clipboardPollSeconds: int.parse(dotenv.env['CLIPBOARD_POLL_SECONDS']!));
+  await setUpLocator(
+    navigatorKey: navigatorKey,
+    clipboardPollSeconds: int.parse(
+      dotenv.env['CLIPBOARD_POLL_SECONDS']!,
+    ),
+  );
   initSocket();
 
   final SettingsController ctrl = SettingsController(SettingsService());
