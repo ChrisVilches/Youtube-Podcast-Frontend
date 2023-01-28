@@ -12,7 +12,10 @@ import 'snackbar_service.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
-Future<void> setUpLocator(GlobalKey<NavigatorState> navigatorKey) async {
+Future<void> setUpLocator({
+  required GlobalKey<NavigatorState> navigatorKey,
+  required int clipboardPollSeconds,
+}) async {
   serviceLocator
       .registerSingleton<SnackbarService>(SnackbarService(navigatorKey));
   serviceLocator.registerSingleton<SharedPreferences>(
@@ -24,7 +27,11 @@ Future<void> setUpLocator(GlobalKey<NavigatorState> navigatorKey) async {
 
   serviceLocator.registerSingleton<FFCache>(FFCache());
 
-  serviceLocator.registerSingleton<ClipboardService>(ClipboardService(pollSeconds: int.parse(dotenv.env['CLIPBOARD_POLL_SECONDS']!)));
+  serviceLocator.registerSingleton<ClipboardService>(
+    ClipboardService(
+      pollSeconds: clipboardPollSeconds,
+    ),
+  );
 
   if (Platform.isAndroid) {
     serviceLocator

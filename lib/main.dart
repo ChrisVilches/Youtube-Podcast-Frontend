@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'src/app.dart';
@@ -28,7 +29,14 @@ void main() async {
     );
   }
 
-  await setUpLocator(navigatorKey);
+  final List<String> files = await getFilesStoredShallow();
+  debugPrint('---------- FILES ----------');
+  for (final String file in files) {
+    debugPrint('File: $file');
+  }
+  debugPrint('---------------------------');
+
+  await setUpLocator(navigatorKey: navigatorKey, clipboardPollSeconds: int.parse(dotenv.env['CLIPBOARD_POLL_SECONDS']!));
   initSocket();
 
   final SettingsController ctrl = SettingsController(SettingsService());

@@ -78,9 +78,12 @@ class _SearchViewState extends State<SearchView> {
 
     try {
       final String? playlistId = parsePlaylistId(queryText);
+      final String? videoId = parseWatchVideoId(queryText);
 
       if (playlistId != null) {
         await _fetchPlaylist(playlistId);
+      } else if(videoId != null) {
+        await _fetchSingleVideo(videoId);
       } else {
         await _fetchSingleVideo(queryText);
       }

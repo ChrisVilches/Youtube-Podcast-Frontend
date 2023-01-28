@@ -15,6 +15,18 @@ String? parsePlaylistId(String playlistUrl) {
   return uri.queryParameters['list'];
 }
 
+String? parseWatchVideoId(String playlistUrl) {
+  final Uri uri = Uri.parse(playlistUrl);
+  final bool correctHost = uri.host.toLowerCase().contains('youtube.com');
+  final bool correctPath = uri.path.toLowerCase() == '/watch';
+
+  if (!correctHost || !correctPath) {
+    return null;
+  }
+
+  return uri.queryParameters['v'];
+}
+
 /// Basic check.
 bool isVideoOrPlaylistUrl(String url) {
   return url.startsWith('https://www.youtube.com/watch?') ||
