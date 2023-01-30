@@ -1,10 +1,7 @@
-String vQueryParam(String url) {
-  final Uri uri = Uri.parse(url);
-  return uri.queryParameters['v']!;
-}
+import 'package:collection/collection.dart';
 
-String? parsePlaylistId(String playlistUrl) {
-  final Uri uri = Uri.parse(playlistUrl);
+String? parsePlaylistId(String url) {
+  final Uri uri = Uri.parse(url);
   final bool correctHost = uri.host.toLowerCase().contains('youtube.com');
   final bool correctPath = uri.path.toLowerCase() == '/playlist';
 
@@ -15,28 +12,36 @@ String? parsePlaylistId(String playlistUrl) {
   return uri.queryParameters['list'];
 }
 
-String? parseWatchVideoId(String playlistUrl) {
-  final Uri uri = Uri.parse(playlistUrl);
-  final bool correctHost = uri.host.toLowerCase().contains('youtube.com');
-  final bool correctPath = uri.path.toLowerCase() == '/watch';
+const List<String> YOUTUBE_HOSTS = <String>[
+  'www.youtube.com',
+  'm.youtube.com',
+  'youtube.com'
+];
 
-  if (!correctHost || !correctPath) {
-    return null;
+String? parseWatchVideoId(String url) {
+  final Uri uri = Uri.parse(url);
+
+  final String host = uri.host.toLowerCase();
+
+  if (YOUTUBE_HOSTS.contains(host)) {
+    final String? firstPath = uri.pathSegments.firstOrNull?.toLowerCase();
+
+    if (firstPath == 'watch') {
+      return uri.queryParameters['v'];
+    }
+
+    if (firstPath == 'embed' || firstPath == 'shorts') {
+      return uri.pathSegments.elementAtOrNull(1);
+    }
+  } else if (host == 'youtu.be') {
+    return uri.pathSegments.firstOrNull;
   }
 
-  return uri.queryParameters['v'];
+  return null;
 }
 
-/// Basic check.
-bool isVideoOrPlaylistUrl(String url) {
-  return url.startsWith('https://www.youtube.com/watch?') ||
-      url.startsWith('https://youtu.be/') ||
-      url.startsWith('https://youtube.com/watch?') ||
-      url.startsWith('https://www.youtube.com/shorts/') ||
-      url.startsWith('https://m.youtube.com/watch?') ||
-      url.startsWith('https://www.youtube.com/playlist?');
-  // TODO: I think I have something similar (that detects URLs) somewhere else...
-  //       is that code duplicated?
+bool isYoutubeContentUrl(String url) {
+  return parsePlaylistId(url) != null || parseWatchVideoId(url) != null;
 }
 
 String createPlaylistUrl(String playlistId) {

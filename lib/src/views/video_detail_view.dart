@@ -65,6 +65,11 @@ class _VideoDetailViewState extends State<VideoDetailView> {
                   child: Linkify(
                     onOpen: _onOpen,
                     text: snapshot.data!.description,
+                    linkStyle: const TextStyle(
+                      decoration: TextDecoration.underline,
+                      color: Color.fromRGBO(0x33, 0xcc, 0xff, 1),
+                      decorationColor: Color.fromRGBO(0x33, 0xcc, 0xff, 1),
+                    ),
                   ),
                 )
               ],

@@ -2,16 +2,91 @@ import 'package:test/test.dart';
 import 'package:youtube_podcast/src/util/youtube_url.dart';
 
 void main() {
-  test(vQueryParam, () {
-    expect(
-      vQueryParam('http://somehost.com/?w=34343&v=qwertyuq1234'),
-      'qwertyuq1234',
-    );
-    expect(
-      vQueryParam('https://www.youtube.com/?v=ABCDEFGH&someflag'),
-      'ABCDEFGH',
-    );
-    // TODO: Test the error when the URL doesn't contain the "v" parameter
-    // expect(() => vQueryParam('https://www.youtube.com/?w=ABCDEFGH&someflag'), ...);
+  group(parseWatchVideoId, () {
+    const String? Function(String url) fn = parseWatchVideoId;
+
+    test('returns null if it cannot be parsed', () {
+      expect(fn('https://www.some_host.com/watch?v=qwerty&flag'), null);
+      expect(fn('https://www.youtube.com/some_path?flag&v=qwerty'), null);
+      expect(fn('https://www.youtube.com/watch?flag&w=qwerty'), null);
+    });
+
+    test('parses watch?v= correctly', () {
+      expect(
+        fn('https://www.youtube.com/watch?v=LrQuTGz7bjQ&ab_channel=mychannel'),
+        'LrQuTGz7bjQ',
+      );
+      expect(
+        fn('https://www.youtube.com/watch?someparam=1234567&v=kCPQUAtMZR4'),
+        'kCPQUAtMZR4',
+      );
+      expect(
+        fn('https://wwW.youtuBe.com/watch?v=LrQuTGz7bjQ&ab_channel=mychannel'),
+        'LrQuTGz7bjQ',
+      );
+      expect(
+        fn('https://www.youtubE.com/wAtCh?someparam=1234567&v=kCPQUAtMZR4'),
+        'kCPQUAtMZR4',
+      );
+    });
+
+    test('parses watch?v= (without www.) correctly', () {
+      expect(
+        fn('https://youtube.com/watch?v=LrQuTGz7bjQ&ab_channel=mychannel'),
+        'LrQuTGz7bjQ',
+      );
+      expect(
+        fn('https://youtube.com/watch?someparam=1234567&v=kCPQUAtMZR4'),
+        'kCPQUAtMZR4',
+      );
+      expect(
+        fn('httpS://youtube.com/watcH?v=LrQuTGz7bjQ&ab_channel=mychannel'),
+        'LrQuTGz7bjQ',
+      );
+      expect(
+        fn('https://Youtube.COM/Watch?someparam=1234567&v=kCPQUAtMZR4'),
+        'kCPQUAtMZR4',
+      );
+    });
+
+    test('parses youtu.be correctly', () {
+      expect(fn('https://youtu.be/Ntn1-SocNiY'), 'Ntn1-SocNiY');
+      expect(fn('https://youtu.be/WIKqgE4BwAY'), 'WIKqgE4BwAY');
+      expect(fn('httpS://youtU.be/Ntn1-SocNiY'), 'Ntn1-SocNiY');
+      expect(fn('hTTps://yOUtu.be/WIKqgE4BwAY'), 'WIKqgE4BwAY');
+
+      expect(fn('https://youtu.be/Ntn1-SocNiY?someparam=1234'), 'Ntn1-SocNiY');
+      expect(fn('https://youtu.be/WIKqgE4BwAY?someflag'), 'WIKqgE4BwAY');
+    });
+
+    test('parses "short video" url correctly', () {
+      expect(
+        fn('https://youtube.com/shorts/5AnWWukyr4w?feature=share'),
+        '5AnWWukyr4w',
+      );
+      expect(fn('https://www.youtube.com/shorts/5YQNW09EHgc'), '5YQNW09EHgc');
+    });
+
+    test('parses mobile url correctly', () {
+      expect(fn('https://m.youtube.com/embed/ho8fvPH_Ro0'), 'ho8fvPH_Ro0');
+      expect(fn('https://m.youtube.com/shorts/5YQNW09EHgc'), '5YQNW09EHgc');
+      expect(
+        fn('https://m.youtube.com/watch?v=LrQuTGz7bjQ&ab_channel=mychannel'),
+        'LrQuTGz7bjQ',
+      );
+    });
+
+    test('parses embed url correctly', () {
+      expect(fn('https://www.youtube.com/embed/ho8fvPH_Ro0'), 'ho8fvPH_Ro0');
+      expect(fn('https://YOUTUBE.com/eMBED/OLB7JYl34y4'), 'OLB7JYl34y4');
+      expect(
+        fn('https://www.youtube.com/embed/ho8fvPH_Ro0?someparam=123'),
+        'ho8fvPH_Ro0',
+      );
+      expect(
+        fn('https://YOUTUBE.com/eMBED/OLB7JYl34y4?someflag'),
+        'OLB7JYl34y4',
+      );
+    });
   });
 }

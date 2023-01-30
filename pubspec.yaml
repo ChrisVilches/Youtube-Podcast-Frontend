@@ -6,8 +6,9 @@ publish_to: 'none'
 
 version: 1.0.0+1
 
+# TODO: Update Dart (and Flutter) to version 3 once it's released (soon I guess?).
 environment:
-  sdk: '>=2.18.6 <3.0.0'
+  sdk: '>=2.19.0 <3.0.0'
 
 dependencies:
   cached_network_image: ^3.2.3
@@ -44,6 +45,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  fonts:
+  - family: WorkSans
+    fonts:
+      - asset: assets/fonts/WorkSans-VariableFont_wght.ttf
+      - asset: assets/fonts/WorkSans-Italic-VariableFont_wght.ttf
+        style: italic
+
   # Enable generation of localized Strings from arb files.
   generate: true
 
@@ -53,3 +61,4 @@ flutter:
     - assets/.env.emulator
     # Add assets from the images directory to the application.
     - assets/images/
+    - assets/fonts/

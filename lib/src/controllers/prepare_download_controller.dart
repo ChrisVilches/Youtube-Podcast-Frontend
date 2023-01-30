@@ -23,6 +23,7 @@ class PrepareDownloadController extends ChangeNotifier {
 
   void showDownloadStatusMessage(
     String? msg,
+    bool hasError,
     bool taskExists,
     VideoID videoId,
   ) {
@@ -30,18 +31,27 @@ class PrepareDownloadController extends ChangeNotifier {
       return;
     }
 
+    SnackBarAction? cancelAction;
+
     if (taskExists && _canCancelDownload()) {
       // TODO: Clicking on "cancel" may make the task become "failed". I'm not sure under what conditions though.
       //       Is it because I cancel and then remove the task as well? Not sure.
-      serviceLocator.get<SnackbarService>().snackbarWithAction(msg, 'CANCEL',
-          () async {
-        await serviceLocator
-            .get<AndroidDownloadService>()
-            .cleanVideoTasks(videoId);
-        serviceLocator.get<SnackbarService>().simpleSnackbar('Canceled');
-      });
+
+      cancelAction = SnackBarAction(
+        label: 'CANCEL',
+        onPressed: () async {
+          await serviceLocator
+              .get<AndroidDownloadService>()
+              .cleanVideoTasks(videoId);
+          serviceLocator.get<SnackbarService>().info('Canceled');
+        },
+      );
+    }
+
+    if (hasError) {
+      serviceLocator.get<SnackbarService>().danger(msg, action: cancelAction);
     } else {
-      serviceLocator.get<SnackbarService>().simpleSnackbar(msg);
+      serviceLocator.get<SnackbarService>().success(msg, action: cancelAction);
     }
   }
 
@@ -49,6 +59,7 @@ class PrepareDownloadController extends ChangeNotifier {
     assert(_beingPrepared.contains(event.videoId));
 
     String? msg;
+    bool ok;
     bool taskExists = false;
 
     if (event.success) {
@@ -58,11 +69,13 @@ class PrepareDownloadController extends ChangeNotifier {
 
       msg = dispatchDownloadResultMessage(dispatchResult);
       taskExists = true;
+      ok = dispatchDownloadResultSuccess(dispatchResult);
     } else {
       msg = 'Video cannot be downloaded';
+      ok = false;
     }
 
-    showDownloadStatusMessage(msg, taskExists, event.videoId);
+    showDownloadStatusMessage(msg, !ok, taskExists, event.videoId);
 
     _beingPrepared.remove(event.videoId);
     notifyListeners();

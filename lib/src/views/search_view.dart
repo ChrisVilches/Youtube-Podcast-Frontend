@@ -87,6 +87,8 @@ class _SearchViewState extends State<SearchView> {
       } else {
         await _fetchSingleVideo(queryText);
       }
+    } catch (e) {
+      serviceLocator.get<SnackbarService>().danger(e.toString());
     } finally {
       await _setLoading(false);
     }
@@ -107,7 +109,7 @@ class _SearchViewState extends State<SearchView> {
               (List<FavoritePlaylist> newList, bool removed) {
             setState(() => _favoritedPlaylists = newList);
 
-            serviceLocator.get<SnackbarService>().simpleSnackbar(
+            serviceLocator.get<SnackbarService>().success(
                   removed ? 'Removed from favorites' : 'Added to favorites',
                 );
           },

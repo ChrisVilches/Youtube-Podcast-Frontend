@@ -23,3 +23,13 @@ String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
       return null;
   }
 }
+
+const List<DispatchDownloadResult> SUCCESS_RESULTS = <DispatchDownloadResult>[
+  DispatchDownloadResult.dispatchedCorrectly,
+  DispatchDownloadResult.inProgress,
+  DispatchDownloadResult.canOpenExisting
+];
+
+bool dispatchDownloadResultSuccess(DispatchDownloadResult value) {
+  return SUCCESS_RESULTS.contains(value);
+}

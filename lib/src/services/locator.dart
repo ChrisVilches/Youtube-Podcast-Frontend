@@ -13,7 +13,6 @@ final GetIt serviceLocator = GetIt.instance;
 
 Future<void> setUpLocator({
   required GlobalKey<NavigatorState> navigatorKey,
-  required int clipboardPollSeconds,
 }) async {
   serviceLocator
       .registerSingleton<SnackbarService>(SnackbarService(navigatorKey));
@@ -26,11 +25,7 @@ Future<void> setUpLocator({
 
   serviceLocator.registerSingleton<FFCache>(FFCache());
 
-  serviceLocator.registerSingleton<ClipboardService>(
-    ClipboardService(
-      pollSeconds: clipboardPollSeconds,
-    ),
-  );
+  serviceLocator.registerSingleton<ClipboardService>(ClipboardService());
 
   if (Platform.isAndroid) {
     serviceLocator

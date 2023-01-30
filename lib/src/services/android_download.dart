@@ -1,12 +1,10 @@
 import 'dart:io';
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart';
 import '../models/video_item_partial.dart';
 import '../util/storage.dart';
-import '../util/youtube_url.dart';
 import 'android_download_tasks.dart';
 import 'api_uri.dart';
 import 'dispatch_download_result.dart';
@@ -73,9 +71,7 @@ class AndroidDownloadService {
   Future<void> cleanVideoTasks(VideoID videoId) async {
     assert(!videoId.contains('http'));
 
-    final List<DownloadTask> tasks = (await allTasks())
-        .where((DownloadTask t) => vQueryParam(t.url) == videoId)
-        .toList();
+    final List<DownloadTask> tasks = await _findTasks(videoId);
 
     for (final DownloadTask task in tasks) {
       await FlutterDownloader.cancel(taskId: task.taskId);
@@ -86,23 +82,19 @@ class AndroidDownloadService {
     }
   }
 
-  Future<bool> _isAlreadyRunning(VideoID videoId) async {
-    final DownloadTask? runningTask = (await allTasks()).firstWhereOrNull(
-      (DownloadTask t) =>
-          t.status == DownloadTaskStatus.running &&
-          vQueryParam(t.url) == videoId,
-    );
-    return runningTask != null;
+  bool _urlHasId(String url, VideoID videoId) {
+    return Uri.parse(url).queryParameters['v'] == videoId;
   }
 
-  // TODO: This seems to work.
-  //       Clean & Refactor
-  //       Test on Android 11
-  //
-  //       How to test:
-  //       Download a file
-  //       Remove the task
-  //       Try to open the file. It should open it without downloading it.
+  Future<List<DownloadTask>> _findTasks(VideoID videoId) async =>
+      (await allTasks())
+          .where((DownloadTask t) => _urlHasId(t.url, videoId))
+          .toList();
+
+  Future<bool> _isAlreadyRunning(VideoID videoId) async =>
+      (await _findTasks(videoId))
+          .any((DownloadTask t) => t.status == DownloadTaskStatus.running);
+
   Future<OpenResult> _tryOpenCompletedFile(
     Directory dir,
     VideoID videoId,

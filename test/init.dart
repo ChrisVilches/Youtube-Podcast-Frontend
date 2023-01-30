@@ -8,5 +8,5 @@ void init() {
   SharedPreferences.setMockInitialValues(<String, Object>{});
   final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
   // ignore: discarded_futures
-  setUpLocator(navigatorKey: navKey, clipboardPollSeconds: 10);
+  setUpLocator(navigatorKey: navKey);
 }

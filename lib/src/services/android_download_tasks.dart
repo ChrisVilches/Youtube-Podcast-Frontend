@@ -21,7 +21,5 @@ Future<void> clearAllDownloadTaskData({
   }
 
   assert((await allTasks()).isEmpty);
-  serviceLocator
-      .get<SnackbarService>()
-      .simpleSnackbar('Removed $prevCount items');
+  serviceLocator.get<SnackbarService>().success('Removed $prevCount items');
 }
