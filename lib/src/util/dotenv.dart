@@ -5,7 +5,7 @@ import 'device.dart';
 
 Future<String> _filename() async {
   if (await isAndroidEmulator()) {
-    // return 'emulator';
+    return 'emulator';
   }
 
   if (Platform.isAndroid) {

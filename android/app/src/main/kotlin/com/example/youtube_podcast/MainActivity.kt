@@ -10,8 +10,7 @@ class MainActivity : FlutterActivity() {
     private val channel = "youtube_podcast_methods_channel"
 
     private fun getFileList(dir: String): List<String> {
-        // TODO: Includes the folder name (e.g. Youtube-Podcast). It shouldn't.
-        return File(dir).walk().map { it.name }.toList()
+        return File(dir).walk().filter { it.path != dir }.map { it.name }.toList()
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

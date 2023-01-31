@@ -4,8 +4,6 @@ import '../models/video_item_partial.dart';
 import 'video_options_menu.dart';
 import 'weak_text.dart';
 
-// TODO: Pictures look good (size) but the text gets fucked up (the title gets stacked on top of the "DOWNLOAD" button)
-
 const double CARD_HEIGHT = 100;
 
 // Assumes thumbnail ratio is 16:9 for all pictures.

@@ -59,6 +59,11 @@ class AndroidDownloadService {
     //       This should not happen (in a normal situation) anymore, because the file will be attempted to be opened
     //       if it already exists.
     //       If this problem doesn't happen in a while, remove this todo.
+    //
+    //       If the file is canceled (or fails) and the task record is removed, this may happen if I try to
+    //       download the file again. Because the "cleanVideoTasks" doesn't remove the file either. I may need to remove the file
+    //       if I'm going to download it again (return unhandledError if it can't be removed), also this is possible because I know
+    //       the name of the file even if the task entry doesn't exist.
 
     await FlutterDownloader.enqueue(
       url: downloadUri(videoId).toString(),

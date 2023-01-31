@@ -11,6 +11,7 @@ import '../services/favorite_playlist_service.dart';
 import '../services/locator.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
+import '../util/sleep.dart';
 import '../util/youtube_url.dart';
 import '../widgets/fav_playlist_menu.dart';
 import '../widgets/playlist_info.dart';
@@ -29,6 +30,7 @@ class _SearchViewState extends State<SearchView> {
   Playlist? _currentPlaylist;
   List<VideoItemPartial> _videoItems = List<VideoItemPartial>.empty();
   List<FavoritePlaylist> _favoritedPlaylists = List<FavoritePlaylist>.empty();
+  String? _latestExecutedSearchQuery;
 
   @override
   void initState() {
@@ -59,22 +61,25 @@ class _SearchViewState extends State<SearchView> {
     });
   }
 
-  Future<void> _setLoading(bool loading) async {
+  Future<void> _setLoading(bool loading, {bool showLoader = true}) async {
     if (loading == _isLoading) {
       return;
     }
 
     setState(() => _isLoading = loading);
 
-    if (loading) {
+    if (loading && showLoader) {
       await EasyLoading.show();
     } else {
       await EasyLoading.dismiss();
     }
   }
 
-  Future<void> _executeSearch(String queryText) async {
-    await _setLoading(true);
+  Future<void> _executeSearch(
+    String queryText, {
+    bool showLoader = true,
+  }) async {
+    await _setLoading(true, showLoader: showLoader);
 
     try {
       final String? playlistId = parsePlaylistId(queryText);
@@ -87,6 +92,8 @@ class _SearchViewState extends State<SearchView> {
       } else {
         await _fetchSingleVideo(queryText);
       }
+
+      _latestExecutedSearchQuery = queryText;
     } catch (e) {
       serviceLocator.get<SnackbarService>().danger(e.toString());
     } finally {
@@ -144,7 +151,17 @@ class _SearchViewState extends State<SearchView> {
 
     return ChangeNotifierProvider<PrepareDownloadController>(
       create: (_) => PrepareDownloadController(),
-      child: child,
+      child: RefreshIndicator(
+        onRefresh: () async {
+          if (_isLoading || _latestExecutedSearchQuery == null) {
+            return;
+          }
+
+          // Uses another loader (provided by the RefreshIndicator), so hide the default one.
+          await _executeSearch(_latestExecutedSearchQuery!, showLoader: false);
+        },
+        child: child,
+      ),
     );
   }
 }
