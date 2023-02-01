@@ -1,26 +1,22 @@
-import 'dart:io';
 import 'package:ffcache/ffcache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../models/playlist.dart';
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../util/sleep.dart';
-import 'android_download.dart';
 import 'api_uri.dart';
-import 'dispatch_download_result.dart';
 import 'favorite_playlist_service.dart';
 import 'http_error.dart';
 import 'locator.dart';
 
-const Map<String, String> headers = <String, String>{
+const Map<String, String> _headers = <String, String>{
   'Content-type': 'application/json'
 };
 
 Future<VideoItem> getVideoInfo(VideoID videoId) async {
-  final Response res = await get(uri('info?v=$videoId'), headers: headers);
+  final Response res = await get(uri('info?v=$videoId'), headers: _headers);
   final Map<String, dynamic> body = toJson(res);
   final Map<String, dynamic> metadata =
       body['metadata'] as Map<String, dynamic>;
@@ -29,7 +25,7 @@ Future<VideoItem> getVideoInfo(VideoID videoId) async {
 }
 
 Future<Playlist> getVideosFromPlaylist(String id) async {
-  final Response res = await get(uri('playlist/$id'), headers: headers);
+  final Response res = await get(uri('playlist/$id'), headers: _headers);
   final Map<String, dynamic> body = toJson(res);
 
   final Playlist playlist = Playlist.fromJson(body);
@@ -47,7 +43,7 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
   String lang,
 ) async {
   final Response res =
-      await get(uri('transcriptions?v=$videoId&lang=$lang'), headers: headers);
+      await get(uri('transcriptions?v=$videoId&lang=$lang'), headers: _headers);
 
   final Map<String, dynamic> body = toJson(res);
 
@@ -56,24 +52,6 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
         (dynamic o) => TranscriptionEntry.fromJson(o as Map<String, dynamic>),
       )
       .toList();
-}
-
-Future<DispatchDownloadResult> downloadVideoBrowser(VideoID videoId) async {
-  assert(!videoId.contains('http'));
-  await launchUrl(
-    downloadUri(videoId),
-    mode: LaunchMode.externalNonBrowserApplication,
-  );
-
-  return DispatchDownloadResult.dispatchedCorrectly;
-}
-
-Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
-  if (Platform.isAndroid) {
-    return serviceLocator.get<AndroidDownloadService>().downloadVideo(videoId);
-  } else {
-    return downloadVideoBrowser(videoId);
-  }
 }
 
 // TODO: Not very good. It doesn't handle all formats.
@@ -90,7 +68,8 @@ Future<String> videoFileName(VideoID videoId) async {
   }
   debugPrint('Obtaining title. Cache miss (must use HEAD method)');
 
-  final Response res = await head(uri('download?v=$videoId'), headers: headers);
+  final Response res =
+      await head(uri('download?v=$videoId'), headers: _headers);
 
   final String contentDispositionHeader = res.headers['content-disposition']!;
   debugPrint(contentDispositionHeader);

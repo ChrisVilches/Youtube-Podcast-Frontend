@@ -11,7 +11,6 @@ import '../services/favorite_playlist_service.dart';
 import '../services/locator.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
-import '../util/sleep.dart';
 import '../util/youtube_url.dart';
 import '../widgets/fav_playlist_menu.dart';
 import '../widgets/playlist_info.dart';
@@ -138,14 +137,7 @@ class _SearchViewState extends State<SearchView> {
           disableButtons: _isLoading,
         ),
         if (_currentPlaylist != null) playlistInfo(),
-        Consumer<PrepareDownloadController>(
-          builder: (
-            BuildContext context,
-            PrepareDownloadController ctrl,
-            _,
-          ) =>
-              Expanded(child: VideoList(items: _videoItems)),
-        ),
+        Expanded(child: VideoList(items: _videoItems)),
       ],
     );
 

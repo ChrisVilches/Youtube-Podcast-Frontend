@@ -42,14 +42,7 @@ class _TranscriptionViewState extends State<TranscriptionView> {
                   TranscriptionsController(detail),
               child: Column(
                 children: <Widget>[
-                  Consumer<TranscriptionsController>(
-                    builder: (
-                      BuildContext context,
-                      TranscriptionsController ctrl,
-                      _,
-                    ) =>
-                        const Center(child: TranscriptionMenu()),
-                  ),
+                  const Center(child: TranscriptionMenu()),
                   Consumer<TranscriptionsController>(
                     builder: (
                       BuildContext context,

@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/video_item_partial.dart';
-import '../services/android_download.dart';
-import '../services/dispatch_download_result.dart';
+import '../services/download_service.dart';
 import '../services/locator.dart';
 import '../services/prepare_download_service.dart';
 import '../services/snackbar_service.dart';
-import '../services/youtube.dart';
 
 class PrepareDownloadController extends ChangeNotifier {
   PrepareDownloadController() {
@@ -18,7 +15,7 @@ class PrepareDownloadController extends ChangeNotifier {
   late StreamSubscription<VideoPreparedEvent> _subscription;
 
   bool _canCancelDownload() {
-    return Platform.isAndroid;
+    return serviceLocator.get<DownloadService>().canCancelDownload();
   }
 
   void showDownloadStatusMessage(
@@ -41,8 +38,8 @@ class PrepareDownloadController extends ChangeNotifier {
         label: 'CANCEL',
         onPressed: () async {
           await serviceLocator
-              .get<AndroidDownloadService>()
-              .cleanVideoTasks(videoId);
+              .get<DownloadService>()
+              .cancelVideoDownload(videoId);
           serviceLocator.get<SnackbarService>().info('Canceled');
         },
       );
@@ -64,8 +61,9 @@ class PrepareDownloadController extends ChangeNotifier {
 
     if (event.success) {
       // Wait for the download task to be enqueued.
-      final DispatchDownloadResult dispatchResult =
-          await downloadVideo(event.videoId);
+      final DispatchDownloadResult dispatchResult = await serviceLocator
+          .get<DownloadService>()
+          .downloadVideo(event.videoId);
 
       msg = dispatchDownloadResultMessage(dispatchResult);
       taskExists = true;

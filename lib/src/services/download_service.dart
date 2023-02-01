@@ -1,3 +1,5 @@
+import '../models/video_item_partial.dart';
+
 enum DispatchDownloadResult {
   dispatchedCorrectly,
   inProgress,
@@ -24,12 +26,18 @@ String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
   }
 }
 
-const List<DispatchDownloadResult> SUCCESS_RESULTS = <DispatchDownloadResult>[
+const List<DispatchDownloadResult> _SUCCESS_RESULTS = <DispatchDownloadResult>[
   DispatchDownloadResult.dispatchedCorrectly,
   DispatchDownloadResult.inProgress,
   DispatchDownloadResult.canOpenExisting
 ];
 
 bool dispatchDownloadResultSuccess(DispatchDownloadResult value) {
-  return SUCCESS_RESULTS.contains(value);
+  return _SUCCESS_RESULTS.contains(value);
+}
+
+abstract class DownloadService {
+  Future<DispatchDownloadResult> downloadVideo(VideoID videoId);
+  Future<void> cancelVideoDownload(VideoID videoId);
+  bool canCancelDownload();
 }

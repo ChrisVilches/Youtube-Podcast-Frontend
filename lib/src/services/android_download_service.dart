@@ -7,22 +7,18 @@ import '../models/video_item_partial.dart';
 import '../util/storage.dart';
 import 'android_download_tasks.dart';
 import 'api_uri.dart';
-import 'dispatch_download_result.dart';
+import 'download_service.dart';
 import 'youtube.dart';
 
-class AndroidDownloadService {
-  static bool _init = false;
+class AndroidDownloadService implements DownloadService {
+  AndroidDownloadService() {
+    // ignore: discarded_futures
+    FlutterDownloader.registerCallback(callback);
+  }
 
   static void callback(String _, DownloadTaskStatus __, int ___) {}
 
-  static Future<void> init() async {
-    if (_init) {
-      return;
-    }
-    _init = true;
-    await FlutterDownloader.registerCallback(callback);
-  }
-
+  @override
   Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
     if (!(await hasStoragePermission())) {
       return DispatchDownloadResult.permissionError;
@@ -52,7 +48,7 @@ class AndroidDownloadService {
     }
 
     // Pre-cleaning to remove canceled/failed tasks.
-    await cleanVideoTasks(videoId);
+    await cancelVideoDownload(videoId);
 
     // TODO: Sometimes (Android 10) the file is download as ".m4a (2)". When clicking on the notification,
     //       the file fails to open (clicking on it does nothing).
@@ -73,7 +69,8 @@ class AndroidDownloadService {
     return DispatchDownloadResult.dispatchedCorrectly;
   }
 
-  Future<void> cleanVideoTasks(VideoID videoId) async {
+  @override
+  Future<void> cancelVideoDownload(VideoID videoId) async {
     assert(!videoId.contains('http'));
 
     final List<DownloadTask> tasks = await _findTasks(videoId);
@@ -109,5 +106,10 @@ class AndroidDownloadService {
 
     final String saveFilePath = join(dir.path, fileName);
     return OpenFilex.open(saveFilePath);
+  }
+
+  @override
+  bool canCancelDownload() {
+    return true;
   }
 }
