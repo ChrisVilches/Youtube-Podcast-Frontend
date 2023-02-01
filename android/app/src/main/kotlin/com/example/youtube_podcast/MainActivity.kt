@@ -10,7 +10,7 @@ class MainActivity : FlutterActivity() {
     private val channel = "youtube_podcast_methods_channel"
 
     private fun getFileList(dir: String): List<String> {
-        return File(dir).walk().filter { it.path != dir }.map { it.name }.toList()
+        return File(dir).walk().filter { it.path != dir }.map { it.name }.sorted().toList()
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
