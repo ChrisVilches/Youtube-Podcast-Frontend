@@ -6,7 +6,7 @@ class WeakText extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Text(
       text,
       overflow: TextOverflow.ellipsis,

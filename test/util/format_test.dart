@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:youtube_podcast/src/util/format.dart';
 
-double createTime(int h, int m, int s, int ms) {
+double createTime(final int h, final int m, final int s, final int ms) {
   return (3600 * h) + (60 * m) + s + (ms / 1000);
 }
 

@@ -19,10 +19,10 @@ class PrepareDownloadController extends ChangeNotifier {
   }
 
   void showDownloadStatusMessage(
-    String? msg,
-    bool hasError,
-    bool taskExists,
-    VideoID videoId,
+    final String? msg,
+    final bool hasError,
+    final bool taskExists,
+    final VideoID videoId,
   ) {
     if (msg == null) {
       return;
@@ -52,7 +52,7 @@ class PrepareDownloadController extends ChangeNotifier {
     }
   }
 
-  Future<void> _handlePreparedEvent(VideoPreparedEvent event) async {
+  Future<void> _handlePreparedEvent(final VideoPreparedEvent event) async {
     assert(_beingPrepared.contains(event.videoId));
 
     String? msg;
@@ -81,7 +81,7 @@ class PrepareDownloadController extends ChangeNotifier {
 
   Set<String> get beingPrepared => _beingPrepared;
 
-  void startPrepareProcess(VideoID videoId) {
+  void startPrepareProcess(final VideoID videoId) {
     assert(!_beingPrepared.contains(videoId));
     _beingPrepared.add(videoId);
     notifyListeners();

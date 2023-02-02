@@ -21,7 +21,7 @@ class VideoPreparedEvent {
 StreamController<VideoPreparedEvent> get videoPreparedEvents =>
     _videoPreparedEvents;
 
-void _onPreparedResult(dynamic raw) {
+void _onPreparedResult(final dynamic raw) {
   final Map<String, dynamic> data =
       jsonDecode(raw as String) as Map<String, dynamic>;
   final VideoID videoId = data['videoId'] as VideoID;
@@ -37,12 +37,12 @@ void initSocket() {
 
   _socket = socket_io.io(dotenv.env['SOCKET_IO_ENDPOINT_BASE'], opts);
 
-  _socket.onError((dynamic data) => debugPrint(data.toString()));
+  _socket.onError((final dynamic data) => debugPrint(data.toString()));
   _socket.on('prepared-result', _onPreparedResult);
-  _socket.onConnect((_) => debugPrint('Connected to sockets correctly'));
-  _socket.onDisconnect((_) => debugPrint('Disconnected from Socket.IO'));
+  _socket.onConnect((final _) => debugPrint('Connected to sockets correctly'));
+  _socket.onDisconnect((final _) => debugPrint('Disconnected from Socket.IO'));
 }
 
-void waitForResult(VideoID videoId) {
+void waitForResult(final VideoID videoId) {
   _socket.emit('execute-prepare', videoId);
 }

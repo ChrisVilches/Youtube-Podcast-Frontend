@@ -44,7 +44,7 @@ class _SearchBarState extends State<SearchBar> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Form(
       key: _formKey,
       child: Row(
@@ -55,7 +55,7 @@ class _SearchBarState extends State<SearchBar> {
               decoration: const InputDecoration(
                 hintText: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
               ),
-              validator: (String? value) {
+              validator: (final String? value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a video or playlist URL';
                 }

@@ -21,7 +21,7 @@ class SettingsService {
     return ThemeMode.system;
   }
 
-  Future<void> updateThemeMode(ThemeMode theme) async {
+  Future<void> updateThemeMode(final ThemeMode theme) async {
     await serviceLocator
         .get<SharedPreferences>()
         .setString(themeKey, theme.name);

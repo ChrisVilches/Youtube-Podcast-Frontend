@@ -16,7 +16,7 @@ class _FavPlaylistMenuItem extends StatelessWidget {
   final bool disabled;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -65,11 +65,11 @@ class FavPlaylistMenu extends StatelessWidget {
   final bool disableButtons;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final Widget list = ListView.builder(
       itemCount: playlists.length,
       scrollDirection: Axis.horizontal,
-      itemBuilder: (_, int index) => Padding(
+      itemBuilder: (final _, final int index) => Padding(
         padding: const EdgeInsets.only(left: 8, right: 8),
         child: _FavPlaylistMenuItem(
           playlist: playlists[index],

@@ -9,7 +9,7 @@ enum DispatchDownloadResult {
   unhandledError
 }
 
-String? dispatchDownloadResultMessage(DispatchDownloadResult value) {
+String? dispatchDownloadResultMessage(final DispatchDownloadResult value) {
   switch (value) {
     case DispatchDownloadResult.dispatchedCorrectly:
       return 'Download started';
@@ -32,12 +32,12 @@ const List<DispatchDownloadResult> _SUCCESS_RESULTS = <DispatchDownloadResult>[
   DispatchDownloadResult.canOpenExisting
 ];
 
-bool dispatchDownloadResultSuccess(DispatchDownloadResult value) {
+bool dispatchDownloadResultSuccess(final DispatchDownloadResult value) {
   return _SUCCESS_RESULTS.contains(value);
 }
 
 abstract class DownloadService {
-  Future<DispatchDownloadResult> downloadVideo(VideoID videoId);
-  Future<void> cancelVideoDownload(VideoID videoId);
+  Future<DispatchDownloadResult> downloadVideo(final VideoID videoId);
+  Future<void> cancelVideoDownload(final VideoID videoId);
   bool canCancelDownload();
 }

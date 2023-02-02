@@ -15,7 +15,7 @@ const Map<String, String> _headers = <String, String>{
   'Content-type': 'application/json'
 };
 
-Future<VideoItem> getVideoInfo(VideoID videoId) async {
+Future<VideoItem> getVideoInfo(final VideoID videoId) async {
   final Response res = await get(uri('info?v=$videoId'), headers: _headers);
   final Map<String, dynamic> body = toJson(res);
   final Map<String, dynamic> metadata =
@@ -24,7 +24,7 @@ Future<VideoItem> getVideoInfo(VideoID videoId) async {
   return VideoItem.fromJson(metadata);
 }
 
-Future<Playlist> getVideosFromPlaylist(String id) async {
+Future<Playlist> getVideosFromPlaylist(final String id) async {
   final Response res = await get(uri('playlist/$id'), headers: _headers);
   final Map<String, dynamic> body = toJson(res);
 
@@ -39,8 +39,8 @@ Future<Playlist> getVideosFromPlaylist(String id) async {
 }
 
 Future<List<TranscriptionEntry>> getTranscriptionContent(
-  VideoID videoId,
-  String lang,
+  final VideoID videoId,
+  final String lang,
 ) async {
   final Response res =
       await get(uri('transcriptions?v=$videoId&lang=$lang'), headers: _headers);
@@ -49,17 +49,25 @@ Future<List<TranscriptionEntry>> getTranscriptionContent(
 
   return (body['transcription'] as List<dynamic>)
       .map(
-        (dynamic o) => TranscriptionEntry.fromJson(o as Map<String, dynamic>),
+        (final dynamic o) =>
+            TranscriptionEntry.fromJson(o as Map<String, dynamic>),
       )
       .toList();
 }
 
-// TODO: Not very good. It doesn't handle all formats.
-String contentDispositionFilename(String header) {
-  return Uri.decodeComponent(header.substring(29));
+String contentDispositionFilename(final String header) {
+  final RegExp filenameRegex = RegExp(r"filename\*=UTF-8''|filename=");
+
+  final String filename = header
+      .replaceAll('"', '')
+      .split(';')
+      .firstWhere((final String s) => s.contains(filenameRegex))
+      .trim()
+      .replaceAll(filenameRegex, '');
+  return Uri.decodeComponent(filename);
 }
 
-Future<String> videoFileName(VideoID videoId) async {
+Future<String> videoFileName(final VideoID videoId) async {
   final FFCache cache = serviceLocator.get<FFCache>();
   final String? cached = await cache.getString(videoId);
   if (cached != null) {

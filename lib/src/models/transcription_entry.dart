@@ -1,5 +1,5 @@
 class TranscriptionEntry {
-  TranscriptionEntry.fromJson(Map<String, dynamic> obj)
+  TranscriptionEntry.fromJson(final Map<String, dynamic> obj)
       : text = obj['text'] as String,
         start = double.tryParse(obj['start'].toString())!,
         duration = double.tryParse(obj['duration'].toString())!;

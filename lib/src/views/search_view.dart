@@ -37,13 +37,13 @@ class _SearchViewState extends State<SearchView> {
 
     // ignore: discarded_futures
     serviceLocator.get<FavoritePlaylistService>().getAll().then(
-          (List<FavoritePlaylist> list) => setState(() {
+          (final List<FavoritePlaylist> list) => setState(() {
             _favoritedPlaylists = list;
           }),
         );
   }
 
-  Future<void> _fetchSingleVideo(VideoID videoId) async {
+  Future<void> _fetchSingleVideo(final VideoID videoId) async {
     final List<VideoItem> items = <VideoItem>[await getVideoInfo(videoId)];
 
     setState(() {
@@ -52,7 +52,7 @@ class _SearchViewState extends State<SearchView> {
     });
   }
 
-  Future<void> _fetchPlaylist(String id) async {
+  Future<void> _fetchPlaylist(final String id) async {
     final Playlist playlist = await getVideosFromPlaylist(id);
     setState(() {
       _currentPlaylist = playlist;
@@ -60,7 +60,10 @@ class _SearchViewState extends State<SearchView> {
     });
   }
 
-  Future<void> _setLoading(bool loading, {bool showLoader = true}) async {
+  Future<void> _setLoading(
+    final bool loading, {
+    final bool showLoader = true,
+  }) async {
     if (loading == _isLoading) {
       return;
     }
@@ -75,8 +78,8 @@ class _SearchViewState extends State<SearchView> {
   }
 
   Future<void> _executeSearch(
-    String queryText, {
-    bool showLoader = true,
+    final String queryText, {
+    final bool showLoader = true,
   }) async {
     await _setLoading(true, showLoader: showLoader);
 
@@ -102,17 +105,17 @@ class _SearchViewState extends State<SearchView> {
 
   bool _currentPlaylistIsFavorited() {
     return _favoritedPlaylists.firstWhereOrNull(
-          (FavoritePlaylist fp) => fp.id == _currentPlaylist!.id,
+          (final FavoritePlaylist fp) => fp.id == _currentPlaylist!.id,
         ) !=
         null;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     Widget playlistInfo() => PlaylistInfo(
           favorited: _currentPlaylistIsFavorited(),
           onFavoritePlaylistsChange:
-              (List<FavoritePlaylist> newList, bool removed) {
+              (final List<FavoritePlaylist> newList, final bool removed) {
             setState(() => _favoritedPlaylists = newList);
 
             serviceLocator.get<SnackbarService>().success(
@@ -132,7 +135,7 @@ class _SearchViewState extends State<SearchView> {
         FavPlaylistMenu(
           playlists: _favoritedPlaylists,
           selectedPlaylistId: _currentPlaylist?.id,
-          onPressPlaylist: (String playlistId) async =>
+          onPressPlaylist: (final String playlistId) async =>
               _executeSearch(createPlaylistUrl(playlistId)),
           disableButtons: _isLoading,
         ),
@@ -142,7 +145,7 @@ class _SearchViewState extends State<SearchView> {
     );
 
     return ChangeNotifierProvider<PrepareDownloadController>(
-      create: (_) => PrepareDownloadController(),
+      create: (final _) => PrepareDownloadController(),
       child: RefreshIndicator(
         onRefresh: () async {
           if (_isLoading || _latestExecutedSearchQuery == null) {

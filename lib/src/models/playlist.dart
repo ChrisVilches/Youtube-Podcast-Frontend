@@ -1,13 +1,13 @@
 import 'video_item_partial.dart';
 
-List<VideoItemPartial> _parseItems(List<dynamic> items) => items
+List<VideoItemPartial> _parseItems(final List<dynamic> items) => items
     .map<VideoItemPartial>(
-      (dynamic o) => VideoItemPartial.fromJson(o as Map<String, dynamic>),
+      (final dynamic o) => VideoItemPartial.fromJson(o as Map<String, dynamic>),
     )
     .toList();
 
 class Playlist {
-  Playlist.fromJson(Map<String, dynamic> obj)
+  Playlist.fromJson(final Map<String, dynamic> obj)
       : id = obj['id'] as String,
         title = obj['title'] as String,
         author = obj['author'] as String,

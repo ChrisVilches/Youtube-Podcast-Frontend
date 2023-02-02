@@ -15,7 +15,7 @@ class HttpException implements Exception {
 /// Parses a JSON object from a Response object.
 /// Throws [HttpException] if the response doesn't have a
 /// success status code.
-Map<String, dynamic> toJson(Response res) {
+Map<String, dynamic> toJson(final Response res) {
   final Map<String, dynamic> parsedBody =
       jsonDecode(res.body) as Map<String, dynamic>;
 

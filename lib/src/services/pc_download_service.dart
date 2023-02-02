@@ -7,12 +7,12 @@ import 'download_service.dart';
 
 class PcDownloadService implements DownloadService {
   @override
-  Future<void> cancelVideoDownload(VideoID videoId) async {
+  Future<void> cancelVideoDownload(final VideoID videoId) async {
     debugPrint('Canceled a download on PC version (nothing happened)');
   }
 
   @override
-  Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
+  Future<DispatchDownloadResult> downloadVideo(final VideoID videoId) async {
     assert(!videoId.contains('http'));
     await launchUrl(
       downloadUri(videoId),

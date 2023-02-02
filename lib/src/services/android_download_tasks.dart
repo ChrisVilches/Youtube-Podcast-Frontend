@@ -7,7 +7,7 @@ Future<List<DownloadTask>> allTasks() async {
 }
 
 Future<void> clearAllDownloadTaskData({
-  required bool shouldDeleteContent,
+  required final bool shouldDeleteContent,
 }) async {
   final List<DownloadTask> tasks = await allTasks();
 

@@ -9,7 +9,7 @@ class TranscriptionEntryTile extends StatelessWidget {
   final TranscriptionEntry entry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ListTile(
       leading: SizedBox(
         width: 100.0, // fixed width and height

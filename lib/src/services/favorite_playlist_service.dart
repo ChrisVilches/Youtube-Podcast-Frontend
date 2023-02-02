@@ -18,16 +18,20 @@ class FavoritePlaylistService {
 
     return list
         .map(
-          (String o) =>
+          (final String o) =>
               FavoritePlaylist.fromJson(jsonDecode(o) as Map<String, dynamic>),
         )
         .toList();
   }
 
-  Future<void> favorite(String title, String author, String id) async {
+  Future<void> favorite(
+    final String title,
+    final String author,
+    final String id,
+  ) async {
     final List<FavoritePlaylist> list = await getAll();
 
-    if (list.any((FavoritePlaylist fp) => fp.id == id)) {
+    if (list.any((final FavoritePlaylist fp) => fp.id == id)) {
       return;
     }
 
@@ -38,11 +42,15 @@ class FavoritePlaylistService {
     await saveList(newList);
   }
 
-  Future<void> updateMetadata(String title, String author, String id) async {
+  Future<void> updateMetadata(
+    final String title,
+    final String author,
+    final String id,
+  ) async {
     final List<FavoritePlaylist> list = await getAll();
 
     final FavoritePlaylist? item =
-        list.firstWhereOrNull((FavoritePlaylist fp) => fp.id == id);
+        list.firstWhereOrNull((final FavoritePlaylist fp) => fp.id == id);
 
     if (item == null) {
       return;
@@ -53,23 +61,23 @@ class FavoritePlaylistService {
     return saveList(list);
   }
 
-  Future<void> saveList(List<FavoritePlaylist> list) async {
+  Future<void> saveList(final List<FavoritePlaylist> list) async {
     await serviceLocator.get<SharedPreferences>().setStringList(
           playlistFavoritesKey,
           list.map(jsonEncode).toList(),
         );
   }
 
-  Future<void> remove(String id) async {
+  Future<void> remove(final String id) async {
     final List<FavoritePlaylist> list = await getAll();
 
-    list.removeWhere((FavoritePlaylist fp) => fp.id == id);
+    list.removeWhere((final FavoritePlaylist fp) => fp.id == id);
 
     await saveList(list);
   }
 
-  Future<bool> isFavorite(String id) async {
+  Future<bool> isFavorite(final String id) async {
     final List<FavoritePlaylist> list = await getAll();
-    return list.any((FavoritePlaylist fp) => fp.id == id);
+    return list.any((final FavoritePlaylist fp) => fp.id == id);
   }
 }

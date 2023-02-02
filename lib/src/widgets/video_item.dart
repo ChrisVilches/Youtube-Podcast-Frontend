@@ -22,7 +22,7 @@ class VideoItem extends StatelessWidget {
   final bool beingPrepared;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final Widget picture = Container(
       height: CARD_HEIGHT,
       width: THUMBNAIL_WIDTH,

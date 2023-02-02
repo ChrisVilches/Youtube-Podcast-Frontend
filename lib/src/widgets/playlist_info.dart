@@ -17,7 +17,7 @@ class PlaylistInfo extends StatelessWidget {
   final bool favorited;
   final Function(List<FavoritePlaylist>, bool) onFavoritePlaylistsChange;
 
-  Future<bool> onTapLike(bool isFavorite) async {
+  Future<bool> onTapLike(final bool isFavorite) async {
     final FavoritePlaylistService serv =
         serviceLocator.get<FavoritePlaylistService>();
 
@@ -37,7 +37,7 @@ class PlaylistInfo extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final LikeButton likeButton = LikeButton(
       isLiked: favorited,
       onTap: onTapLike,

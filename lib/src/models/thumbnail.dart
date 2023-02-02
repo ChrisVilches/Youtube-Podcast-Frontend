@@ -1,5 +1,5 @@
 class Thumbnail {
-  Thumbnail.fromJson(Map<String, dynamic> obj)
+  Thumbnail.fromJson(final Map<String, dynamic> obj)
       : url = obj['url'] as String,
         width = obj['width'] as int,
         height = obj['height'] as int;

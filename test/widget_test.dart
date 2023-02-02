@@ -13,7 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('MyWidget', () {
-    testWidgets('should display a string of text', (WidgetTester tester) async {
+    testWidgets('should display a string of text',
+        (final WidgetTester tester) async {
       // Define a Widget
       const MaterialApp myWidget = MaterialApp(
         home: Scaffold(

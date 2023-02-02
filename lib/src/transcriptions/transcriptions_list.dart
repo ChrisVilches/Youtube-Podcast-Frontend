@@ -9,11 +9,11 @@ class TranscriptionsList extends StatelessWidget {
   final List<TranscriptionEntry> transcription;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return ListView.builder(
       restorationId: 'TranscriptionsList',
       itemCount: transcription.length,
-      itemBuilder: (_, int index) =>
+      itemBuilder: (final _, final int index) =>
           TranscriptionEntryTile(entry: transcription[index]),
     );
   }

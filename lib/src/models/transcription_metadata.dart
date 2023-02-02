@@ -1,5 +1,5 @@
 class TranscriptionMetadata {
-  TranscriptionMetadata.fromJson(Map<String, dynamic> obj)
+  TranscriptionMetadata.fromJson(final Map<String, dynamic> obj)
       : name = obj['name'] as String,
         url = obj['url'] as String,
         lang = obj['lang'] as String;

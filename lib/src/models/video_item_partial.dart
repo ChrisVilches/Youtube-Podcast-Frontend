@@ -10,15 +10,16 @@ class VideoItemPartial {
     this.author,
   );
 
-  factory VideoItemPartial.fromJson(Map<String, dynamic> obj) {
+  factory VideoItemPartial.fromJson(final Map<String, dynamic> obj) {
     final String videoId = obj['videoId'] as String;
     final String title = obj['title'] as String;
     final String author = obj['author'] as String;
 
     final List<Thumbnail> thumbnails = (obj['thumbnails'] as List<dynamic>)
-        .map((dynamic o) => Thumbnail.fromJson(o as Map<String, dynamic>))
+        .map((final dynamic o) => Thumbnail.fromJson(o as Map<String, dynamic>))
         .toList();
-    thumbnails.sort((Thumbnail a, Thumbnail b) => a.size() - b.size());
+    thumbnails
+        .sort((final Thumbnail a, final Thumbnail b) => a.size() - b.size());
 
     return VideoItemPartial(videoId, title, thumbnails, author);
   }

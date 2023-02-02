@@ -26,28 +26,31 @@ class _TranscriptionViewState extends State<TranscriptionView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.item.title),
       ),
       body: FutureBuilder<VideoItem>(
         future: _future,
-        builder: (BuildContext context, AsyncSnapshot<VideoItem> snapshot) {
+        builder: (
+          final BuildContext context,
+          final AsyncSnapshot<VideoItem> snapshot,
+        ) {
           if (snapshot.hasData) {
             final VideoItem detail = snapshot.data!;
 
             return ChangeNotifierProvider<TranscriptionsController>(
-              create: (BuildContext context) =>
+              create: (final BuildContext context) =>
                   TranscriptionsController(detail),
               child: Column(
                 children: <Widget>[
                   const Center(child: TranscriptionMenu()),
                   Consumer<TranscriptionsController>(
                     builder: (
-                      BuildContext context,
-                      TranscriptionsController ctrl,
-                      _,
+                      final BuildContext context,
+                      final TranscriptionsController ctrl,
+                      final _,
                     ) {
                       if (ctrl.result.isNotEmpty &&
                           ctrl.selectedLanguage != null) {

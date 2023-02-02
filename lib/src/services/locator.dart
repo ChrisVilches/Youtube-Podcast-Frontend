@@ -14,7 +14,7 @@ import 'snackbar_service.dart';
 final GetIt serviceLocator = GetIt.instance;
 
 Future<void> setUpLocator({
-  required GlobalKey<NavigatorState> navigatorKey,
+  required final GlobalKey<NavigatorState> navigatorKey,
 }) async {
   serviceLocator
       .registerSingleton<SnackbarService>(SnackbarService(navigatorKey));

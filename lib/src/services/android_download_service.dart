@@ -16,10 +16,14 @@ class AndroidDownloadService implements DownloadService {
     FlutterDownloader.registerCallback(callback);
   }
 
-  static void callback(String _, DownloadTaskStatus __, int ___) {}
+  static void callback(
+    final String _,
+    final DownloadTaskStatus __,
+    final int ___,
+  ) {}
 
   @override
-  Future<DispatchDownloadResult> downloadVideo(VideoID videoId) async {
+  Future<DispatchDownloadResult> downloadVideo(final VideoID videoId) async {
     if (!(await hasStoragePermission())) {
       return DispatchDownloadResult.permissionError;
     }
@@ -70,7 +74,7 @@ class AndroidDownloadService implements DownloadService {
   }
 
   @override
-  Future<void> cancelVideoDownload(VideoID videoId) async {
+  Future<void> cancelVideoDownload(final VideoID videoId) async {
     assert(!videoId.contains('http'));
 
     final List<DownloadTask> tasks = await _findTasks(videoId);
@@ -84,22 +88,23 @@ class AndroidDownloadService implements DownloadService {
     }
   }
 
-  bool _urlHasId(String url, VideoID videoId) {
+  bool _urlHasId(final String url, final VideoID videoId) {
     return Uri.parse(url).queryParameters['v'] == videoId;
   }
 
-  Future<List<DownloadTask>> _findTasks(VideoID videoId) async =>
+  Future<List<DownloadTask>> _findTasks(final VideoID videoId) async =>
       (await allTasks())
-          .where((DownloadTask t) => _urlHasId(t.url, videoId))
+          .where((final DownloadTask t) => _urlHasId(t.url, videoId))
           .toList();
 
-  Future<bool> _isAlreadyRunning(VideoID videoId) async =>
-      (await _findTasks(videoId))
-          .any((DownloadTask t) => t.status == DownloadTaskStatus.running);
+  Future<bool> _isAlreadyRunning(final VideoID videoId) async =>
+      (await _findTasks(videoId)).any(
+        (final DownloadTask t) => t.status == DownloadTaskStatus.running,
+      );
 
   Future<OpenResult> _tryOpenCompletedFile(
-    Directory dir,
-    VideoID videoId,
+    final Directory dir,
+    final VideoID videoId,
   ) async {
     final String fileName = await videoFileName(videoId);
     debugPrint('Trying to open file $fileName');

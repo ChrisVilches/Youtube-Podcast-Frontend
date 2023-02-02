@@ -16,7 +16,7 @@ class _PopupMenuItemContent extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Row(
       children: <Widget>[
         SizedBox(height: 50, width: 50, child: Icon(icon)),
@@ -31,17 +31,18 @@ class VideoOptionsMenu extends StatelessWidget {
 
   final VideoItemPartial item;
 
-  Future<void> _seeDetails(BuildContext context) => Navigator.push(
+  Future<void> _seeDetails(final BuildContext context) => Navigator.push(
         context,
         MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => VideoDetailView(item: item),
+          builder: (final BuildContext context) => VideoDetailView(item: item),
         ),
       );
 
-  Future<void> _seeTranscriptions(BuildContext context) => Navigator.push(
+  Future<void> _seeTranscriptions(final BuildContext context) => Navigator.push(
         context,
         MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => TranscriptionView(item: item),
+          builder: (final BuildContext context) =>
+              TranscriptionView(item: item),
         ),
       );
 
@@ -51,9 +52,9 @@ class VideoOptionsMenu extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return PopupMenuButton<Option>(
-      onSelected: (Option value) async {
+      onSelected: (final Option value) async {
         switch (value) {
           case Option.Details:
             await _seeDetails(context);
@@ -66,7 +67,7 @@ class VideoOptionsMenu extends StatelessWidget {
             break;
         }
       },
-      itemBuilder: (BuildContext context2) => <PopupMenuEntry<Option>>[
+      itemBuilder: (final BuildContext context2) => <PopupMenuEntry<Option>>[
         const PopupMenuItem<Option>(
           value: Option.Details,
           child: _PopupMenuItemContent(

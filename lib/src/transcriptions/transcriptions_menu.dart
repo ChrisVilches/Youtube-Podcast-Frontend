@@ -7,11 +7,11 @@ class TranscriptionMenu extends StatelessWidget {
   const TranscriptionMenu({super.key});
 
   List<DropdownMenuItem<String>> _transcriptionOptions(
-    List<TranscriptionMetadata> transcriptions,
+    final List<TranscriptionMetadata> transcriptions,
   ) {
     return transcriptions
         .map<DropdownMenuItem<String>>(
-          (TranscriptionMetadata value) => DropdownMenuItem<String>(
+          (final TranscriptionMetadata value) => DropdownMenuItem<String>(
             value: value.lang,
             child: Text(value.name),
           ),
@@ -20,12 +20,12 @@ class TranscriptionMenu extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Consumer<TranscriptionsController>(
       builder: (
-        BuildContext context,
-        TranscriptionsController ctrl,
-        _,
+        final BuildContext context,
+        final TranscriptionsController ctrl,
+        final _,
       ) {
         if (ctrl.video.transcriptions.isEmpty) {
           return const Text('No transcriptions available');
@@ -35,7 +35,7 @@ class TranscriptionMenu extends StatelessWidget {
           value: ctrl.selectedLanguage,
           icon: const Icon(Icons.arrow_downward),
           elevation: 16,
-          onChanged: (String? lang) {
+          onChanged: (final String? lang) {
             ctrl.selectedLanguage = lang;
           },
           items: _transcriptionOptions(ctrl.video.transcriptions),

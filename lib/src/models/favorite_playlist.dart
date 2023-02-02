@@ -1,7 +1,7 @@
 class FavoritePlaylist {
   FavoritePlaylist(this.title, this.author, this.id);
 
-  FavoritePlaylist.fromJson(Map<String, dynamic> json)
+  FavoritePlaylist.fromJson(final Map<String, dynamic> json)
       : id = json['id'] as String,
         author = json['author'] as String,
         title = json['title'] as String;

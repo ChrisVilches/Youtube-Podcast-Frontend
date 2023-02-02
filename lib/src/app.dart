@@ -32,14 +32,14 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     // Glue the SettingsController to the MaterialApp.
     //
     // The AnimatedBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
     return AnimatedBuilder(
       animation: widget.settingsController,
-      builder: (BuildContext context, Widget? child) {
+      builder: (final BuildContext context, final Widget? child) {
         return MaterialApp(
           builder: EasyLoading.init(),
           navigatorKey: widget.navigatorKey,
@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
           //
           // The appTitle is defined in .arb files found in the localization
           // directory.
-          onGenerateTitle: (BuildContext context) =>
+          onGenerateTitle: (final BuildContext context) =>
               AppLocalizations.of(context)!.appTitle,
 
           // Define a light and dark color theme. Then, read the user's
@@ -79,10 +79,10 @@ class _MyAppState extends State<MyApp> {
 
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
-          onGenerateRoute: (RouteSettings routeSettings) {
+          onGenerateRoute: (final RouteSettings routeSettings) {
             return MaterialPageRoute<void>(
               settings: routeSettings,
-              builder: (BuildContext context) {
+              builder: (final BuildContext context) {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: widget.settingsController);

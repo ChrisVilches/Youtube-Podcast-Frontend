@@ -11,7 +11,7 @@ class VideoItem extends VideoItemPartial {
     this.transcriptions,
   );
 
-  factory VideoItem.fromJson(Map<String, dynamic> obj) {
+  factory VideoItem.fromJson(final Map<String, dynamic> obj) {
     final VideoItemPartial partial = VideoItemPartial.fromJson(obj);
 
     final String description = obj['description'] as String;
@@ -19,7 +19,7 @@ class VideoItem extends VideoItemPartial {
     final List<TranscriptionMetadata> transcriptions =
         (obj['transcriptions'] as List<dynamic>)
             .map(
-              (dynamic o) =>
+              (final dynamic o) =>
                   TranscriptionMetadata.fromJson(o as Map<String, dynamic>),
             )
             .toList();

@@ -15,5 +15,28 @@ void main() {
     const String longRes =
         '【ももクロMV】Chai Maxx _ ももいろクローバーZ（MOMOIRO CLOVER／Chai Maxx）.m4a';
     expect(contentDispositionFilename(long), longRes);
+
+    expect(
+      contentDispositionFilename(
+        "attachment; filename*=\"UTF-8''some video.m4a\"",
+      ),
+      'some video.m4a',
+    );
+    expect(
+      contentDispositionFilename(
+        "attachment;  filename*=\"UTF-8''some video.m4a\"  ",
+      ),
+      'some video.m4a',
+    );
+    expect(
+      contentDispositionFilename(
+        " filename*=\"UTF-8''some video.m4a\" ; attachment;   ",
+      ),
+      'some video.m4a',
+    );
+    expect(
+      contentDispositionFilename('attachment; filename="filename.jpg"'),
+      'filename.jpg',
+    );
   });
 }

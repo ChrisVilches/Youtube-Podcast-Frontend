@@ -24,7 +24,7 @@ Future<bool> hasStoragePermission() async {
   final Map<Permission, PermissionStatus> status = await required.request();
   debugPrint(status.toString());
   return status.values
-      .every((PermissionStatus p) => p == PermissionStatus.granted);
+      .every((final PermissionStatus p) => p == PermissionStatus.granted);
 }
 
 Directory _downloadDir() {

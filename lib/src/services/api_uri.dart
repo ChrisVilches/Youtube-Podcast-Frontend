@@ -7,11 +7,11 @@ String _urlPrefix() {
   return dotenv.env['API_URL']!;
 }
 
-Uri uri(String address) {
+Uri uri(final String address) {
   final String url = path.join(_urlPrefix(), address);
   return Uri.parse(url);
 }
 
-Uri downloadUri(VideoID videoId) {
+Uri downloadUri(final VideoID videoId) {
   return uri('download?v=$videoId');
 }

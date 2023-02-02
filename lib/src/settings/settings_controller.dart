@@ -31,7 +31,7 @@ class SettingsController with ChangeNotifier {
   }
 
   /// Update and persist the ThemeMode based on the user's selection.
-  Future<void> updateThemeMode(ThemeMode? newThemeMode) async {
+  Future<void> updateThemeMode(final ThemeMode? newThemeMode) async {
     if (newThemeMode == null) {
       return;
     }

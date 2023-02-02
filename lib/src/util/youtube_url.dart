@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 
-String? parsePlaylistId(String url) {
+String? parsePlaylistId(final String url) {
   final Uri uri = Uri.parse(url);
   final bool correctHost = uri.host.toLowerCase().contains('youtube.com');
   final bool correctPath = uri.path.toLowerCase() == '/playlist';
@@ -18,7 +18,7 @@ const List<String> YOUTUBE_HOSTS = <String>[
   'youtube.com'
 ];
 
-String? parseWatchVideoId(String url) {
+String? parseWatchVideoId(final String url) {
   final Uri uri = Uri.parse(url);
 
   final String host = uri.host.toLowerCase();
@@ -40,10 +40,10 @@ String? parseWatchVideoId(String url) {
   return null;
 }
 
-bool isYoutubeContentUrl(String url) {
+bool isYoutubeContentUrl(final String url) {
   return parsePlaylistId(url) != null || parseWatchVideoId(url) != null;
 }
 
-String createPlaylistUrl(String playlistId) {
+String createPlaylistUrl(final String playlistId) {
   return 'https://www.youtube.com/playlist?list=$playlistId';
 }

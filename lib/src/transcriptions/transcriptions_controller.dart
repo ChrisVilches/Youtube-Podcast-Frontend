@@ -19,7 +19,7 @@ class TranscriptionsController extends ChangeNotifier {
   String? get selectedLanguage => _selectedLanguage;
 
   /// Make sure to use this setter when it's not loading another transcription, otherwise it will crash.
-  set selectedLanguage(String? newLang) {
+  set selectedLanguage(final String? newLang) {
     assert(!loading);
 
     if (_selectedLanguage != newLang && _selectedLanguage != null) {

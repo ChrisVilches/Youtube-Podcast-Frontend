@@ -24,7 +24,7 @@ class _VideoDetailViewState extends State<VideoDetailView> {
     _future = getVideoInfo(widget.item.videoId);
   }
 
-  Future<void> _onOpen(LinkableElement link) async {
+  Future<void> _onOpen(final LinkableElement link) async {
     final Uri uri = Uri.parse(link.url);
 
     if (await canLaunchUrl(uri)) {
@@ -35,14 +35,17 @@ class _VideoDetailViewState extends State<VideoDetailView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.item.title),
       ),
       body: FutureBuilder<VideoItem>(
         future: _future,
-        builder: (BuildContext context, AsyncSnapshot<VideoItem> snapshot) {
+        builder: (
+          final BuildContext context,
+          final AsyncSnapshot<VideoItem> snapshot,
+        ) {
           late final Widget content;
 
           if (snapshot.hasData) {

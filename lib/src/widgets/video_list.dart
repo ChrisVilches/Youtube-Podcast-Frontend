@@ -10,17 +10,17 @@ class VideoList extends StatelessWidget {
   final List<VideoItemPartial> items;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Consumer<PrepareDownloadController>(
       builder: (
-        BuildContext context,
-        PrepareDownloadController ctrl,
-        _,
+        final BuildContext context,
+        final PrepareDownloadController ctrl,
+        final _,
       ) =>
           ListView.builder(
         restorationId: 'VideoList',
         itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) {
+        itemBuilder: (final BuildContext context, final int index) {
           final VideoItemPartial item = items[index];
 
           return VideoItem(
