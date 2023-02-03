@@ -24,6 +24,20 @@ Future<VideoItem> getVideoInfo(final VideoID videoId) async {
   return VideoItem.fromJson(metadata);
 }
 
+Future<Playlist> getChannelVideosAsPlaylist(final String username) async {
+  final Response res = await get(uri('channel/$username'), headers: _headers);
+  final Map<String, dynamic> body = toJson(res);
+
+  final Playlist playlist = Playlist.fromJson(body);
+
+  // Also update the playlist name if it's saved locally.
+  await serviceLocator
+      .get<FavoritePlaylistService>()
+      .updateMetadata(playlist.title, playlist.author, playlist.id);
+
+  return playlist;
+}
+
 Future<Playlist> getVideosFromPlaylist(final String id) async {
   final Response res = await get(uri('playlist/$id'), headers: _headers);
   final Map<String, dynamic> body = toJson(res);

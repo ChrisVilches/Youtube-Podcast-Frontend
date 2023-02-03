@@ -12,7 +12,7 @@ class _FavPlaylistMenuItem extends StatelessWidget {
 
   final FavoritePlaylist playlist;
   final bool selected;
-  final void Function(String) onPressPlaylist;
+  final void Function(FavoritePlaylist) onPressPlaylist;
   final bool disabled;
 
   @override
@@ -25,7 +25,7 @@ class _FavPlaylistMenuItem extends StatelessWidget {
           ),
         ),
       ),
-      onPressed: disabled ? null : () => onPressPlaylist(playlist.id),
+      onPressed: disabled ? null : () => onPressPlaylist(playlist),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 300),
         child: Column(
@@ -57,16 +57,19 @@ class FavPlaylistMenu extends StatelessWidget {
     this.selectedPlaylistId,
     required this.onPressPlaylist,
     required this.disableButtons,
+    required this.scrollCtrl,
   });
 
   final List<FavoritePlaylist> playlists;
   final String? selectedPlaylistId;
-  final void Function(String) onPressPlaylist;
+  final void Function(FavoritePlaylist) onPressPlaylist;
   final bool disableButtons;
+  final ScrollController scrollCtrl;
 
   @override
   Widget build(final BuildContext context) {
     final Widget list = ListView.builder(
+      controller: scrollCtrl,
       itemCount: playlists.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (final _, final int index) => Padding(

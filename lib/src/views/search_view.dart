@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import '../controllers/prepare_download_controller.dart';
@@ -52,8 +53,13 @@ class _SearchViewState extends State<SearchView> {
     });
   }
 
-  Future<void> _fetchPlaylist(final String id) async {
-    final Playlist playlist = await getVideosFromPlaylist(id);
+  Future<void> _fetchPlaylist(
+    final String id, {
+    required final bool isChannelUsername,
+  }) async {
+    final Playlist playlist = await (isChannelUsername
+        ? getChannelVideosAsPlaylist(id)
+        : getVideosFromPlaylist(id));
     setState(() {
       _currentPlaylist = playlist;
       _videoItems = playlist.items;
@@ -86,9 +92,12 @@ class _SearchViewState extends State<SearchView> {
     try {
       final String? playlistId = parsePlaylistId(queryText);
       final String? videoId = parseWatchVideoId(queryText);
+      final String? username = parseUsername(queryText);
 
-      if (playlistId != null) {
-        await _fetchPlaylist(playlistId);
+      if (username != null) {
+        await _fetchPlaylist(username, isChannelUsername: true);
+      } else if (playlistId != null) {
+        await _fetchPlaylist(playlistId, isChannelUsername: false);
       } else if (videoId != null) {
         await _fetchSingleVideo(videoId);
       } else {
@@ -110,6 +119,8 @@ class _SearchViewState extends State<SearchView> {
         null;
   }
 
+  final ScrollController _favPlaylistScrollCtrl = ScrollController();
+
   @override
   Widget build(final BuildContext context) {
     Widget playlistInfo() => PlaylistInfo(
@@ -121,6 +132,15 @@ class _SearchViewState extends State<SearchView> {
             serviceLocator.get<SnackbarService>().success(
                   removed ? 'Removed from favorites' : 'Added to favorites',
                 );
+
+            // TODO: Doesn't work so well on mobile. It only scrolls a bit.
+            SchedulerBinding.instance.addPostFrameCallback(
+              (final _) async => _favPlaylistScrollCtrl.animateTo(
+                _favPlaylistScrollCtrl.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.ease,
+              ),
+            );
           },
           playlist: _currentPlaylist!,
         );
@@ -134,9 +154,11 @@ class _SearchViewState extends State<SearchView> {
         ),
         FavPlaylistMenu(
           playlists: _favoritedPlaylists,
+          scrollCtrl: _favPlaylistScrollCtrl,
           selectedPlaylistId: _currentPlaylist?.id,
-          onPressPlaylist: (final String playlistId) async =>
-              _executeSearch(createPlaylistUrl(playlistId)),
+          onPressPlaylist: (final FavoritePlaylist fp) async => _executeSearch(
+            fp.isChannel ? '@${fp.id}' : createPlaylistUrl(fp.id),
+          ),
           disableButtons: _isLoading,
         ),
         if (_currentPlaylist != null) playlistInfo(),

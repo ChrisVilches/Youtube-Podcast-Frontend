@@ -28,6 +28,7 @@ class FavoritePlaylistService {
     final String title,
     final String author,
     final String id,
+    final bool isChannel,
   ) async {
     final List<FavoritePlaylist> list = await getAll();
 
@@ -35,7 +36,8 @@ class FavoritePlaylistService {
       return;
     }
 
-    final FavoritePlaylist newFav = FavoritePlaylist(title, author, id);
+    final FavoritePlaylist newFav =
+        FavoritePlaylist(title, author, id, isChannel);
     final List<FavoritePlaylist> newList = List<FavoritePlaylist>.from(list)
       ..addAll(<FavoritePlaylist>[newFav]);
 

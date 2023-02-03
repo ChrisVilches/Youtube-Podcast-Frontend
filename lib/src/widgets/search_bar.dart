@@ -37,7 +37,7 @@ class _SearchBarState extends State<SearchBar> {
     if (content.isNotEmpty) {
       _searchController.text = content;
 
-      if (isYoutubeContentUrl(content)) {
+      if (isYoutubeContentSearchable(content)) {
         widget.onSearch(content);
       }
     }

@@ -28,6 +28,7 @@ class PlaylistInfo extends StatelessWidget {
         playlist.title,
         playlist.author,
         playlist.id,
+        playlist.isChannel,
       );
     }
 
@@ -59,8 +60,8 @@ class PlaylistInfo extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: const Icon(
-              Icons.playlist_add_check,
+            leading: Icon(
+              playlist.isChannel ? Icons.person_2 : Icons.playlist_add_check,
               size: 40,
             ),
             title: Padding(

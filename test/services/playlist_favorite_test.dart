@@ -20,7 +20,7 @@ void main() {
     });
 
     test('adds a favorite', () async {
-      await serv.favorite('some playlist', 'someauthor', 'aaabbbbcccc');
+      await serv.favorite('some playlist', 'someauthor', 'aaabbbbcccc', true);
       final List<FavoritePlaylist> list = await serv.getAll();
       expect(list.length, 1);
       expect(list.first.id, 'aaabbbbcccc');
@@ -30,9 +30,14 @@ void main() {
 
     group('pre-populated', () {
       setUp(() async {
-        await serv.favorite('some playlist', 'auth1', 'aaabbbbcccc1');
-        await serv.favorite('another playlist', 'auth2', 'aaabbbbcccc2');
-        await serv.favorite('yet another playlist', 'auth3', 'aaabbbbcccc3');
+        await serv.favorite('some playlist', 'auth1', 'aaabbbbcccc1', true);
+        await serv.favorite('another playlist', 'auth2', 'aaabbbbcccc2', false);
+        await serv.favorite(
+          'yet another playlist',
+          'auth3',
+          'aaabbbbcccc3',
+          true,
+        );
       });
 
       test('correct length', () async {

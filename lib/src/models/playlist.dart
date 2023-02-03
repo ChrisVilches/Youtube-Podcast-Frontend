@@ -11,10 +11,12 @@ class Playlist {
       : id = obj['id'] as String,
         title = obj['title'] as String,
         author = obj['author'] as String,
+        isChannel = obj['isChannel'] as bool,
         items = _parseItems(obj['items'] as List<dynamic>);
 
   final String id;
   final String title;
   final String author;
+  final bool isChannel;
   final List<VideoItemPartial> items;
 }

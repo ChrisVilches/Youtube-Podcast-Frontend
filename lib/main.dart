@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'src/app.dart';
+import 'src/models/favorite_playlist.dart';
+import 'src/services/favorite_playlist_service.dart';
 import 'src/services/locator.dart';
 import 'src/services/prepare_download_service.dart';
 import 'src/settings/settings_controller.dart';
@@ -37,6 +39,11 @@ void main() async {
 
   await setUpLocator(navigatorKey: navigatorKey);
   initSocket();
+
+  debugPrint('Saved playlists');
+  for (final FavoritePlaylist fp in await serviceLocator.get<FavoritePlaylistService>().getAll()) {
+    debugPrint('${fp.id} | ${fp.author} | ${fp.isChannel}');
+  }
 
   final SettingsController ctrl = SettingsController(SettingsService());
   await ctrl.loadSettings();

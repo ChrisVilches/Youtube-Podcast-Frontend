@@ -1,5 +1,12 @@
 import 'package:collection/collection.dart';
 
+String? parseUsername(final String username) {
+  if (username.startsWith('@')) {
+    return username.substring(1);
+  }
+  return null;
+}
+
 String? parsePlaylistId(final String url) {
   final Uri uri = Uri.parse(url);
   final bool correctHost = uri.host.toLowerCase().contains('youtube.com');
@@ -40,8 +47,10 @@ String? parseWatchVideoId(final String url) {
   return null;
 }
 
-bool isYoutubeContentUrl(final String url) {
-  return parsePlaylistId(url) != null || parseWatchVideoId(url) != null;
+bool isYoutubeContentSearchable(final String s) {
+  return parseUsername(s) != null ||
+      parsePlaylistId(s) != null ||
+      parseWatchVideoId(s) != null;
 }
 
 String createPlaylistUrl(final String playlistId) {
