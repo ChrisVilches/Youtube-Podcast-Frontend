@@ -2,7 +2,7 @@
 
 Frontend for [Youtube-Podcast](https://github.com/ChrisVilches/Youtube-Podcast).
 
-Tested on Android 10 (device) and Android 11 (emulator).
+Tested on Linux, Android 10 (device) and Android 11 (emulator).
 
 Made with Flutter.
 
