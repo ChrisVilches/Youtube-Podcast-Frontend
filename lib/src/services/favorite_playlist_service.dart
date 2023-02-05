@@ -50,15 +50,14 @@ class FavoritePlaylistService {
   ) async {
     final List<FavoritePlaylist> list = await getAll();
 
-    final FavoritePlaylist? item =
-        list.firstWhereOrNull((final FavoritePlaylist fp) => fp.id == id);
+    final int index =
+        list.indexWhere((final FavoritePlaylist fp) => fp.id == id);
 
-    if (item == null) {
+    if (index == -1) {
       return;
     }
 
-    item.title = title;
-    item.author = author;
+    list[index] = FavoritePlaylist(title, author, id, list[index].isChannel);
     return saveList(list);
   }
 
