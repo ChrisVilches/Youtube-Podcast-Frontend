@@ -14,6 +14,14 @@ String formatTimeHHMMSSms(final double time) {
   return '$hhmmss.$ms';
 }
 
+String formatTimeHHMMSS(final int seconds) {
+  final Duration duration = Duration(seconds: seconds);
+
+  return <int>[duration.inHours, duration.inMinutes, duration.inSeconds]
+      .map((final int seg) => seg.remainder(60).toString().padLeft(2, '0'))
+      .join(':');
+}
+
 String removeHour00(final String time) {
   if (time.startsWith('00:')) {
     return time.substring(3);

@@ -41,8 +41,11 @@ void main() async {
   initSocket();
 
   debugPrint('Saved playlists');
-  for (final FavoritePlaylist fp in await serviceLocator.get<FavoritePlaylistService>().getAll()) {
-    debugPrint('${fp.id} | ${fp.author} | ${fp.isChannel}');
+  for (final FavoritePlaylist fp
+      in await serviceLocator.get<FavoritePlaylistService>().getAll()) {
+    debugPrint(
+      '${fp.id} | ${fp.author} | ${fp.isChannel ? 'channel' : 'playlist'}',
+    );
   }
 
   final SettingsController ctrl = SettingsController(SettingsService());

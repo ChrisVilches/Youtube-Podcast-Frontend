@@ -7,9 +7,8 @@ class FavoritePlaylist {
         isChannel = json['isChannel'] as bool,
         title = json['title'] as String;
 
-  String title;
-  String author;
-
+  final String title;
+  final String author;
   final String id;
   final bool isChannel;
 

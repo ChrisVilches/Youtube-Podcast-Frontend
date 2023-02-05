@@ -1,14 +1,12 @@
 import 'package:collection/collection.dart';
 
-String? parseUsername(final String username) {
-  if (username.startsWith('@')) {
-    return username.substring(1);
-  }
-  return null;
-}
+final RegExp _usernameRegex = RegExp(r'^\s*@([A-Za-z0-9\.\-_]+)\s*$');
+
+String? parseUsername(final String username) =>
+    _usernameRegex.firstMatch(username)?.groups(<int>[1]).firstOrNull;
 
 String? parsePlaylistId(final String url) {
-  final Uri uri = Uri.parse(url);
+  final Uri uri = Uri.parse(url.trim());
   final bool correctHost = uri.host.toLowerCase().contains('youtube.com');
   final bool correctPath = uri.path.toLowerCase() == '/playlist';
 
@@ -26,7 +24,7 @@ const List<String> YOUTUBE_HOSTS = <String>[
 ];
 
 String? parseWatchVideoId(final String url) {
-  final Uri uri = Uri.parse(url);
+  final Uri uri = Uri.parse(url.trim());
 
   final String host = uri.host.toLowerCase();
 

@@ -5,7 +5,7 @@ import 'sleep.dart';
 
 Future<void> waitAndRemoveSplash() async {
   if (Platform.isAndroid) {
-    await sleep(2);
+    await sleep(const Duration(seconds: 2));
     FlutterNativeSplash.remove();
   }
 }

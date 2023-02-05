@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -30,6 +32,7 @@ class _SearchViewState extends State<SearchView> {
   Playlist? _currentPlaylist;
   List<VideoItemPartial> _videoItems = List<VideoItemPartial>.empty();
   List<FavoritePlaylist> _favoritedPlaylists = List<FavoritePlaylist>.empty();
+  final ScrollController _favPlaylistScrollCtrl = ScrollController();
   String? _latestExecutedSearchQuery;
 
   @override
@@ -119,8 +122,6 @@ class _SearchViewState extends State<SearchView> {
         null;
   }
 
-  final ScrollController _favPlaylistScrollCtrl = ScrollController();
-
   @override
   Widget build(final BuildContext context) {
     Widget playlistInfo() => PlaylistInfo(
@@ -129,18 +130,25 @@ class _SearchViewState extends State<SearchView> {
               (final List<FavoritePlaylist> newList, final bool removed) {
             setState(() => _favoritedPlaylists = newList);
 
-            serviceLocator.get<SnackbarService>().success(
-                  removed ? 'Removed from favorites' : 'Added to favorites',
-                );
+            if (removed) {
+              serviceLocator
+                  .get<SnackbarService>()
+                  .info('Removed from favorites');
+            } else {
+              serviceLocator
+                  .get<SnackbarService>()
+                  .success('Added to favorites');
+            }
 
-            // TODO: Doesn't work so well on mobile. It only scrolls a bit.
-            SchedulerBinding.instance.addPostFrameCallback(
-              (final _) async => _favPlaylistScrollCtrl.animateTo(
-                _favPlaylistScrollCtrl.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.ease,
-              ),
-            );
+            if (!removed) {
+              SchedulerBinding.instance.addPostFrameCallback((final _) async {
+                await _favPlaylistScrollCtrl.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              });
+            }
           },
           playlist: _currentPlaylist!,
         );
@@ -153,7 +161,7 @@ class _SearchViewState extends State<SearchView> {
           child: SearchBar(isLoading: _isLoading, onSearch: _executeSearch),
         ),
         FavPlaylistMenu(
-          playlists: _favoritedPlaylists,
+          playlists: _favoritedPlaylists.reversed.toList(),
           scrollCtrl: _favPlaylistScrollCtrl,
           selectedPlaylistId: _currentPlaylist?.id,
           onPressPlaylist: (final FavoritePlaylist fp) async => _executeSearch(

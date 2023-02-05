@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/favorite_playlist.dart';
 import 'locator.dart';

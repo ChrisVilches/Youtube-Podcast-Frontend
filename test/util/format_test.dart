@@ -33,4 +33,13 @@ void main() {
     expect(formatTimeHHMMSSms(createTime(2, 5, 15, 123)), '02:05:15.1');
     expect(formatTimeHHMMSSms(createTime(26, 51, 15, 999)), '26:51:15.9');
   });
+
+  test(formatTimeHHMMSS, () {
+    expect(formatTimeHHMMSS(createTime(2, 5, 15, 0).round()), '02:05:15');
+    expect(formatTimeHHMMSS(createTime(26, 51, 15, 0).round()), '26:51:15');
+    expect(formatTimeHHMMSS(createTime(0, 1, 1, 0).round()), '00:01:01');
+    expect(formatTimeHHMMSS(createTime(0, 0, 1, 0).round()), '00:00:01');
+    expect(formatTimeHHMMSS(createTime(0, 0, 0, 0).round()), '00:00:00');
+    expect(formatTimeHHMMSS(createTime(59, 59, 59, 0).round()), '59:59:59');
+  });
 }

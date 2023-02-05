@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,6 +62,13 @@ class _VideoDetailViewState extends State<VideoDetailView> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: WeakText(snapshot.data!.author),
+                ),
+                const SizedBox(height: 20),
+                CachedNetworkImage(
+                  imageUrl: snapshot.data!.thumbnails.last.url,
+                  fadeOutDuration: Duration.zero,
+                  placeholder: (final BuildContext context, final String url) =>
+                      const CircularProgressIndicator(),
                 ),
                 const SizedBox(height: 20),
                 Align(

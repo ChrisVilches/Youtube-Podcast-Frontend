@@ -1,3 +1,1 @@
-Future<void> sleep(final int seconds) {
-  return Future<void>.delayed(Duration(seconds: seconds));
-}
+Future<void> sleep(final Duration duration) => Future<void>.delayed(duration);
