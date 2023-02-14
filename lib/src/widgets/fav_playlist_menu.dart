@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../models/favorite_playlist.dart';
+import 'vibration.dart';
 
 class _FavPlaylistMenuItem extends StatelessWidget {
   const _FavPlaylistMenuItem({
@@ -58,6 +58,7 @@ class FavPlaylistMenu extends StatelessWidget {
     required this.onPressPlaylist,
     required this.disableButtons,
     required this.scrollCtrl,
+    required this.vibrationController,
   });
 
   final List<FavoritePlaylist> playlists;
@@ -65,6 +66,7 @@ class FavPlaylistMenu extends StatelessWidget {
   final void Function(FavoritePlaylist) onPressPlaylist;
   final bool disableButtons;
   final ScrollController scrollCtrl;
+  final VibrationController vibrationController;
 
   @override
   Widget build(final BuildContext context) {
@@ -72,15 +74,26 @@ class FavPlaylistMenu extends StatelessWidget {
       controller: scrollCtrl,
       itemCount: playlists.length,
       scrollDirection: Axis.horizontal,
-      itemBuilder: (final _, final int index) => Padding(
-        padding: const EdgeInsets.only(left: 8, right: 8),
-        child: _FavPlaylistMenuItem(
+      itemBuilder: (final _, final int index) {
+        final _FavPlaylistMenuItem item = _FavPlaylistMenuItem(
           playlist: playlists[index],
           selected: playlists[index].id == selectedPlaylistId,
           disabled: disableButtons,
           onPressPlaylist: onPressPlaylist,
-        ),
-      ),
+        );
+
+        final Widget wrappedItem = index == 0
+            ? Vibration(
+                controller: vibrationController,
+                child: item,
+              )
+            : item;
+
+        return Padding(
+          padding: const EdgeInsets.only(left: 8, right: 8),
+          child: wrappedItem,
+        );
+      },
     );
 
     return Padding(

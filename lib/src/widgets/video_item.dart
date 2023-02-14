@@ -10,8 +10,6 @@ const double CARD_HEIGHT = 100;
 // Assumes thumbnail ratio is 16:9 for all pictures.
 const double THUMBNAIL_WIDTH = CARD_HEIGHT * 16 / 9;
 
-// TODO: Modified this code a bit. Do a quick code review.
-
 class VideoItem extends StatelessWidget {
   const VideoItem({
     super.key,
@@ -135,7 +133,7 @@ class VideoItem extends StatelessWidget {
 
     final Widget card = Card(
       child: SizedBox(
-        height: CARD_HEIGHT * 1.1,
+        height: CARD_HEIGHT,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[thumbnailContainer, content],

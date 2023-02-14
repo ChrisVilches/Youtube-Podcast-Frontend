@@ -35,10 +35,8 @@ class FavoritePlaylistService {
       return;
     }
 
-    final FavoritePlaylist newFav =
-        FavoritePlaylist(title, author, id, isChannel);
     final List<FavoritePlaylist> newList = List<FavoritePlaylist>.from(list)
-      ..addAll(<FavoritePlaylist>[newFav]);
+      ..add(FavoritePlaylist(title, author, id, isChannel));
 
     await saveList(newList);
   }

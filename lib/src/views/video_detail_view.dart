@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../services/youtube.dart';
+import '../widgets/pinch_zoom.dart';
 import '../widgets/weak_text.dart';
 
 class VideoDetailView extends StatefulWidget {
@@ -64,11 +65,15 @@ class _VideoDetailViewState extends State<VideoDetailView> {
                   child: WeakText(snapshot.data!.author),
                 ),
                 const SizedBox(height: 20),
-                CachedNetworkImage(
-                  imageUrl: snapshot.data!.thumbnails.last.url,
-                  fadeOutDuration: Duration.zero,
-                  placeholder: (final BuildContext context, final String url) =>
-                      const CircularProgressIndicator(),
+                PinchZoom(
+                  backgroundColor: Colors.black,
+                  child: CachedNetworkImage(
+                    imageUrl: snapshot.data!.thumbnails.last.url,
+                    fadeOutDuration: Duration.zero,
+                    placeholder:
+                        (final BuildContext context, final String url) =>
+                            const Center(child: CircularProgressIndicator()),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Align(

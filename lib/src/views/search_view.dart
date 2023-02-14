@@ -18,6 +18,7 @@ import '../util/youtube_url.dart';
 import '../widgets/fav_playlist_menu.dart';
 import '../widgets/playlist_info.dart';
 import '../widgets/search_bar.dart';
+import '../widgets/vibration.dart';
 import '../widgets/video_list.dart';
 
 class SearchView extends StatefulWidget {
@@ -33,6 +34,7 @@ class _SearchViewState extends State<SearchView> {
   List<VideoItemPartial> _videoItems = List<VideoItemPartial>.empty();
   List<FavoritePlaylist> _favoritedPlaylists = List<FavoritePlaylist>.empty();
   final ScrollController _favPlaylistScrollCtrl = ScrollController();
+  final VibrationController _vibrationController = VibrationController();
   String? _latestExecutedSearchQuery;
 
   @override
@@ -45,6 +47,13 @@ class _SearchViewState extends State<SearchView> {
             _favoritedPlaylists = list;
           }),
         );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _favPlaylistScrollCtrl.dispose();
+    _vibrationController.dispose();
   }
 
   Future<void> _fetchSingleVideo(final VideoID videoId) async {
@@ -147,6 +156,10 @@ class _SearchViewState extends State<SearchView> {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOut,
                 );
+
+                // The widget is only created when it's visible (due to the current list implementation using ListView.builder),
+                // so the scrolling must be done first. If the widget doesn't exist, the "vibrate" signal will be lost.
+                _vibrationController.vibrate();
               });
             }
           },
@@ -168,6 +181,7 @@ class _SearchViewState extends State<SearchView> {
             fp.isChannel ? '@${fp.id}' : createPlaylistUrl(fp.id),
           ),
           disableButtons: _isLoading,
+          vibrationController: _vibrationController,
         ),
         if (_currentPlaylist != null) playlistInfo(),
         Expanded(child: VideoList(items: _videoItems)),
