@@ -23,6 +23,11 @@ class FavoritePlaylistService {
         .toList();
   }
 
+  // TODO: I think the way channel IDs are stored should be changed.
+  //       Just store the lowercase version with a @. The @ is so that they are different from playlist IDs.
+  //       When searching IDs, use case-insensitive search only if the @ is present at the start.
+  //       And implement a find() method, so that the logic above is easier to execute.
+
   Future<void> favorite(
     final String title,
     final String author,

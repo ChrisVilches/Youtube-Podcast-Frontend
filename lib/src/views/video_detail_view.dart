@@ -87,7 +87,7 @@ class _VideoDetailViewState extends State<VideoDetailView> {
                       decorationColor: Color.fromRGBO(0x33, 0xcc, 0xff, 1),
                     ),
                   ),
-                )
+                ),
               ],
             );
           } else if (snapshot.hasError) {
