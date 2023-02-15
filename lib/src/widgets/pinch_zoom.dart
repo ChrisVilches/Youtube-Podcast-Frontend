@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 /*
+ * TODO: This is not an issue anymore, so I can remove this comment.
  * Known issue:
  * The multi-touch may glitch a bit, triggering an "onInteractionEnd" callback, which
  * triggers an animation, which in X ms removes the overlay entry (and does other things as well).
@@ -43,48 +44,55 @@ class PinchZoom extends StatefulWidget {
   State<StatefulWidget> createState() => _PinchZoomState();
 }
 
+const double _MIN_SCALE = 1;
+const double _MAX_SCALE = 3;
+
 class _PinchZoomState extends State<PinchZoom>
     with SingleTickerProviderStateMixin {
   OverlayEntry? _entry;
 
-  double _currScale = 1;
-  final double _minScale = 1;
-  final double _maxScale = 3;
-
-  // TODO: This is for the reverse animation (when the user stops doing the gesture and releases the widget).
-  //       I should abstract some of this logic. This widget is too bloated.
-  double _lastScale = 1;
+  final double _minScale = _MIN_SCALE;
+  final double _maxScale = _MAX_SCALE;
+  double _currScale = _MIN_SCALE;
+  double _lastScale = _MIN_SCALE;
   double _lastErr = 0;
 
-  late AnimationController _animationCtrl;
-  late Animation<Matrix4>? _animation;
+  late AnimationController _releaseAnimationCtrl;
+  late Animation<Matrix4>? _releaseAnimation;
   late TransformationController _transformationCtrl;
+
+  /// Updates the current scale. Use this only when the user stops doing the pinch gesture.
+  /// It uses the matrix error to approximate the scale.
+  void _updateCurrScaleFromError() {
+    final double currErr =
+        _releaseAnimation!.value.relativeError(Matrix4.identity());
+    final double p = (currErr / _lastErr).abs().clamp(0, 1);
+    _currScale = _minScale + (_lastScale - 1) * p;
+  }
+
+  void _onReleaseAnimationFrame() {
+    _transformationCtrl.value = _releaseAnimation!.value;
+    _updateCurrScaleFromError();
+    _entry!.markNeedsBuild();
+  }
+
+  void _onReleaseAnimationStatusChange(final AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      _removeOverlay();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _transformationCtrl = TransformationController();
 
-    _animationCtrl = AnimationController(
+    _releaseAnimationCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     )
-      ..addListener(() {
-        final Matrix4 currValue = _animation!.value;
-        _transformationCtrl.value = currValue;
-
-        _lastScale = _lastScale.clamp(1, _maxScale);
-        final double currErr = currValue.relativeError(Matrix4.identity());
-        final double p = (currErr / _lastErr).clamp(0, 1);
-
-        _currScale = _minScale + (_lastScale - 1) * p;
-        _entry!.markNeedsBuild();
-      })
-      ..addStatusListener((final AnimationStatus status) {
-        if (status == AnimationStatus.completed) {
-          _removeOverlay();
-        }
-      });
+      ..addListener(_onReleaseAnimationFrame)
+      ..addStatusListener(_onReleaseAnimationStatusChange);
   }
 
   double _scalePercentage() {
@@ -92,7 +100,7 @@ class _PinchZoomState extends State<PinchZoom>
       return 0;
     }
 
-    return (_currScale - _minScale) / (_maxScale - _minScale).clamp(0, 1);
+    return ((_currScale - _minScale) / (_maxScale - _minScale)).clamp(0, 1);
   }
 
   void _buildEntry() {
@@ -138,13 +146,12 @@ class _PinchZoomState extends State<PinchZoom>
   void dispose() {
     super.dispose();
     _transformationCtrl.dispose();
-    _animationCtrl.dispose();
-    // TODO: Should overlay entry be disposed here?
+    _releaseAnimationCtrl.dispose();
+    // TODO: Should overlay entry be disposed here? Should ".remove" be also executed?
+    _entry = null;
   }
 
-  bool _isZooming() {
-    return _entry != null;
-  }
+  bool _isZooming() => _entry != null;
 
   void _onInteractionStart(final ScaleStartDetails details) {
     if (details.pointerCount >= 2) {
@@ -155,7 +162,7 @@ class _PinchZoomState extends State<PinchZoom>
   }
 
   void _onInteractionUpdate(final ScaleUpdateDetails details) {
-    _currScale = details.scale;
+    _currScale = details.scale.clamp(_minScale, _maxScale);
     _entry?.markNeedsBuild();
   }
 
@@ -164,19 +171,19 @@ class _PinchZoomState extends State<PinchZoom>
       return;
     }
 
-    _animation = Matrix4Tween(
+    _releaseAnimation = Matrix4Tween(
       begin: _transformationCtrl.value,
       end: Matrix4.identity(),
     ).animate(
       CurvedAnimation(
-        parent: _animationCtrl,
+        parent: _releaseAnimationCtrl,
         curve: Curves.easeOut,
       ),
     );
 
     _lastErr = _transformationCtrl.value.relativeError(Matrix4.identity());
     _lastScale = _currScale;
-    _animationCtrl.forward(from: 0);
+    _releaseAnimationCtrl.forward(from: 0);
   }
 
   Widget _buildWidget() {
