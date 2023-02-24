@@ -31,11 +31,19 @@ class PrepareDownloadController extends ChangeNotifier {
     SnackBarAction? cancelAction;
 
     if (taskExists && _canCancelDownload()) {
-      // TODO: Clicking on "cancel" may make the task become "failed". I'm not sure under what conditions though.
-      //       Is it because I cancel and then remove the task as well? Not sure.
+      /*
+      TODO: Clicking on "cancel" may make the task become "failed". I'm not sure under what conditions though.
+            Is it because I cancel and then remove the task as well? Not sure.
 
-      // TODO: Explain this issue well since I'm going to temporarily abandon this project, so I'd like
-      //       to document this issue properly.
+            There are some things to consider, that may not necessarily be related, but I list them anyway:
+            * If the download fails, the file may be partially downloaded, and the app will try to open the corrupt file when clicking on
+              its "Download" button in the UI. I'm not sure if the corrupt file is cleaned up, though. One way to fix this would be to check if
+              the file hash (md5 or whatever) is correct. For this, I'd need to store the hash in the server as well (as metadata in Minio would
+              be OK). Summary: fetch the hash, check if it's correct, and open the file (<-- do this everytime I try to open the file from the app).
+            * It seems the download is stopped (and fails) when the main app goes into the background (e.g. I change to another app).
+            * There are probably other situations where the download fails, and the reason is not apparent, so a more thorough debugging would be necessary.
+              How to reproduce: Since it's not clear, the only way would be to just download several videos and see if any download fails.
+      */
 
       cancelAction = SnackBarAction(
         label: 'CANCEL',

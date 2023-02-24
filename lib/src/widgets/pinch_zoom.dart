@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
  * Temporarily use longer animation duration times to check the background opacity animation is working correctly.
  */
 
-// TODO: Analyze this code.
 class PinchZoom extends StatefulWidget {
   const PinchZoom({
     super.key,
@@ -137,7 +136,7 @@ class _PinchZoomState extends State<PinchZoom>
 
   void _onInteractionUpdate(final ScaleUpdateDetails details) {
     _currScale = details.scale.clamp(_minScale, widget.maxScale);
-    _entry?.markNeedsBuild();
+    _entry!.markNeedsBuild();
   }
 
   void _onInteractionEnd(final ScaleEndDetails _) {

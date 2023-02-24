@@ -1,4 +1,7 @@
 # TODO: The icon background should be changed.
+# TODO: There are other aspects that should be improved (I guess mostly colors). Also
+#       keep in mind the icon looks differently when displayed in different places (e.g. app
+#       menu, currently active apps list, etc).
 flutter_icons:
   android: "launcher_icon"
   ios: false
