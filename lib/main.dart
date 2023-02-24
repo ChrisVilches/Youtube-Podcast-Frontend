@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'src/app.dart';
 import 'src/models/favorite_playlist.dart';
@@ -39,6 +40,8 @@ void main() async {
 
   await setUpLocator(navigatorKey: navigatorKey);
   initSocket();
+
+  EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.dualRing;
 
   debugPrint('Saved playlists');
   for (final FavoritePlaylist fp

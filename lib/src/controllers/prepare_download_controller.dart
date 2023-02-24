@@ -34,6 +34,9 @@ class PrepareDownloadController extends ChangeNotifier {
       // TODO: Clicking on "cancel" may make the task become "failed". I'm not sure under what conditions though.
       //       Is it because I cancel and then remove the task as well? Not sure.
 
+      // TODO: Explain this issue well since I'm going to temporarily abandon this project, so I'd like
+      //       to document this issue properly.
+
       cancelAction = SnackBarAction(
         label: 'CANCEL',
         onPressed: () async {

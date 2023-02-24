@@ -16,6 +16,7 @@ class AndroidDownloadService implements DownloadService {
     FlutterDownloader.registerCallback(callback);
   }
 
+  @pragma('vm:entry-point')
   static void callback(
     final String _,
     final DownloadTaskStatus __,

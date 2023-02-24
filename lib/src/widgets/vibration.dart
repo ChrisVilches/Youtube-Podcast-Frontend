@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-// TODO: Code review, improve, refactor, etc.
-
 class VibrationController {
   final StreamController<bool> _events = StreamController<bool>.broadcast();
   Stream<bool> get stream => _events.stream;

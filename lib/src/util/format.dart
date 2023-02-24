@@ -29,3 +29,11 @@ String removeHour00(final String time) {
 
   return time;
 }
+
+String sanitizeChannelHandle(final String s) {
+  String res = s.trim().toLowerCase();
+  if (!res.startsWith('@')) {
+    res = '@$res';
+  }
+  return res;
+}

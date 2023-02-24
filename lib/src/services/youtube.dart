@@ -5,6 +5,7 @@ import '../models/playlist.dart';
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
+import '../util/format.dart';
 import 'api_uri.dart';
 import 'favorite_playlist_service.dart';
 import 'http_error.dart';
@@ -25,6 +26,7 @@ Future<VideoItem> getVideoInfo(final VideoID videoId) async {
 Future<Playlist> getChannelVideosAsPlaylist(final String username) async {
   final Response res = await get(uri('channel/$username'), headers: _headers);
   final Map<String, dynamic> body = toJson(res);
+  body['id'] = sanitizeChannelHandle(body['id'].toString());
 
   final Playlist playlist = Playlist.fromJson(body);
 

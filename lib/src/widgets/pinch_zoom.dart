@@ -1,25 +1,6 @@
 import 'package:flutter/material.dart';
 
 /*
- * TODO: This is not an issue anymore, so I can remove this comment.
- * Known issue:
- * The multi-touch may glitch a bit, triggering an "onInteractionEnd" callback, which
- * triggers an animation, which in X ms removes the overlay entry (and does other things as well).
- * The glitch mainly consists of an "interaction end", and then another "interaction start" right away,
- * which causes the original image to be zoomed, but the overlay doesn't display.
- *
- * It's important that only the overlay is displayed, because the overlay has a dark transparent background,
- * which covers the background, and also the image is rendered on top of every other widget (covers everything).
- * Simply zooming the original image is not good enough.
- *
- * This can be fixed by adding some checks, and only triggering the animation when the actual interaction finished,
- * i.e. not just because it glitched, but because the user actually stopped doing the gesture.
- *
- * As of now, it seems to be fixed. It seems that changing from a single-finger touch to a 2-finger touch triggered
- * an "onInteractionEnd" in between, so it was fixed by only triggering the animation when a 2-finger gesture finished.
- */
-
-/*
  * How to test:
  * Test vertically and horizontally.
  * Verify it works even after rotating the phone.
@@ -35,10 +16,12 @@ class PinchZoom extends StatefulWidget {
     super.key,
     required this.child,
     required this.backgroundColor,
-  });
+    this.maxScale = _MAX_SCALE,
+  }) : assert(maxScale >= 1);
 
   final Widget child;
   final Color backgroundColor;
+  final double maxScale;
 
   @override
   State<StatefulWidget> createState() => _PinchZoomState();
@@ -52,26 +35,31 @@ class _PinchZoomState extends State<PinchZoom>
   OverlayEntry? _entry;
 
   final double _minScale = _MIN_SCALE;
-  final double _maxScale = _MAX_SCALE;
   double _currScale = _MIN_SCALE;
   double _lastScale = _MIN_SCALE;
   double _lastErr = 0;
 
-  late AnimationController _releaseAnimationCtrl;
-  late Animation<Matrix4>? _releaseAnimation;
-  late TransformationController _transformationCtrl;
+  late final AnimationController _releaseAnimationCtrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+  )
+    ..addListener(_onReleaseAnimationFrame)
+    ..addStatusListener(_onReleaseAnimationStatusChange);
+  late Animation<Matrix4> _releaseAnimation;
+  final TransformationController _transformationCtrl =
+      TransformationController();
 
   /// Updates the current scale. Use this only when the user stops doing the pinch gesture.
   /// It uses the matrix error to approximate the scale.
   void _updateCurrScaleFromError() {
     final double currErr =
-        _releaseAnimation!.value.relativeError(Matrix4.identity());
+        _releaseAnimation.value.relativeError(Matrix4.identity());
     final double p = (currErr / _lastErr).abs().clamp(0, 1);
     _currScale = _minScale + (_lastScale - 1) * p;
   }
 
   void _onReleaseAnimationFrame() {
-    _transformationCtrl.value = _releaseAnimation!.value;
+    _transformationCtrl.value = _releaseAnimation.value;
     _updateCurrScaleFromError();
     _entry!.markNeedsBuild();
   }
@@ -82,30 +70,16 @@ class _PinchZoomState extends State<PinchZoom>
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _transformationCtrl = TransformationController();
-
-    _releaseAnimationCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    )
-      ..addListener(_onReleaseAnimationFrame)
-      ..addStatusListener(_onReleaseAnimationStatusChange);
-  }
-
   double _scalePercentage() {
     if (_currScale.isNaN) {
       return 0;
     }
 
-    return ((_currScale - _minScale) / (_maxScale - _minScale)).clamp(0, 1);
+    return ((_currScale - _minScale) / (widget.maxScale - _minScale))
+        .clamp(0, 1);
   }
 
-  void _buildEntry() {
-    setState(() {
-      _entry = OverlayEntry(
+  OverlayEntry _buildOverlayEntry() => OverlayEntry(
         builder: (final BuildContext _) {
           final RenderBox renderBox = context.findRenderObject()! as RenderBox;
           final Offset offset = renderBox.localToGlobal(Offset.zero);
@@ -132,8 +106,6 @@ class _PinchZoomState extends State<PinchZoom>
           );
         },
       );
-    });
-  }
 
   void _removeOverlay() {
     _entry?.remove();
@@ -156,21 +128,19 @@ class _PinchZoomState extends State<PinchZoom>
   void _onInteractionStart(final ScaleStartDetails details) {
     if (details.pointerCount >= 2) {
       _removeOverlay();
-      _buildEntry();
+      setState(() {
+        _entry = _buildOverlayEntry();
+      });
       Overlay.of(context).insert(_entry!);
     }
   }
 
   void _onInteractionUpdate(final ScaleUpdateDetails details) {
-    _currScale = details.scale.clamp(_minScale, _maxScale);
+    _currScale = details.scale.clamp(_minScale, widget.maxScale);
     _entry?.markNeedsBuild();
   }
 
   void _onInteractionEnd(final ScaleEndDetails _) {
-    if (!_isZooming()) {
-      return;
-    }
-
     _releaseAnimation = Matrix4Tween(
       begin: _transformationCtrl.value,
       end: Matrix4.identity(),
@@ -186,16 +156,14 @@ class _PinchZoomState extends State<PinchZoom>
     _releaseAnimationCtrl.forward(from: 0);
   }
 
-  Widget _buildWidget() {
-    return Builder(
-      builder: (final BuildContext context) => InteractiveViewer(
+  Widget _buildWidget() => InteractiveViewer(
         minScale: _minScale,
-        maxScale: _maxScale,
+        maxScale: widget.maxScale,
         clipBehavior: Clip.none,
         panEnabled: false,
         onInteractionStart: _onInteractionStart,
         onInteractionUpdate: _onInteractionUpdate,
-        onInteractionEnd: _onInteractionEnd,
+        onInteractionEnd: _isZooming() ? _onInteractionEnd : null,
         transformationController: _transformationCtrl,
 
         // This is necessary, otherwise the offset and width calculations won't work,
@@ -206,9 +174,7 @@ class _PinchZoomState extends State<PinchZoom>
           fit: BoxFit.fill,
           child: widget.child,
         ),
-      ),
-    );
-  }
+      );
 
   @override
   Widget build(final BuildContext context) => _buildWidget();

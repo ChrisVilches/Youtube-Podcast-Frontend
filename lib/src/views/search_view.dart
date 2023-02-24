@@ -14,6 +14,7 @@ import '../services/favorite_playlist_service.dart';
 import '../services/locator.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
+import '../util/format.dart';
 import '../util/youtube_url.dart';
 import '../widgets/fav_playlist_menu.dart';
 import '../widgets/playlist_info.dart';
@@ -178,7 +179,9 @@ class _SearchViewState extends State<SearchView> {
           scrollCtrl: _favPlaylistScrollCtrl,
           selectedPlaylistId: _currentPlaylist?.id,
           onPressPlaylist: (final FavoritePlaylist fp) async => _executeSearch(
-            fp.isChannel ? '@${fp.id}' : createPlaylistUrl(fp.id),
+            fp.isChannel
+                ? sanitizeChannelHandle(fp.id)
+                : createPlaylistUrl(fp.id),
           ),
           disableButtons: _isLoading,
           vibrationController: _vibrationController,

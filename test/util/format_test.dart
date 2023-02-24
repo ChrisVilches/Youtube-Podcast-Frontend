@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:test/test.dart';
 import 'package:youtube_podcast/src/util/format.dart';
 
@@ -41,5 +43,25 @@ void main() {
     expect(formatTimeHHMMSS(createTime(0, 0, 1, 0).round()), '00:00:01');
     expect(formatTimeHHMMSS(createTime(0, 0, 0, 0).round()), '00:00:00');
     expect(formatTimeHHMMSS(createTime(59, 59, 59, 0).round()), '59:59:59');
+  });
+
+  test(sanitizeChannelHandle, () {
+    final Random rng = Random();
+
+    String idempotentTest(final String s) {
+      final String res = sanitizeChannelHandle(s);
+      return rng.nextBool() ? idempotentTest(res) : res;
+    }
+
+    expect(idempotentTest(' hello '), '@hello');
+    expect(idempotentTest('HelloWorld'), '@helloworld');
+    expect(idempotentTest(' HelloWorld   '), '@helloworld');
+    expect(idempotentTest('   '), '@');
+    expect(idempotentTest('  AABBCC '), '@aabbcc');
+    expect(idempotentTest(' @hello '), '@hello');
+    expect(idempotentTest('@HelloWorld'), '@helloworld');
+    expect(idempotentTest(' @HelloWorld   '), '@helloworld');
+    expect(idempotentTest(' @  '), '@');
+    expect(idempotentTest('  @AABBCC '), '@aabbcc');
   });
 }
