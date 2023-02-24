@@ -136,7 +136,7 @@ class _PinchZoomState extends State<PinchZoom>
 
   void _onInteractionUpdate(final ScaleUpdateDetails details) {
     _currScale = details.scale.clamp(_minScale, widget.maxScale);
-    _entry!.markNeedsBuild();
+    _entry?.markNeedsBuild();
   }
 
   void _onInteractionEnd(final ScaleEndDetails _) {
