@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/android_download_tasks.dart';
+import '../services/download_tasks.dart';
 import 'settings_controller.dart';
 
 /// Displays the various settings that can be customized by the user.

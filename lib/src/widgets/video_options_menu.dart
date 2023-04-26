@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/video_item_partial.dart';
+import '../services/download_tasks.dart';
+import '../services/locator.dart';
+import '../services/snackbar_service.dart';
 import '../transcriptions/transcriptions_view.dart';
 import '../views/video_detail_view.dart';
 
-enum Option { Details, Transcriptions, OpenVideo }
+enum Option { Details, Transcriptions, OpenVideo, ClearData }
 
 class _PopupMenuItemContent extends StatelessWidget {
   const _PopupMenuItemContent({
@@ -51,6 +54,16 @@ class VideoOptionsMenu extends StatelessWidget {
         mode: LaunchMode.externalNonBrowserApplication,
       );
 
+  Future<void> _clearData(final BuildContext context) async {
+    final int removedTasks = await cleanTasks(item.videoId);
+
+    if (removedTasks > 0) {
+      serviceLocator.get<SnackbarService>().info('Data was removed');
+    }
+
+    debugPrint('Removed tasks: $removedTasks');
+  }
+
   @override
   Widget build(final BuildContext context) {
     return PopupMenuButton<Option>(
@@ -64,6 +77,9 @@ class VideoOptionsMenu extends StatelessWidget {
             break;
           case Option.OpenVideo:
             await _openVideo();
+            break;
+          case Option.ClearData:
+            await _clearData(context);
             break;
         }
       },
@@ -87,6 +103,13 @@ class VideoOptionsMenu extends StatelessWidget {
           child: _PopupMenuItemContent(
             icon: Icons.ondemand_video,
             text: 'Open video',
+          ),
+        ),
+        const PopupMenuItem<Option>(
+          value: Option.ClearData,
+          child: _PopupMenuItemContent(
+            icon: Icons.clear_rounded,
+            text: 'Clear data',
           ),
         )
       ],

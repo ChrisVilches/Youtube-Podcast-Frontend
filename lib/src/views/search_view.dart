@@ -14,6 +14,7 @@ import '../services/favorite_playlist_service.dart';
 import '../services/locator.dart';
 import '../services/snackbar_service.dart';
 import '../services/youtube.dart';
+import '../types.dart';
 import '../util/format.dart';
 import '../util/youtube_url.dart';
 import '../widgets/fav_playlist_menu.dart';

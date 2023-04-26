@@ -4,7 +4,7 @@ import 'package:http/http.dart';
 import '../models/playlist.dart';
 import '../models/transcription_entry.dart';
 import '../models/video_item.dart';
-import '../models/video_item_partial.dart';
+import '../types.dart';
 import '../util/format.dart';
 import 'api_uri.dart';
 import 'favorite_playlist_service.dart';

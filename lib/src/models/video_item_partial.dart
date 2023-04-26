@@ -1,6 +1,5 @@
+import '../types.dart';
 import 'thumbnail.dart';
-
-typedef VideoID = String;
 
 class VideoItemPartial {
   const VideoItemPartial(

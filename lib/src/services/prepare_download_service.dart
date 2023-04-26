@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io;
-
-import '../models/video_item_partial.dart';
+import '../types.dart';
 
 late final socket_io.Socket _socket;
 

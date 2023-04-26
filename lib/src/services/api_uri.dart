@@ -1,7 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path/path.dart' as path;
-
-import '../models/video_item_partial.dart';
+import '../types.dart';
 
 String _urlPrefix() {
   return dotenv.env['API_URL']!;

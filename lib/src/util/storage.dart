@@ -7,7 +7,7 @@ import 'device.dart';
 
 const String _ANDROID_DOWNLOAD_DIR = 'storage/emulated/0/Youtube-Podcast';
 
-Future<bool> hasStoragePermission() async {
+Future<bool> deviceHasStoragePermission() async {
   final List<Permission> required;
 
   if (await requiresManageExternalStoragePermission()) {

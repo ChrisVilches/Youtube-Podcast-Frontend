@@ -20,5 +20,5 @@ flutter run --release
 ```sh
 dart format .
 flutter analyze
-flutter test
+flutter test --reporter expanded
 ```

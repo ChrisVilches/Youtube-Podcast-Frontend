@@ -1,0 +1,76 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart';
+import '../../types.dart';
+import '../../util/enum_converter.dart';
+import '../../util/storage.dart';
+import '../api_uri.dart';
+import '../download_tasks.dart';
+import '../locator.dart';
+import '../snackbar_service.dart';
+import '../youtube.dart';
+import 'download_logic_io.dart';
+
+class AndroidDownloadLogicIO extends DownloadLogicIO {
+  AndroidDownloadLogicIO() : _downloadDir = getValidDownloadDir() {
+    // ignore: discarded_futures
+    FlutterDownloader.registerCallback(callback);
+  }
+
+  final Future<Directory> _downloadDir;
+
+  @pragma('vm:entry-point')
+  static void callback(
+    final String id,
+    final DownloadTaskStatus status,
+    final int progress,
+  ) {
+    debugPrint('Download callback | $id | $status | $progress');
+  }
+
+  @override
+  Future<void> cleanDownload(final VideoID videoId) => cleanTasks(videoId);
+
+  @override
+  Future<DownloadStatus> downloadStatus(final VideoID videoId) async =>
+      convertDownloadStatus(await findTask(videoId));
+
+  @override
+  Future<void> startDownload(final VideoID videoId) async {
+    final Directory dir = await _downloadDir;
+    await FlutterDownloader.enqueue(
+      url: downloadUri(videoId).toString(),
+      savedDir: dir.path,
+    );
+  }
+
+  @override
+  Future<bool> hasStoragePermission() => deviceHasStoragePermission();
+
+  @override
+  void showSuccessMessage(final String msg, final VideoID videoId) {
+    final SnackBarAction cancelAction = SnackBarAction(
+      label: 'CANCEL',
+      onPressed: () async {
+        await cleanTasks(videoId);
+
+        serviceLocator.get<SnackbarService>().info('Canceled');
+      },
+    );
+    serviceLocator.get<SnackbarService>().success(msg, action: cancelAction);
+  }
+
+  @override
+  Future<TryOpenResult> tryOpenCompletedFile(final VideoID videoId) async {
+    final Directory dir = await _downloadDir;
+    final String fileName = await videoFileName(videoId);
+    final String saveFilePath = join(dir.path, fileName);
+
+    final OpenResult openResult = await OpenFilex.open(saveFilePath);
+    debugPrint('Result of trying to open the file: ${openResult.type}');
+
+    return convertOpenResult(openResult.type);
+  }
+}
