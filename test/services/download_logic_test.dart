@@ -184,6 +184,13 @@ void main() {
       ]);
     });
 
+    test('(without download, error) shows the error message', () async {
+      expect(await getTraceFor(TryOpenResult.error), <String>[
+        'file attempted to be opened',
+        'show error: Unexpected error',
+      ]);
+    });
+
     test(
         'starts download when the file is not found (without error message shown)',
         () async {
@@ -196,7 +203,7 @@ void main() {
     });
 
     test(
-        '(without download) stops after the "not found" error (without error message shown)',
+        '(without download, file not found) stops after the "not found" error (without error message shown)',
         () async {
       expect(
           await getTraceFor(TryOpenResult.fileNotFound, download: false),
