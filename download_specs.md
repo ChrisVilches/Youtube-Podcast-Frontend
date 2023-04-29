@@ -10,12 +10,13 @@ is a bit more difficult to implement, so the text is just a static label for bot
 
 The following will happen:
 
-1. A file will only be attempted to be opened if both the file exists (and can be opened) and the task status is `DownloadTaskStatus.complete`.
+1. If the download task status is `DownloadTaskStatus.complete`, it will be attempted to be opened (if it succeeds, the file will start playing, and the flow finishes).
 2. If the download task status is `DownloadTaskStatus.complete`, but the file doesn't exist, it will be downloaded.
-3. A download task is considered to be in-progress by looking at the status in its task record (regardless of the existence of the file).
-4. If a video has no record, it will be downloaded.
-5. For all status values other than "in-progress" and "complete", the file will be downloaded.
-6. Before any download, the previous task(s) for that video is cleaned up (both record and file).
+3. If the download task status is `DownloadTaskStatus.complete`, but errors when opening, an error message will be shown.
+4. A download task is considered to be in-progress by looking at the status in its task record (regardless of the existence of the file).
+5. If a video has no record, it will be downloaded.
+6. For all status values other than "in-progress" and "complete", the file will be downloaded.
+7. Before any download, the previous task(s) for that video is cleaned up (both record and file).
 
 ## Failure while downloading (mobile)
 
