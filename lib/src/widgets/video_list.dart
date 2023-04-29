@@ -25,7 +25,7 @@ class VideoList extends StatelessWidget {
 
           return VideoItem(
             item: item,
-            onDownloadPress: () => ctrl.startPrepareProcess(item.videoId),
+            onDownloadPress: () async => ctrl.startPrepareProcess(item.videoId),
             beingPrepared: ctrl.beingPrepared.contains(item.videoId),
           );
         },

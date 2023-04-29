@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -34,6 +35,14 @@ Directory _downloadDir() {
     throw Exception('Not implemented for this platform');
   }
 }
+
+Future<String> getFileSHA1(final String filePath) async {
+  final File file = File(filePath);
+  final Uint8List contents = await file.readAsBytes();
+  return sha1.convert(contents).toString();
+}
+
+bool usesFlutterDownloader() => Platform.isAndroid;
 
 Future<Directory> getValidDownloadDir() async {
   final Directory directory = _downloadDir();

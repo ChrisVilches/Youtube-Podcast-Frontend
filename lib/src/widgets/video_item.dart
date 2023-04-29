@@ -117,6 +117,14 @@ class VideoItem extends StatelessWidget {
       child: beingPrepared
           ? const TextButton(
               onPressed: null,
+              // TODO: bug, sometimes this text gets stuck.
+              //       One way to reproduce: Click on 'DOWNLOAD', then go to Details right away.
+              //       Then go back, and the button should be stuck.
+              //       One way to fix it would be to remove all prepared flags when the page is shown,
+              //       but another way would be to: when the page is shown, query the data (which I think
+              //       is a global store that triggers events to views) for the current prepared data.
+              //       Data comes from PrepareDownloadController, but even the controller gets the data (events)
+              //       from another component.
               child: Text('PREPARING...'),
             )
           : TextButton(

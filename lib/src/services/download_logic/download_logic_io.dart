@@ -13,6 +13,7 @@ enum TryOpenResult {
 
 enum DownloadStatus { notStarted, running, complete }
 
+// TODO: Document and explain well this class??
 abstract class DownloadLogicIO {
   Future<DownloadStatus> downloadStatus(final VideoID videoId);
   Future<bool> hasStoragePermission();

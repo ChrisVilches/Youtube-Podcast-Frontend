@@ -19,34 +19,24 @@ class DownloadLogicIOMock implements DownloadLogicIO {
   final TryOpenResult tryOpenCompletedFileValue;
 
   @override
-  Future<void> cleanDownload(final VideoID _) async {
-    trace.add('clean');
-  }
+  Future<void> cleanDownload(final VideoID _) async => trace.add('clean');
 
   @override
-  Future<DownloadStatus> downloadStatus(final VideoID _) async {
-    return downloadStatusValue;
-  }
+  Future<DownloadStatus> downloadStatus(final VideoID _) async =>
+      downloadStatusValue;
 
   @override
-  Future<void> startDownload(final VideoID _) async {
-    trace.add('started');
-  }
+  Future<void> startDownload(final VideoID _) async => trace.add('started');
 
   @override
-  Future<bool> hasStoragePermission() async {
-    return hasStoragePermissionValue;
-  }
+  Future<bool> hasStoragePermission() async => hasStoragePermissionValue;
 
   @override
-  void showErrorMessage(final String msg) {
-    trace.add('show error: $msg');
-  }
+  void showErrorMessage(final String msg) => trace.add('show error: $msg');
 
   @override
-  void showSuccessMessage(final String msg, final VideoID _) {
-    trace.add('show success: $msg');
-  }
+  void showSuccessMessage(final String msg, final VideoID _) =>
+      trace.add('show success: $msg');
 
   @override
   Future<TryOpenResult> tryOpenCompletedFile(final VideoID videoId) async {
@@ -55,15 +45,15 @@ class DownloadLogicIOMock implements DownloadLogicIO {
   }
 
   @override
-  void onFileOpened(final VideoID videoId) {
-    trace.add('file opened');
-  }
+  void onFileOpened(final VideoID videoId) => trace.add('file opened');
 }
 
-Future<List<String>> _getTrace({
+Future<List<String>> _getTrace(
+  final bool assertFileOpened, {
   required final DownloadStatus downloadStatus,
   required final bool hasStoragePermission,
   required final TryOpenResult tryOpenCompletedFile,
+  required final bool download,
 }) async {
   final DownloadLogicIOMock io = DownloadLogicIOMock(
     downloadStatusValue: downloadStatus,
@@ -71,35 +61,31 @@ Future<List<String>> _getTrace({
     tryOpenCompletedFileValue: tryOpenCompletedFile,
   );
   final DownloadLogic logic = DownloadLogic(io);
-  await logic.execute('xyz', true);
+  final bool fileOpened = await logic.execute('xyz', download: download);
+
+  expect(fileOpened, assertFileOpened);
+
   return io.trace;
 }
 
 void main() {
-  test('when video cannot be downloaded, an error message is shown', () async {
-    final DownloadLogicIOMock io = DownloadLogicIOMock(
-      downloadStatusValue: DownloadStatus.complete,
-      hasStoragePermissionValue: true,
-      tryOpenCompletedFileValue: TryOpenResult.done,
-    );
-    final DownloadLogic logic = DownloadLogic(io);
-    await logic.execute('xyz', false);
-    expect(io.trace, <String>['show error: Video cannot be downloaded']);
-  });
-
   test(
       'always displays the error message and finishes when there are no storage permissions',
       () async {
-    for (final DownloadStatus downloadStatus in DownloadStatus.values) {
-      for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
-        final List<String> trace = await _getTrace(
-          downloadStatus: downloadStatus,
-          hasStoragePermission: false,
-          tryOpenCompletedFile: tryOpenResult,
-        );
-        expect(trace, <String>[
-          'show error: Cannot get permission to download file',
-        ]);
+    for (final bool download in <bool>[false, true]) {
+      for (final DownloadStatus downloadStatus in DownloadStatus.values) {
+        for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
+          final List<String> trace = await _getTrace(
+            false,
+            downloadStatus: downloadStatus,
+            hasStoragePermission: false,
+            tryOpenCompletedFile: tryOpenResult,
+            download: download,
+          );
+          expect(trace, <String>[
+            'show error: Cannot get permission to download file',
+          ]);
+        }
       }
     }
   });
@@ -107,56 +93,86 @@ void main() {
   test(
       '(task status complete and file can be opened) file gets opened (no cleaning, no messages). Does not check if the file is corrupt or not.',
       () async {
-    final List<String> trace = await _getTrace(
-      downloadStatus: DownloadStatus.complete,
-      hasStoragePermission: true,
-      tryOpenCompletedFile: TryOpenResult.done,
-    );
-    expect(trace, <String>[
-      'file attempted to be opened',
-      'file opened',
-    ]);
+    for (final bool download in <bool>[false, true]) {
+      final List<String> trace = await _getTrace(
+        true,
+        downloadStatus: DownloadStatus.complete,
+        hasStoragePermission: true,
+        tryOpenCompletedFile: TryOpenResult.done,
+        download: download,
+      );
+      expect(trace, <String>[
+        'file attempted to be opened',
+        'file opened',
+      ]);
+    }
   });
 
   test(
       '(task status running) "in progress" message is shown (does not attempt to open the file)',
       () async {
-    for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
-      final List<String> trace = await _getTrace(
-        downloadStatus: DownloadStatus.running,
-        hasStoragePermission: true,
-        tryOpenCompletedFile: tryOpenResult,
-      );
-      expect(trace, <String>[
-        'show success: Already being downloaded',
-      ]);
+    for (final bool download in <bool>[false, true]) {
+      for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
+        final List<String> trace = await _getTrace(
+          false,
+          downloadStatus: DownloadStatus.running,
+          hasStoragePermission: true,
+          tryOpenCompletedFile: tryOpenResult,
+          download: download,
+        );
+        expect(trace, <String>[
+          'show success: Already being downloaded',
+        ]);
+      }
     }
   });
 
-  test(
-      '(task status not started) starts the download (does not attempt to open the file)',
-      () async {
-    for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
-      final List<String> trace = await _getTrace(
-        downloadStatus: DownloadStatus.notStarted,
-        hasStoragePermission: true,
-        tryOpenCompletedFile: tryOpenResult,
-      );
-      expect(trace, <String>[
-        'clean',
-        'started',
-        'show success: Download started',
-      ]);
-    }
+  group('task not started', () {
+    test(
+        '(with download) starts the download (does not attempt to open the file)',
+        () async {
+      for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
+        final List<String> trace = await _getTrace(
+          false,
+          downloadStatus: DownloadStatus.notStarted,
+          hasStoragePermission: true,
+          tryOpenCompletedFile: tryOpenResult,
+          download: true,
+        );
+        expect(trace, <String>[
+          'clean',
+          'started',
+          'show success: Download started',
+        ]);
+      }
+    });
+
+    test('(without download) does nothing', () async {
+      for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
+        final List<String> trace = await _getTrace(
+          false,
+          downloadStatus: DownloadStatus.notStarted,
+          hasStoragePermission: true,
+          tryOpenCompletedFile: tryOpenResult,
+          download: false,
+        );
+        expect(trace, <String>[]);
+      }
+    });
   });
 
   group('task status is complete, but cannot open the file', () {
-    Future<List<String>> getTraceFor(final TryOpenResult tryOpenResult) async {
+    Future<List<String>> getTraceFor(
+      final TryOpenResult tryOpenResult, {
+      final bool download = true,
+    }) async {
       assert(tryOpenResult != TryOpenResult.done);
       return _getTrace(
+        false,
         downloadStatus: DownloadStatus.complete,
         hasStoragePermission: true,
         tryOpenCompletedFile: tryOpenResult,
+        download: download,
       );
     }
 
@@ -167,13 +183,25 @@ void main() {
       ]);
     });
 
-    test('starts download when the file is not found', () async {
+    test(
+        'starts download when the file is not found (without error message shown)',
+        () async {
       expect(await getTraceFor(TryOpenResult.fileNotFound), <String>[
         'file attempted to be opened',
         'clean',
         'started',
         'show success: Download started',
       ]);
+    });
+
+    test(
+        '(without download) stops after the "not found" error (without error message shown)',
+        () async {
+      expect(
+          await getTraceFor(TryOpenResult.fileNotFound, download: false),
+          <String>[
+            'file attempted to be opened',
+          ]);
     });
 
     test(TryOpenResult.noAppToOpen, () async {

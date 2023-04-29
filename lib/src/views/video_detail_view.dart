@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/video_item.dart';
 import '../models/video_item_partial.dart';
 import '../services/youtube.dart';
 import '../widgets/pinch_zoom.dart';
+import '../widgets/video_debug.dart';
 import '../widgets/weak_text.dart';
 
 class VideoDetailView extends StatefulWidget {
@@ -18,6 +20,8 @@ class VideoDetailView extends StatefulWidget {
 
 class _VideoDetailViewState extends State<VideoDetailView> {
   late final Future<VideoItem> _future;
+
+  final ScrollController _scrollCtrl = ScrollController();
 
   @override
   void initState() {
@@ -34,6 +38,16 @@ class _VideoDetailViewState extends State<VideoDetailView> {
     } else {
       throw Exception('Could not launch $link');
     }
+  }
+
+  void _scrollBottom() {
+    SchedulerBinding.instance.addPostFrameCallback((final Duration _) async {
+      await _scrollCtrl.animateTo(
+        _scrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   @override
@@ -88,6 +102,11 @@ class _VideoDetailViewState extends State<VideoDetailView> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
+                VideoDebug(
+                  videoId: widget.item.videoId,
+                  scrollBottom: _scrollBottom,
+                )
               ],
             );
           } else if (snapshot.hasError) {
@@ -99,6 +118,7 @@ class _VideoDetailViewState extends State<VideoDetailView> {
           return Container(
             constraints: const BoxConstraints.expand(),
             child: SingleChildScrollView(
+              controller: _scrollCtrl,
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: content,

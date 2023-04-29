@@ -1,5 +1,3 @@
-import 'package:ffcache/ffcache.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import '../models/playlist.dart';
 import '../models/transcription_entry.dart';
@@ -15,12 +13,23 @@ const Map<String, String> _headers = <String, String>{
   'Content-type': 'application/json'
 };
 
-Future<VideoItem> getVideoInfo(final VideoID videoId) async {
+Future<Map<String, dynamic>> _getVideoInfoAux(final VideoID videoId) async {
   final Response res = await get(uri('info?v=$videoId'), headers: _headers);
-  final Map<String, dynamic> body = toJson(res);
+  return toJson(res);
+}
+
+Future<VideoItem> getVideoInfo(final VideoID videoId) async {
+  final Map<String, dynamic> body = await _getVideoInfoAux(videoId);
   final Map<String, dynamic> metadata =
       body['metadata'] as Map<String, dynamic>;
   return VideoItem.fromJson(metadata);
+}
+
+Future<Map<String, dynamic>> getVideoFileStat(final VideoID videoId) async {
+  final Map<String, dynamic> body = await _getVideoInfoAux(videoId);
+  final Map<String, dynamic> storage = body['storage'] as Map<String, dynamic>;
+  final Map<String, dynamic> stat = storage['stat'] as Map<String, dynamic>;
+  return stat;
 }
 
 Future<Playlist> getChannelVideosAsPlaylist(final String username) async {
@@ -79,26 +88,4 @@ String contentDispositionFilename(final String header) {
       .trim()
       .replaceAll(_filenameRegex, '');
   return Uri.decodeComponent(filename);
-}
-
-Future<String> videoFileName(final VideoID videoId) async {
-  final FFCache cache = serviceLocator.get<FFCache>();
-  final String? cached = await cache.getString(videoId);
-  if (cached != null) {
-    debugPrint('Obtaining title. Cache hit');
-    return cached;
-  }
-  debugPrint('Obtaining title. Cache miss (must use HEAD method)');
-
-  final Response res =
-      await head(uri('download?v=$videoId'), headers: _headers);
-
-  final String contentDispositionHeader = res.headers['content-disposition']!;
-  debugPrint(contentDispositionHeader);
-
-  final String fileName = contentDispositionFilename(contentDispositionHeader);
-
-  await cache.setString(videoId, fileName);
-
-  return fileName;
 }

@@ -10,7 +10,6 @@ import '../api_uri.dart';
 import '../download_tasks.dart';
 import '../locator.dart';
 import '../snackbar_service.dart';
-import '../youtube.dart';
 import 'download_logic_io.dart';
 
 class AndroidDownloadLogicIO extends DownloadLogicIO {
@@ -62,14 +61,23 @@ class AndroidDownloadLogicIO extends DownloadLogicIO {
     serviceLocator.get<SnackbarService>().success(msg, action: cancelAction);
   }
 
+  // TODO: Consider changing name to "tryOpenFile" since we are not only using
+  //       completed files, but also testing against non-completed tasks (which would all fail anyway).
+  //       We are not assuming that this function is executed only when the task has been validated to be completed.
+  //       If I end up implementing this like this, I don't need the HEAD request anymore (nor the Cache library).
+  //       NOTE: Do it in another commit, so I can code review more easily.
   @override
   Future<TryOpenResult> tryOpenCompletedFile(final VideoID videoId) async {
     final Directory dir = await _downloadDir;
-    final String fileName = await videoFileName(videoId);
-    final String saveFilePath = join(dir.path, fileName);
+    final DownloadTask? task = await findTask(videoId);
+    final DownloadStatus status = await downloadStatus(videoId);
 
+    if (task == null || status != DownloadStatus.complete) {
+      return TryOpenResult.fileNotFound;
+    }
+
+    final String saveFilePath = join(dir.path, task.filename ?? '');
     final OpenResult openResult = await OpenFilex.open(saveFilePath);
-    debugPrint('Result of trying to open the file: ${openResult.type}');
 
     return convertOpenResult(openResult.type);
   }

@@ -13,8 +13,8 @@ environment:
 dependencies:
   cached_network_image: ^3.2.3
   collection: ^1.16.0
+  crypto: ^3.0.2
   device_info_plus: ^8.0.0
-  ffcache: ^1.1.0
   flutter:
     sdk: flutter
   flutter_dotenv: ^5.0.2
