@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/download_tasks.dart';
+import '../util/storage.dart';
 import 'settings_controller.dart';
 
 /// Displays the various settings that can be customized by the user.
@@ -48,48 +49,51 @@ class SettingsView extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            // Glue the SettingsController to the theme selection DropdownButton.
-            //
-            // When a user selects a theme from the dropdown list, the
-            // SettingsController is updated, which rebuilds the MaterialApp.
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: ElevatedButton(
-                    child: const Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Text(
-                        'Clear download tasks',
-                        textAlign: TextAlign.center,
+          if (usesFlutterDownloader())
+            Padding(
+              padding: const EdgeInsets.all(16),
+              // Glue the SettingsController to the theme selection DropdownButton.
+              //
+              // When a user selects a theme from the dropdown list, the
+              // SettingsController is updated, which rebuilds the MaterialApp.
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: ElevatedButton(
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          'Clear download tasks',
+                          textAlign: TextAlign.center,
+                        ),
                       ),
+                      onPressed: () async {
+                        await clearAllDownloadTaskData(
+                          shouldDeleteContent: false,
+                        );
+                      },
                     ),
-                    onPressed: () async {
-                      await clearAllDownloadTaskData(
-                        shouldDeleteContent: false,
-                      );
-                    },
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton(
-                    child: const Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Text(
-                        'Clear download tasks and data',
-                        textAlign: TextAlign.center,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          'Clear download tasks and data',
+                          textAlign: TextAlign.center,
+                        ),
                       ),
+                      onPressed: () async {
+                        await clearAllDownloadTaskData(
+                          shouldDeleteContent: true,
+                        );
+                      },
                     ),
-                    onPressed: () async {
-                      await clearAllDownloadTaskData(shouldDeleteContent: true);
-                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

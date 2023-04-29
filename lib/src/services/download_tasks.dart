@@ -30,10 +30,6 @@ bool _urlHasId(final String url, final VideoID videoId) {
   return Uri.parse(url).queryParameters['v'] == videoId;
 }
 
-// TODO: Note, there are a few problems related to data cleaning (this method and "clearAll..."):
-//       (1) The settings view has a few buttons to remove data, but they shouldn't be displayed on PC.
-//       (2) The "Clear data" button in the secondary menu for each video shouldn't be displayed on PC.
-//
 Future<int> cleanTasks(final VideoID videoId) async {
   final List<DownloadTask> tasks = await _allTasks();
 

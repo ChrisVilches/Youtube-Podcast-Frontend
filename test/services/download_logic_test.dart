@@ -5,6 +5,7 @@ import 'package:youtube_podcast/src/types.dart';
 
 // TODO: This test would be a bit cleaner if the trace where a tuple (Symbol, arg).
 //       I think arg is always a string (must confirm).
+// TODO: Would be better if I use a framework that creates the mocks in a more robust way.
 
 class DownloadLogicIOMock implements DownloadLogicIO {
   DownloadLogicIOMock({

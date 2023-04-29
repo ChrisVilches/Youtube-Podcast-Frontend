@@ -5,6 +5,7 @@ import '../services/download_tasks.dart';
 import '../services/locator.dart';
 import '../services/snackbar_service.dart';
 import '../transcriptions/transcriptions_view.dart';
+import '../util/storage.dart';
 import '../views/video_detail_view.dart';
 
 enum Option { Details, Transcriptions, OpenVideo, ClearData }
@@ -105,13 +106,14 @@ class VideoOptionsMenu extends StatelessWidget {
             text: 'Open video',
           ),
         ),
-        const PopupMenuItem<Option>(
-          value: Option.ClearData,
-          child: _PopupMenuItemContent(
-            icon: Icons.clear_rounded,
-            text: 'Clear data',
-          ),
-        )
+        if (usesFlutterDownloader())
+          const PopupMenuItem<Option>(
+            value: Option.ClearData,
+            child: _PopupMenuItemContent(
+              icon: Icons.clear_rounded,
+              text: 'Clear data',
+            ),
+          )
       ],
     );
   }
