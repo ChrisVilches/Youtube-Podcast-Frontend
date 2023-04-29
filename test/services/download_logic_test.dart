@@ -1,72 +1,50 @@
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:youtube_podcast/src/services/download_logic.dart';
 import 'package:youtube_podcast/src/services/download_logic/download_logic_io.dart';
-import 'package:youtube_podcast/src/types.dart';
 
-// TODO: This test would be a bit cleaner if the trace where a tuple (Symbol, arg).
-//       I think arg is always a string (must confirm).
-// TODO: Would be better if I use a framework that creates the mocks in a more robust way.
+@GenerateNiceMocks(<MockSpec<dynamic>>[MockSpec<DownloadLogicIO>()])
+import 'download_logic_test.mocks.dart';
 
-class DownloadLogicIOMock implements DownloadLogicIO {
-  DownloadLogicIOMock({
-    required this.downloadStatusValue,
-    required this.hasStoragePermissionValue,
-    required this.tryOpenCompletedFileValue,
-  });
+const String VIDEO_ID = 'xyz123';
 
-  final List<String> trace = <String>[];
-  final DownloadStatus downloadStatusValue;
-  final bool hasStoragePermissionValue;
-  final TryOpenResult tryOpenCompletedFileValue;
+Future<MockDownloadLogicIO> _createMock({
+  required final DownloadStatus downloadStatus,
+  required final bool hasStoragePermission,
+  required final TryOpenResult tryOpenCompletedFile,
+}) async {
+  final MockDownloadLogicIO mock = MockDownloadLogicIO();
+  when(mock.hasStoragePermission())
+      .thenAnswer((final _) async => hasStoragePermission);
+  when(mock.downloadStatus(VIDEO_ID))
+      .thenAnswer((final _) async => downloadStatus);
+  when(mock.tryOpenCompletedFile(VIDEO_ID)).thenAnswer(
+    (final _) async => tryOpenCompletedFile,
+  );
 
-  @override
-  Future<void> cleanDownload(final VideoID _) async => trace.add('clean');
-
-  @override
-  Future<DownloadStatus> downloadStatus(final VideoID _) async =>
-      downloadStatusValue;
-
-  @override
-  Future<void> startDownload(final VideoID _) async => trace.add('started');
-
-  @override
-  Future<bool> hasStoragePermission() async => hasStoragePermissionValue;
-
-  @override
-  void showErrorMessage(final String msg) => trace.add('show error: $msg');
-
-  @override
-  void showSuccessMessage(final String msg, final VideoID _) =>
-      trace.add('show success: $msg');
-
-  @override
-  Future<TryOpenResult> tryOpenCompletedFile(final VideoID videoId) async {
-    trace.add('file attempted to be opened');
-    return tryOpenCompletedFileValue;
-  }
-
-  @override
-  void onFileOpened(final VideoID videoId) => trace.add('file opened');
+  return mock;
 }
 
-Future<List<String>> _getTrace(
+Future<MockDownloadLogicIO> _executeMock(
   final bool assertFileOpened, {
   required final DownloadStatus downloadStatus,
   required final bool hasStoragePermission,
   required final TryOpenResult tryOpenCompletedFile,
   required final bool download,
 }) async {
-  final DownloadLogicIOMock io = DownloadLogicIOMock(
-    downloadStatusValue: downloadStatus,
-    hasStoragePermissionValue: hasStoragePermission,
-    tryOpenCompletedFileValue: tryOpenCompletedFile,
+  final MockDownloadLogicIO ioMock = await _createMock(
+    downloadStatus: downloadStatus,
+    hasStoragePermission: hasStoragePermission,
+    tryOpenCompletedFile: tryOpenCompletedFile,
   );
-  final DownloadLogic logic = DownloadLogic(io);
-  final bool fileOpened = await logic.execute('xyz', download: download);
+
+  final DownloadLogic logic = DownloadLogic(ioMock);
+  final bool fileOpened = await logic.execute(VIDEO_ID, download: download);
 
   expect(fileOpened, assertFileOpened);
 
-  return io.trace;
+  return ioMock;
 }
 
 void main() {
@@ -76,16 +54,19 @@ void main() {
     for (final bool download in <bool>[false, true]) {
       for (final DownloadStatus downloadStatus in DownloadStatus.values) {
         for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
-          final List<String> trace = await _getTrace(
+          final MockDownloadLogicIO mock = await _executeMock(
             false,
             downloadStatus: downloadStatus,
             hasStoragePermission: false,
             tryOpenCompletedFile: tryOpenResult,
             download: download,
           );
-          expect(trace, <String>[
-            'show error: Cannot get permission to download file',
+
+          verifyInOrder(<void>[
+            mock.hasStoragePermission(),
+            mock.showErrorMessage('Cannot get permission to download file'),
           ]);
+          verifyNoMoreInteractions(mock);
         }
       }
     }
@@ -95,17 +76,21 @@ void main() {
       '(task status complete and file can be opened) file gets opened (no cleaning, no messages). Does not check if the file is corrupt or not.',
       () async {
     for (final bool download in <bool>[false, true]) {
-      final List<String> trace = await _getTrace(
+      final MockDownloadLogicIO mock = await _executeMock(
         true,
         downloadStatus: DownloadStatus.complete,
         hasStoragePermission: true,
         tryOpenCompletedFile: TryOpenResult.done,
         download: download,
       );
-      expect(trace, <String>[
-        'file attempted to be opened',
-        'file opened',
+
+      verifyInOrder(<void>[
+        mock.hasStoragePermission(),
+        mock.downloadStatus(VIDEO_ID),
+        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.onFileOpened(VIDEO_ID),
       ]);
+      verifyNoMoreInteractions(mock);
     }
   });
 
@@ -114,16 +99,20 @@ void main() {
       () async {
     for (final bool download in <bool>[false, true]) {
       for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
-        final List<String> trace = await _getTrace(
+        final MockDownloadLogicIO mock = await _executeMock(
           false,
           downloadStatus: DownloadStatus.running,
           hasStoragePermission: true,
           tryOpenCompletedFile: tryOpenResult,
           download: download,
         );
-        expect(trace, <String>[
-          'show success: Already being downloaded',
+
+        verifyInOrder(<void>[
+          mock.hasStoragePermission(),
+          mock.downloadStatus(VIDEO_ID),
+          mock.showSuccessMessage('Already being downloaded', VIDEO_ID)
         ]);
+        verifyNoMoreInteractions(mock);
       }
     }
   });
@@ -133,42 +122,51 @@ void main() {
         '(with download) starts the download (does not attempt to open the file)',
         () async {
       for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
-        final List<String> trace = await _getTrace(
+        final MockDownloadLogicIO mock = await _executeMock(
           false,
           downloadStatus: DownloadStatus.notStarted,
           hasStoragePermission: true,
           tryOpenCompletedFile: tryOpenResult,
           download: true,
         );
-        expect(trace, <String>[
-          'clean',
-          'started',
-          'show success: Download started',
+
+        verifyInOrder(<void>[
+          mock.hasStoragePermission(),
+          mock.downloadStatus(VIDEO_ID),
+          mock.cleanDownload(VIDEO_ID),
+          mock.startDownload(VIDEO_ID),
+          mock.showSuccessMessage('Download started', VIDEO_ID)
         ]);
+        verifyNoMoreInteractions(mock);
       }
     });
 
     test('(without download) does nothing', () async {
       for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
-        final List<String> trace = await _getTrace(
+        final MockDownloadLogicIO mock = await _executeMock(
           false,
           downloadStatus: DownloadStatus.notStarted,
           hasStoragePermission: true,
           tryOpenCompletedFile: tryOpenResult,
           download: false,
         );
-        expect(trace, <String>[]);
+
+        verifyInOrder(<void>[
+          mock.hasStoragePermission(),
+          mock.downloadStatus(VIDEO_ID),
+        ]);
+        verifyNoMoreInteractions(mock);
       }
     });
   });
 
   group('task status is complete, but cannot open the file', () {
-    Future<List<String>> getTraceFor(
+    Future<MockDownloadLogicIO> executeCompleteMock(
       final TryOpenResult tryOpenResult, {
       final bool download = true,
     }) async {
       assert(tryOpenResult != TryOpenResult.done);
-      return _getTrace(
+      return _executeMock(
         false,
         downloadStatus: DownloadStatus.complete,
         hasStoragePermission: true,
@@ -178,52 +176,78 @@ void main() {
     }
 
     test(TryOpenResult.error, () async {
-      expect(await getTraceFor(TryOpenResult.error), <String>[
-        'file attempted to be opened',
-        'show error: Unexpected error',
-      ]);
-    });
-
-    test('(without download, error) shows the error message', () async {
-      expect(await getTraceFor(TryOpenResult.error), <String>[
-        'file attempted to be opened',
-        'show error: Unexpected error',
-      ]);
+      for (final bool download in <bool>[false, true]) {
+        final MockDownloadLogicIO mock = await executeCompleteMock(
+          TryOpenResult.error,
+          download: download,
+        );
+        verifyInOrder(<void>[
+          mock.hasStoragePermission(),
+          mock.downloadStatus(VIDEO_ID),
+          mock.tryOpenCompletedFile(VIDEO_ID),
+          mock.showErrorMessage('Unexpected error')
+        ]);
+        verifyNoMoreInteractions(mock);
+      }
     });
 
     test(
         'starts download when the file is not found (without error message shown)',
         () async {
-      expect(await getTraceFor(TryOpenResult.fileNotFound), <String>[
-        'file attempted to be opened',
-        'clean',
-        'started',
-        'show success: Download started',
+      final MockDownloadLogicIO mock =
+          await executeCompleteMock(TryOpenResult.fileNotFound);
+      verifyInOrder(<void>[
+        mock.hasStoragePermission(),
+        mock.downloadStatus(VIDEO_ID),
+        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.cleanDownload(VIDEO_ID),
+        mock.startDownload(VIDEO_ID),
+        mock.showSuccessMessage('Download started', VIDEO_ID)
       ]);
+      verifyNoMoreInteractions(mock);
     });
 
     test(
         '(without download, file not found) stops after the "not found" error (without error message shown)',
         () async {
-      expect(
-          await getTraceFor(TryOpenResult.fileNotFound, download: false),
-          <String>[
-            'file attempted to be opened',
-          ]);
+      final MockDownloadLogicIO mock = await executeCompleteMock(
+        TryOpenResult.fileNotFound,
+        download: false,
+      );
+      verifyInOrder(<void>[
+        mock.hasStoragePermission(),
+        mock.downloadStatus(VIDEO_ID),
+        mock.tryOpenCompletedFile(VIDEO_ID),
+      ]);
+      verifyNoMoreInteractions(mock);
     });
 
     test(TryOpenResult.noAppToOpen, () async {
-      expect(await getTraceFor(TryOpenResult.noAppToOpen), <String>[
-        'file attempted to be opened',
-        'show error: File exists, but cannot be opened',
+      final MockDownloadLogicIO mock = await executeCompleteMock(
+        TryOpenResult.noAppToOpen,
+      );
+
+      verifyInOrder(<void>[
+        mock.hasStoragePermission(),
+        mock.downloadStatus(VIDEO_ID),
+        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.showErrorMessage('File exists, but cannot be opened')
       ]);
+      verifyNoMoreInteractions(mock);
     });
 
     test(TryOpenResult.permissionDenied, () async {
-      expect(await getTraceFor(TryOpenResult.permissionDenied), <String>[
-        'file attempted to be opened',
-        'show error: You do not have permission to open the file',
+      final MockDownloadLogicIO mock = await executeCompleteMock(
+        TryOpenResult.permissionDenied,
+      );
+
+      verifyInOrder(<void>[
+        mock.hasStoragePermission(),
+        mock.downloadStatus(VIDEO_ID),
+        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.showErrorMessage('You do not have permission to open the file')
       ]);
+      verifyNoMoreInteractions(mock);
     });
   });
 }
