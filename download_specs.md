@@ -23,4 +23,4 @@ The following will happen:
 Sadly nothing can be done after sending the download job to the queue. If the user closes the main app, and leaves only the background process, there's a chance the task will fail. There are two ways to handle failed tasks:
 
 1. When pressing the `DOWNLOAD` button again, the data (record and file) will be cleaned up and the file will be re-downloaded. This will work correctly whether the file was removed automatically or not.
-2. If for some reason the task appears as `DownloadTaskStatus.complete`, but the file wasn't downloaded correctly (i.e. it's corrupt), the user can manually press the `Clear data` button to remove its data (both task record and file). Note that the app never checks whether a file is corrupt or not.
+2. If for some reason the task appears as `DownloadTaskStatus.complete`, but the file wasn't downloaded correctly (i.e. it's corrupt), the user can manually press the `Clear data` button to remove its data (both task record and file). Note that the app never checks whether a file is corrupt or not, although this can be checked manually in the debug view (by comparing the `SHA1` values).
