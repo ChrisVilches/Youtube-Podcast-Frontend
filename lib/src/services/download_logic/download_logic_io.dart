@@ -18,7 +18,7 @@ abstract class DownloadLogicIO {
   Future<bool> hasStoragePermission();
   Future<void> startDownload(final VideoID videoId);
   Future<void> cleanDownload(final VideoID videoId);
-  Future<TryOpenResult> tryOpenCompletedFile(final VideoID videoId);
+  Future<TryOpenResult> tryOpenFile(final VideoID videoId);
 
   void onFileOpened(final VideoID videoId) {
     debugPrint('File was opened (id: $videoId)');

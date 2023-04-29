@@ -23,7 +23,7 @@ class DownloadLogic {
   };
 
   Future<_Command> _tryOpenFile(final VideoID videoId) async {
-    final TryOpenResult result = await _io.tryOpenCompletedFile(videoId);
+    final TryOpenResult result = await _io.tryOpenFile(videoId);
 
     if (result == TryOpenResult.fileNotFound) {
       return const _Command(_CommandType.downloadFile, null);

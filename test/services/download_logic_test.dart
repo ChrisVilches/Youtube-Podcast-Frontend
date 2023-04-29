@@ -12,15 +12,15 @@ const String VIDEO_ID = 'xyz123';
 Future<MockDownloadLogicIO> _createMock({
   required final DownloadStatus downloadStatus,
   required final bool hasStoragePermission,
-  required final TryOpenResult tryOpenCompletedFile,
+  required final TryOpenResult tryOpenFile,
 }) async {
   final MockDownloadLogicIO mock = MockDownloadLogicIO();
   when(mock.hasStoragePermission())
       .thenAnswer((final _) async => hasStoragePermission);
   when(mock.downloadStatus(VIDEO_ID))
       .thenAnswer((final _) async => downloadStatus);
-  when(mock.tryOpenCompletedFile(VIDEO_ID)).thenAnswer(
-    (final _) async => tryOpenCompletedFile,
+  when(mock.tryOpenFile(VIDEO_ID)).thenAnswer(
+    (final _) async => tryOpenFile,
   );
 
   return mock;
@@ -30,13 +30,13 @@ Future<MockDownloadLogicIO> _executeMock(
   final bool assertFileOpened, {
   required final DownloadStatus downloadStatus,
   required final bool hasStoragePermission,
-  required final TryOpenResult tryOpenCompletedFile,
+  required final TryOpenResult tryOpenFile,
   required final bool download,
 }) async {
   final MockDownloadLogicIO ioMock = await _createMock(
     downloadStatus: downloadStatus,
     hasStoragePermission: hasStoragePermission,
-    tryOpenCompletedFile: tryOpenCompletedFile,
+    tryOpenFile: tryOpenFile,
   );
 
   final DownloadLogic logic = DownloadLogic(ioMock);
@@ -58,7 +58,7 @@ void main() {
             false,
             downloadStatus: downloadStatus,
             hasStoragePermission: false,
-            tryOpenCompletedFile: tryOpenResult,
+            tryOpenFile: tryOpenResult,
             download: download,
           );
 
@@ -80,14 +80,14 @@ void main() {
         true,
         downloadStatus: DownloadStatus.complete,
         hasStoragePermission: true,
-        tryOpenCompletedFile: TryOpenResult.done,
+        tryOpenFile: TryOpenResult.done,
         download: download,
       );
 
       verifyInOrder(<void>[
         mock.hasStoragePermission(),
         mock.downloadStatus(VIDEO_ID),
-        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.tryOpenFile(VIDEO_ID),
         mock.onFileOpened(VIDEO_ID),
       ]);
       verifyNoMoreInteractions(mock);
@@ -103,7 +103,7 @@ void main() {
           false,
           downloadStatus: DownloadStatus.running,
           hasStoragePermission: true,
-          tryOpenCompletedFile: tryOpenResult,
+          tryOpenFile: tryOpenResult,
           download: download,
         );
 
@@ -126,7 +126,7 @@ void main() {
           false,
           downloadStatus: DownloadStatus.notStarted,
           hasStoragePermission: true,
-          tryOpenCompletedFile: tryOpenResult,
+          tryOpenFile: tryOpenResult,
           download: true,
         );
 
@@ -147,7 +147,7 @@ void main() {
           false,
           downloadStatus: DownloadStatus.notStarted,
           hasStoragePermission: true,
-          tryOpenCompletedFile: tryOpenResult,
+          tryOpenFile: tryOpenResult,
           download: false,
         );
 
@@ -170,7 +170,7 @@ void main() {
         false,
         downloadStatus: DownloadStatus.complete,
         hasStoragePermission: true,
-        tryOpenCompletedFile: tryOpenResult,
+        tryOpenFile: tryOpenResult,
         download: download,
       );
     }
@@ -184,7 +184,7 @@ void main() {
         verifyInOrder(<void>[
           mock.hasStoragePermission(),
           mock.downloadStatus(VIDEO_ID),
-          mock.tryOpenCompletedFile(VIDEO_ID),
+          mock.tryOpenFile(VIDEO_ID),
           mock.showErrorMessage('Unexpected error')
         ]);
         verifyNoMoreInteractions(mock);
@@ -199,7 +199,7 @@ void main() {
       verifyInOrder(<void>[
         mock.hasStoragePermission(),
         mock.downloadStatus(VIDEO_ID),
-        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.tryOpenFile(VIDEO_ID),
         mock.cleanDownload(VIDEO_ID),
         mock.startDownload(VIDEO_ID),
         mock.showSuccessMessage('Download started', VIDEO_ID)
@@ -217,7 +217,7 @@ void main() {
       verifyInOrder(<void>[
         mock.hasStoragePermission(),
         mock.downloadStatus(VIDEO_ID),
-        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.tryOpenFile(VIDEO_ID),
       ]);
       verifyNoMoreInteractions(mock);
     });
@@ -230,7 +230,7 @@ void main() {
       verifyInOrder(<void>[
         mock.hasStoragePermission(),
         mock.downloadStatus(VIDEO_ID),
-        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.tryOpenFile(VIDEO_ID),
         mock.showErrorMessage('File exists, but cannot be opened')
       ]);
       verifyNoMoreInteractions(mock);
@@ -244,7 +244,7 @@ void main() {
       verifyInOrder(<void>[
         mock.hasStoragePermission(),
         mock.downloadStatus(VIDEO_ID),
-        mock.tryOpenCompletedFile(VIDEO_ID),
+        mock.tryOpenFile(VIDEO_ID),
         mock.showErrorMessage('You do not have permission to open the file')
       ]);
       verifyNoMoreInteractions(mock);

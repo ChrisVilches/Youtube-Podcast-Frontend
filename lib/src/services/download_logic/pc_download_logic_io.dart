@@ -30,6 +30,6 @@ class PCDownloadLogicIO extends DownloadLogicIO {
   }
 
   @override
-  Future<TryOpenResult> tryOpenCompletedFile(final VideoID videoId) async =>
+  Future<TryOpenResult> tryOpenFile(final VideoID videoId) async =>
       TryOpenResult.fileNotFound;
 }

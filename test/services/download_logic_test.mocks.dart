@@ -64,10 +64,10 @@ class MockDownloadLogicIO extends _i1.Mock implements _i2.DownloadLogicIO {
         returnValueForMissingStub: _i3.Future<void>.value(),
       ) as _i3.Future<void>);
   @override
-  _i3.Future<_i2.TryOpenResult> tryOpenCompletedFile(String? videoId) =>
+  _i3.Future<_i2.TryOpenResult> tryOpenFile(String? videoId) =>
       (super.noSuchMethod(
         Invocation.method(
-          #tryOpenCompletedFile,
+          #tryOpenFile,
           [videoId],
         ),
         returnValue:
