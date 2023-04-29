@@ -71,7 +71,7 @@ class DownloadLogic {
     await _io.startDownload(videoId);
   }
 
-  /// This function has several responsibilities,
+  /// This function has several responsibilities:
   /// * Checks storage permissions (shows a message if it fails, and finishes).
   /// * Checks whether the file is already being downloaded (if it is, show a message and finish).
   /// * If the task is not `DownloadStatus.complete`, a download will start, but only if `download` was set to `true`
