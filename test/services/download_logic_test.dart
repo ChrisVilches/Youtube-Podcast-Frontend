@@ -100,7 +100,7 @@ void main() {
     for (final bool download in <bool>[false, true]) {
       for (final TryOpenResult tryOpenResult in TryOpenResult.values) {
         final MockDownloadLogicIO mock = await _executeMock(
-          false,
+          true,
           downloadStatus: DownloadStatus.running,
           hasStoragePermission: true,
           tryOpenFile: tryOpenResult,
