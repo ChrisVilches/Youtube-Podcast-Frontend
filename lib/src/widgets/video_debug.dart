@@ -48,22 +48,33 @@ class _VideoDebugState extends State<VideoDebug> {
     final String saveFilePath = join(dir.path, task.filename);
     // ignore: avoid_slow_async_io
     final bool fileExists = await File(saveFilePath).exists();
-    final String sha1 = fileExists ? await getFileSHA1(saveFilePath) : '';
 
     setState(() {
       _task = task;
       _fileExists = fileExists;
       _fileFullPath = saveFilePath;
-      _sha1Local = sha1;
       _loaded = true;
     });
 
-    // ignore: unawaited_futures
-    _loadSha1();
     widget.scrollBottom();
+
+    // ignore: unawaited_futures
+    _loadServerSha1();
+
+    if (fileExists) {
+      // ignore: unawaited_futures
+      _loadLocalSha1(saveFilePath);
+    }
   }
 
-  Future<void> _loadSha1() async {
+  Future<void> _loadLocalSha1(final String saveFilePath) async {
+    final String sha1 = await getFileSHA1(saveFilePath);
+    setState(() {
+      _sha1Local = sha1;
+    });
+  }
+
+  Future<void> _loadServerSha1() async {
     if (_sha1ServerLoaded) {
       return;
     }
@@ -135,7 +146,7 @@ class _VideoDebugState extends State<VideoDebug> {
         LeftRightRow(left: 'File exists', right: _formatBool(_fileExists)),
         LeftRightRow(
           left: 'SHA1 (local)',
-          right: '${_sha1Match()}$_sha1Local',
+          right: '${_sha1Match()}${_sha1Local ?? ''}',
         ),
         LeftRightRow(
           left: 'SHA1 (server)',

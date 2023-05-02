@@ -36,11 +36,14 @@ Directory _downloadDir() {
   }
 }
 
-Future<String> getFileSHA1(final String filePath) async {
+Future<String> _getFileSHA1(final String filePath) async {
   final File file = File(filePath);
   final Uint8List contents = await file.readAsBytes();
   return sha1.convert(contents).toString();
 }
+
+Future<String> getFileSHA1(final String filePath) =>
+    compute(_getFileSHA1, filePath);
 
 bool usesFlutterDownloader() => Platform.isAndroid;
 
