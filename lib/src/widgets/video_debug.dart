@@ -143,7 +143,7 @@ class _VideoDebugState extends State<VideoDebug> {
           right: '${task.progress}%',
         ),
         LeftRightRow(left: 'Full path', right: _fileFullPath ?? ''),
-        LeftRightRow(left: 'File exists', right: _formatBool(_fileExists)),
+        LeftRightRow(left: 'File exists?', right: _formatBool(_fileExists)),
         LeftRightRow(
           left: 'SHA1 (local)',
           right: '${_sha1Match()}${_sha1Local ?? ''}',
