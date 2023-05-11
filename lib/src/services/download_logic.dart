@@ -3,13 +3,7 @@ import 'download_logic/download_logic_io.dart';
 
 // TODO: This is very complex. Should simplify more, and test more.
 
-enum _CommandType { error, downloadFile, success }
-
-class _Command {
-  const _Command(this.type, this.msg);
-  final String? msg;
-  final _CommandType type;
-}
+enum _Result { error, downloadFile, success }
 
 class DownloadLogic {
   DownloadLogic(this._io);
@@ -22,51 +16,49 @@ class DownloadLogic {
     TryOpenResult.noAppToOpen: 'File exists, but cannot be opened'
   };
 
-  Future<_Command> _tryOpenFile(final VideoID videoId) async {
+  Future<(_Result, String?)> _tryOpenFile(final VideoID videoId) async {
     final TryOpenResult result = await _io.tryOpenFile(videoId);
 
     if (result == TryOpenResult.fileNotFound) {
-      return const _Command(_CommandType.downloadFile, null);
+      return (_Result.downloadFile, null);
     }
 
     if (result == TryOpenResult.done) {
       _io.onFileOpened(videoId);
-      return const _Command(_CommandType.success, null);
+      return (_Result.success, null);
     }
 
-    return _Command(_CommandType.error, _errorMap[result]);
+    return (_Result.error, _errorMap[result]);
   }
 
-  Future<_Command> _preCheck(final VideoID videoId) async {
+  Future<(_Result, String?)> _preCheck(final VideoID videoId) async {
     if (!(await _io.hasStoragePermission())) {
-      return const _Command(
-        _CommandType.error,
-        'Cannot get permission to download file',
-      );
+      return (_Result.error, 'Cannot get permission to download file');
     }
 
     switch (await _io.downloadStatus(videoId)) {
       case DownloadStatus.notStarted:
-        return const _Command(_CommandType.downloadFile, null);
+        return (_Result.downloadFile, null);
       case DownloadStatus.running:
-        return const _Command(
-          _CommandType.success,
-          'Already being downloaded',
-        );
+        return (_Result.success, 'Already being downloaded');
       case DownloadStatus.complete:
         return _tryOpenFile(videoId);
     }
   }
 
-  void _showMessages(final _Command command, final VideoID videoId) {
-    if (command.msg == null) {
+  void _showMessages(
+    final _Result type,
+    final String? msg,
+    final VideoID videoId,
+  ) {
+    if (msg == null) {
       return;
     }
 
-    if (command.type == _CommandType.success) {
-      _io.showSuccessMessage(command.msg!, videoId);
-    } else if (command.type == _CommandType.error) {
-      _io.showErrorMessage(command.msg!);
+    if (type == _Result.success) {
+      _io.showSuccessMessage(msg, videoId);
+    } else if (type == _Result.error) {
+      _io.showErrorMessage(msg);
     }
   }
 
@@ -90,11 +82,11 @@ class DownloadLogic {
     assert(!videoId.contains('http://'));
     assert(!videoId.contains('https://'));
 
-    final _Command command = await _preCheck(videoId);
+    final (_Result type, String? msg) = await _preCheck(videoId);
 
-    if (command.type != _CommandType.downloadFile) {
-      _showMessages(command, videoId);
-      return command.type == _CommandType.success;
+    if (type != _Result.downloadFile) {
+      _showMessages(type, msg, videoId);
+      return type == _Result.success;
     }
 
     if (download) {

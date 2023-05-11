@@ -19,9 +19,9 @@ import '../util/format.dart';
 import '../util/youtube_url.dart';
 import '../widgets/fav_playlist_menu.dart';
 import '../widgets/playlist_info.dart';
-import '../widgets/search_bar.dart';
 import '../widgets/vibration.dart';
 import '../widgets/video_list.dart';
+import '../widgets/youtube_search_bar.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -173,7 +173,10 @@ class _SearchViewState extends State<SearchView> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.only(left: 5, right: 5),
-          child: SearchBar(isLoading: _isLoading, onSearch: _executeSearch),
+          child: YoutubeSearchBar(
+            isLoading: _isLoading,
+            onSearch: _executeSearch,
+          ),
         ),
         FavPlaylistMenu(
           playlists: _favoritedPlaylists.reversed.toList(),

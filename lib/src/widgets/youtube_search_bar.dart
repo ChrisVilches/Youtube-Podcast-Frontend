@@ -4,17 +4,21 @@ import '../services/clipboard_service.dart';
 import '../services/locator.dart';
 import '../util/youtube_url.dart';
 
-class SearchBar extends StatefulWidget {
-  const SearchBar({super.key, required this.isLoading, required this.onSearch});
+class YoutubeSearchBar extends StatefulWidget {
+  const YoutubeSearchBar({
+    super.key,
+    required this.isLoading,
+    required this.onSearch,
+  });
 
   final bool isLoading;
   final void Function(String) onSearch;
 
   @override
-  State<StatefulWidget> createState() => _SearchBarState();
+  State<StatefulWidget> createState() => _YoutubeSearchBarState();
 }
 
-class _SearchBarState extends State<SearchBar> {
+class _YoutubeSearchBarState extends State<YoutubeSearchBar> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late final TextEditingController _searchController;
 

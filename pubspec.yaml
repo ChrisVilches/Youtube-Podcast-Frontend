@@ -6,9 +6,8 @@ publish_to: 'none'
 
 version: 1.0.0+1
 
-# TODO: Update Dart (and Flutter) to version 3 once it's released (soon I guess?).
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: '^3.0.0'
 
 dependencies:
   cached_network_image: ^3.2.3
