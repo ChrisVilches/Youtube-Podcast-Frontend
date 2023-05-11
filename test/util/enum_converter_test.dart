@@ -47,6 +47,7 @@ void main() {
         convertDownloadStatus(createTask(DownloadTaskStatus.undefined)),
         DownloadStatus.notStarted,
       );
+      expect(convertDownloadStatus(null), DownloadStatus.notStarted);
     });
   });
 
