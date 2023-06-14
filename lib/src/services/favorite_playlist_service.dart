@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/favorite_playlist.dart';
 import 'locator.dart';
 
+// TODO: This shouldn't have a "_ID_", because the list is not about IDs.
 const String playlistFavoritesKey = 'PLAYLIST_FAVORITE_ID_LIST';
 
 class FavoritePlaylistService {
