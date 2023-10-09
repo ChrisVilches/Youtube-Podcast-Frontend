@@ -34,6 +34,7 @@ dependencies:
   shared_preferences: ^2.0.16
   socket_io_client: ^2.0.1
   url_launcher: ^6.1.7
+  youtube_player_flutter: ^8.1.2
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// Note (2023/10/10): Not used anymore anywhere.
+
 /*
  * How to test:
  * Test vertically and horizontally.

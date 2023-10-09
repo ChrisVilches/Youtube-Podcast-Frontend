@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path/path.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/download_tasks.dart';
 import '../services/youtube.dart';
 import '../types.dart';
@@ -156,6 +157,11 @@ class _VideoDebugState extends State<VideoDebug> {
     );
   }
 
+  Future<void> _openVideo() => launchUrl(
+        Uri.parse('https://www.youtube.com/watch?v=${widget.videoId}'),
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
+
   @override
   Widget build(final BuildContext context) {
     if (!_displayDebug) {
@@ -176,8 +182,13 @@ class _VideoDebugState extends State<VideoDebug> {
       label: const Text('Reload'),
     );
 
+    final ElevatedButton openBrowser = ElevatedButton(
+      onPressed: _openVideo,
+      child: const Text('Open on browser'),
+    );
+
     return Column(
-      children: <Widget>[button, _getItems(_task)],
+      children: <Widget>[button, openBrowser, _getItems(_task)],
     );
   }
 }
