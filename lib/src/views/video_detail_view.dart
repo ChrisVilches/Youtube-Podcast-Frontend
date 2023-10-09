@@ -21,6 +21,7 @@ class _VideoDetailViewState extends State<VideoDetailView> {
   late final Future<VideoItem> _future;
   late final YoutubePlayerController _playerController;
 
+  bool isFullScreen = false;
   final ScrollController _scrollCtrl = ScrollController();
 
   @override
@@ -63,31 +64,30 @@ class _VideoDetailViewState extends State<VideoDetailView> {
     });
   }
 
-  Widget youtubePlayerWidget() {
-    return YoutubePlayerBuilder(
-      player: YoutubePlayer(
-        controller: _playerController,
-      ),
-      builder: (final BuildContext context, final Widget player) {
-        return Column(
-          children: <Widget>[
-            player,
-          ],
-        );
-      },
-    );
+  void _setFullScreen(final bool value) {
+    setState(() {
+      isFullScreen = value;
+    });
   }
 
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.item.title),
-      ),
+      appBar: isFullScreen
+          ? null
+          : AppBar(
+              title: Text(widget.item.title),
+            ),
       body: YoutubePlayerBuilder(
         player: YoutubePlayer(
           controller: _playerController,
         ),
+        onEnterFullScreen: () {
+          _setFullScreen(true);
+        },
+        onExitFullScreen: () {
+          _setFullScreen(false);
+        },
         builder: (final BuildContext context, final Widget player) {
           return FutureBuilder<VideoItem>(
             future: _future,
