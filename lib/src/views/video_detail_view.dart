@@ -111,6 +111,15 @@ class _VideoDetailViewState extends State<VideoDetailView> {
                       alignment: Alignment.centerLeft,
                       child: WeakText(snapshot.data!.author),
                     ),
+                    if (snapshot.data!.audioUrl != null)
+                      const SizedBox(height: 20),
+                    if (snapshot.data!.audioUrl != null)
+                      ElevatedButton.icon(
+                        onPressed: () async =>
+                            launchUrl(Uri.parse(snapshot.data!.audioUrl!)),
+                        icon: const Icon(Icons.headphones),
+                        label: const Text('Open audio'),
+                      ),
                     const SizedBox(height: 20),
                     player,
                     const SizedBox(height: 20),
